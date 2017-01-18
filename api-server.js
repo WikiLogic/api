@@ -20,20 +20,50 @@ app.use(function(req, res, next) {
 });
 
 var neo4j = require('neo4j');
-var db = new neo4j.GraphDatabase('http://neo4j:n@localhost:7474');
+var db = new neo4j.GraphDatabase('http://neo4j:neo4j@localhost:7474');
 
 
 
 //================================= Routes
 var apiRouter = express.Router();
 
-apiRouter.get('/claim', function(req, res){
-   //http://localhost:3030/claim
+apiRouter.get('/all', function(req, res){
+       //http://localhost:3030/claims
 
     try {
 
         db.cypher({
-            query: 'MATCH (n) RETURN (n) LIMIT 100'
+            query: 'MATCH (node)-[link]->() RETURN node, link LIMIT 100'
+        }, function (err, results) {
+            if (err) throw err;
+            
+            if (!results) {
+                console.log('No claims found.');
+                res.json({
+                    error: 'No claims found'
+                });
+            } else {
+                res.json({
+                    data: results
+                });
+            }
+        });
+
+    }
+    catch(err){
+        res.json({
+            error: 'Server error' + err
+        });
+    }
+});
+
+apiRouter.get('/claims', function(req, res){
+   //http://localhost:3030/claims
+
+    try {
+
+        db.cypher({
+            query: 'MATCH (claims:Claim) RETURN (claims) LIMIT 100'
         }, function (err, results) {
             if (err) throw err;
             
