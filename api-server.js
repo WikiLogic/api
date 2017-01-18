@@ -21,29 +21,25 @@ var db = new neo4j.GraphDatabase('http://neo4j:n@localhost:7474');
 //================================= Routes
 var apiRouter = express.Router();
 
-apiRouter.get('/claim/:claim_id', function(req, res){
-   //http://localhost:3030/claim/1
-   
+apiRouter.get('/claim', function(req, res){
+   //http://localhost:3030/claim
+
     try {
 
         db.cypher({
-            query: 'MATCH (u:User {email: {email}}) RETURN u',
-            params: {
-                email: 'alice@example.com',
-            },
+            query: 'MATCH (n) RETURN (n) LIMIT 100'
         }, function (err, results) {
             if (err) throw err;
-            var result = results[0];
-            if (!result) {
-                console.log('No user found.');
+            
+            if (!results) {
+                console.log('No claims found.');
                 res.json({
-                    error: 'No claim found'
+                    error: 'No claims found'
                 });
             } else {
-                var user = result['u'];
-                console.log(JSON.stringify(user, null, 4));
+                console.log(JSON.stringify(results, null, 4));
                 res.json({
-                    claim: JSON.stringify(user, null, 4)
+                    claims: results
                 });
             }
         });
