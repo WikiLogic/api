@@ -33,7 +33,7 @@ apiRouter.get('/all', function(req, res){
     try {
 
         db.cypher({
-            query: 'MATCH (node)-[link]->() RETURN node, link LIMIT 100'
+            query: 'MATCH (node), ()-[link]->() RETURN node, link LIMIT 100'
         }, function (err, results) {
             if (err) throw err;
             
