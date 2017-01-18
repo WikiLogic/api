@@ -19,9 +19,11 @@
     "start": "node api-server.js"
   },
   "dependencies": {
-    "express": "^4.14.0"
+    "express": "^4.14.0",
+    "neo4j-driver": "^1.1.0-M03"
   },
   "devDependencies": {
+    "babel-polyfill": "^6.20.0",
     "body-parser": "^1.15.2",
     "neo4j": "^2.0.0-RC2"
   }

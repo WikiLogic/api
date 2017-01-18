@@ -1,7 +1,7 @@
 "use strict";
 
 var neo4j = require('neo4j');
-var db = new neo4j.GraphDatabase('http://n:n@localhost:7474');
+var db = new neo4j.GraphDatabase('http://neo4j:n@localhost:7474');
 
 db.cypher({
     query: 'MATCH (u:User {email: {email}}) RETURN u',
