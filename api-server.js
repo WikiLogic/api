@@ -28,12 +28,11 @@ var db = new neo4j.GraphDatabase('http://neo4j:neo4j@localhost:7474');
 var apiRouter = express.Router();
 
 apiRouter.get('/all', function(req, res){
-       //http://localhost:3030/claims
-
+    //for front end development: just returns a bunch of nodes & links
     try {
         
         db.cypher({
-            query: 'MATCH (node:Claim)-[link]->(argument:Argument) RETURN node, link, argument LIMIT 100'
+            query: 'MATCH (node), ()-[link]->() RETURN node, link LIMIT 100'
         }, function (err, results) {
             if (err) throw err;
             
