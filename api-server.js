@@ -57,47 +57,54 @@ apiRouter.get('/all', function(req, res){
     }
 });
 
-apiRouter.get('/claims/:claim', function(req, res){
-    console.log('claim search', req.params.claim);
-    try {
+apiRouter.get('/claims', function(req, res){
+    /* Might have two identically worded claims with different meanings attached to words, so can't use them as urls / ids
+     * Will have to use db id. Hopefully neo can just keep on incrementing. But the last version had something like a 3.5B limit. :D
+     * 
+     * /claims?search=...
+     */
+    console.log('claim search', JSON.stringify(req.query));
+    if (req.query.hasOwnProperty('search')){
+        try {
 
-        db.cypher({
-            query: `MATCH (claim:Claim) WHERE claim.body CONTAINS "${req.params.claim}" RETURN (claim) LIMIT 100`
-        }, function (err, results) {
-            if (err) throw err;
-            
-            if (!results) {
-                console.log('No claims found.');
-                res.json({
-                    error: 'No claims found'
-                });
-            } else {
-                var matches = [];
-                if (results.length > 0){
-                    results.map(function(match) {
-                        matches.push({
-                            body: match.claim.properties.body,
-                            state: match.claim.properties.state,
-                            id: match.claim._id
-                        });
-                    })
-                }
-
-
-                res.json({
-                    meta: 'aint no meta here yet',
-                    data: {
-                        matches: matches
+            db.cypher({
+                query: `MATCH (claim:Claim) WHERE claim.body CONTAINS "${req.query.search}" RETURN (claim) LIMIT 100`
+            }, function (err, results) {
+                if (err) throw err;
+                
+                if (!results) {
+                    console.log('No claims found.');
+                    res.json({
+                        error: 'No claims found'
+                    });
+                } else {
+                    var matches = [];
+                    if (results.length > 0){
+                        results.map(function(match) {
+                            matches.push({
+                                body: match.claim.properties.body,
+                                state: match.claim.properties.state,
+                                id: match.claim._id
+                            });
+                        })
                     }
-                });
-            }
-        });
 
-    }
-    catch(err){
-        res.json({
-            error: 'Server error' + err
-        });
+
+                    res.json({
+                        meta: 'aint no meta here yet',
+                        data: {
+                            matches: matches
+                        }
+                    });
+                }
+            });
+
+        }
+        catch(err){
+            res.json({
+                error: 'Server error' + err
+            });
+        }
     }
 });
 
