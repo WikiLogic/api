@@ -31,9 +31,9 @@ apiRouter.get('/all', function(req, res){
        //http://localhost:3030/claims
 
     try {
-
+        
         db.cypher({
-            query: 'MATCH (node), ()-[link]->() RETURN node, link LIMIT 100'
+            query: 'MATCH (node:Claim)-[link]->(argument:Argument) RETURN node, link, argument LIMIT 100'
         }, function (err, results) {
             if (err) throw err;
             
@@ -57,13 +57,12 @@ apiRouter.get('/all', function(req, res){
     }
 });
 
-apiRouter.get('/claims', function(req, res){
-   //http://localhost:3030/claims
-
+apiRouter.get('/claims/:claim', function(req, res){
+    console.log('claim search', req.params.claim);
     try {
 
         db.cypher({
-            query: 'MATCH (claims:Claim) RETURN (claims) LIMIT 100'
+            query: `MATCH (claim:Claim) WHERE claim.body CONTAINS "${req.params.claim}" RETURN (claim) LIMIT 100`
         }, function (err, results) {
             if (err) throw err;
             
@@ -73,9 +72,23 @@ apiRouter.get('/claims', function(req, res){
                     error: 'No claims found'
                 });
             } else {
-                console.log(JSON.stringify(results, null, 4));
+                var matches = [];
+                if (results.length > 0){
+                    results.map(function(match) {
+                        matches.push({
+                            body: match.claim.properties.body,
+                            state: match.claim.properties.state,
+                            id: match.claim._id
+                        });
+                    })
+                }
+
+
                 res.json({
-                    claims: results
+                    meta: 'aint no meta here yet',
+                    data: {
+                        matches: matches
+                    }
                 });
             }
         });
