@@ -26,39 +26,14 @@ var getClaims = require('./get-claims/_index.js');
 //================================= Routes
 var apiRouter = express.Router();
 
-apiRouter.get('/all', function(req, res){
-    //for front end development: just returns a bunch of nodes & links
-    try {
-        
-        db.cypher({
-            query: 'MATCH (node), ()-[link]->() RETURN node, link LIMIT 100'
-        }, function (err, results) {
-            if (err) throw err;
-            
-            if (!results) {
-                console.log('No claims found.');
-                res.json({
-                    error: 'No claims found'
-                });
-            } else {
-                res.json({
-                    data: results
-                });
-            }
-        });
-
-    }
-    catch(err){
-        res.json({
-            error: 'Server error' + err
-        });
-    }
-});
-
 apiRouter.get('/claims', function(req, res){
     if (req.query.hasOwnProperty('search')){
         getClaims.bySearchTerm(req, res);
     }
+});
+
+apiRouter.get('/claims/random', function(req, res){
+    getClaims.random(req, res);
 });
 
 apiRouter.get('/claims/:claimid', function(req, res){
