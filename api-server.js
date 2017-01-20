@@ -67,7 +67,7 @@ apiRouter.get('/claims', function(req, res){
         try {
 
             db.cypher({
-                query: `MATCH (argument)-[link]->(claim:Claim) WHERE claim.body CONTAINS "${req.query.search}" RETURN claim, link, argument LIMIT 100`
+                query: `MATCH (argument)-[link1]->(claim:Claim), (claim2:Claim)-[link2]->(argument) WHERE claim.body CONTAINS "${req.query.search}" RETURN claim, claim2, link1, link2, argument LIMIT 100`
             }, function (err, results) {
                 if (err) throw err;
                 
@@ -91,11 +91,25 @@ apiRouter.get('/claims', function(req, res){
                                 state: match.claim.properties.state,
                             });
 
+                            nodes.push({
+                                id: match.claim2._id,
+                                type: 'claim',
+                                body: match.claim2.properties.body,
+                                state: match.claim2.properties.state,
+                            });
+
                             links.push({
-                                id: match.link._id,
-                                source: match.link._fromId,
-                                target: match.link._toId,
-                                type: match.link.type
+                                id: match.link1._id,
+                                source: match.link1._fromId,
+                                target: match.link1._toId,
+                                type: match.link1.type
+                            });
+
+                            links.push({
+                                id: match.link2._id,
+                                source: match.link2._fromId,
+                                target: match.link2._toId,
+                                type: match.link2.type
                             });
 
                             nodes.push({
