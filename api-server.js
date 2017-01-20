@@ -19,10 +19,9 @@ app.use(function(req, res, next) {
     next();
 });
 
-var neo4j = require('neo4j');
-var db = new neo4j.GraphDatabase('http://neo4j:neo4j@localhost:7474');
+var db = require('./neo4j/neo-connection.js');
 
-
+var getClaims = require('./get-claims/_index.js');
 
 //================================= Routes
 var apiRouter = express.Router();
@@ -57,90 +56,14 @@ apiRouter.get('/all', function(req, res){
 });
 
 apiRouter.get('/claims', function(req, res){
-    /* Might have two identically worded claims with different meanings attached to words, so can't use them as urls / ids
-     * Will have to use db id. Hopefully neo can just keep on incrementing. But the last version had something like a 3.5B limit. :D
-     * 
-     * /claims?search=...
-     */
-    console.log('claim search', JSON.stringify(req.query));
     if (req.query.hasOwnProperty('search')){
-        try {
-
-            db.cypher({
-                query: `MATCH (argument)-[link1]->(claim:Claim), (claim2:Claim)-[link2]->(argument) WHERE claim.body CONTAINS "${req.query.search}" RETURN claim, claim2, link1, link2, argument LIMIT 100`
-            }, function (err, results) {
-                if (err) throw err;
-                
-                if (!results) {
-                    console.log('No claims found.');
-                    res.json({
-                        error: 'No claims found'
-                    });
-                } else {
-                    var nodes = [];
-                    var links = [];
-
-                    if (results.length > 0){
-                        results.map(function(match) {
-                            console.log('match: ', match);
-
-                            nodes.push({
-                                id: match.claim._id,
-                                type: 'claim',
-                                body: match.claim.properties.body,
-                                state: match.claim.properties.state,
-                            });
-
-                            nodes.push({
-                                id: match.claim2._id,
-                                type: 'claim',
-                                body: match.claim2.properties.body,
-                                state: match.claim2.properties.state,
-                            });
-
-                            links.push({
-                                id: match.link1._id,
-                                source: match.link1._fromId,
-                                target: match.link1._toId,
-                                type: match.link1.type
-                            });
-
-                            links.push({
-                                id: match.link2._id,
-                                source: match.link2._fromId,
-                                target: match.link2._toId,
-                                type: match.link2.type
-                            });
-
-                            nodes.push({
-                                id: match.argument._id,
-                                type: 'argument',
-                                state: match.argument.properties.state,
-                            });
-                        })
-                    }
-
-
-                    res.json({
-                        meta: 'aint no meta here yet',
-                        data: {
-                            nodes: nodes,
-                            links: links
-                        }
-                    });
-                }
-            });
-
-        }
-        catch(err){
-            res.json({
-                error: 'Server error' + err
-            });
-        }
+        getClaims.bySearchTerm(req, res);
     }
 });
 
-
+apiRouter.get('/claims/:claimid', function(req, res){
+    getClaims.byId(req, res);
+});
 
 app.use('/', apiRouter);
 
