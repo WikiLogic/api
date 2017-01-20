@@ -67,7 +67,7 @@ apiRouter.get('/claims', function(req, res){
         try {
 
             db.cypher({
-                query: `MATCH (claim:Claim) WHERE claim.body CONTAINS "${req.query.search}" RETURN (claim) LIMIT 100`
+                query: `MATCH (argument)-[link]->(claim:Claim) WHERE claim.body CONTAINS "${req.query.search}" RETURN claim, link, argument LIMIT 100`
             }, function (err, results) {
                 if (err) throw err;
                 
@@ -77,13 +77,31 @@ apiRouter.get('/claims', function(req, res){
                         error: 'No claims found'
                     });
                 } else {
-                    var matches = [];
+                    var nodes = [];
+                    var links = [];
+
                     if (results.length > 0){
                         results.map(function(match) {
-                            matches.push({
+                            console.log('match: ', match);
+
+                            nodes.push({
+                                id: match.claim._id,
+                                type: 'claim',
                                 body: match.claim.properties.body,
                                 state: match.claim.properties.state,
-                                id: match.claim._id
+                            });
+
+                            links.push({
+                                id: match.link._id,
+                                source: match.link._fromId,
+                                target: match.link._toId,
+                                type: match.link.type
+                            });
+
+                            nodes.push({
+                                id: match.argument._id,
+                                type: 'argument',
+                                state: match.argument.properties.state,
                             });
                         })
                     }
@@ -92,7 +110,8 @@ apiRouter.get('/claims', function(req, res){
                     res.json({
                         meta: 'aint no meta here yet',
                         data: {
-                            matches: matches
+                            nodes: nodes,
+                            links: links
                         }
                     });
                 }
