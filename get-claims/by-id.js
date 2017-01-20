@@ -23,8 +23,9 @@ module.exports = function(req, res){
             query: `MATCH (claim:Claim)
                     WHERE ID(claim) = ${req.params.claimid} 
                     WITH claim
-                    OPTIONAL MATCH (argument:Argument)-[focusLink]->(claim), (subClaim:Claim)-[subLink]->(argument)
-                    RETURN claim, focusLink, argument, subLink, subClaim  LIMIT 25`
+                    OPTIONAL MATCH argPath = (argument:Argument)-[focusLink]->(claim), subClaimPath = (subClaim:Claim)-[subLink]->(argument)
+                    RETURN claim, focusLink, argument, subLink, subClaim, nodes(argPath), nodes(subClaimPath)
+                    LIMIT 25`
         }, function (err, results) {
             if (err) throw err;
             
