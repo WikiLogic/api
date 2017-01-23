@@ -16,6 +16,11 @@ var exampleResponce = {
 
 }
 
+var builder = `MATCH (claim:Claim)-[:USED_IN]->(argGroup:ArgGroup)
+                   WHERE (argGroup)-->(:Claim)
+                   with argGroup, collect({ id: id(claim), body: claim.body, type: labels(claim)[0] }) as nodes
+                   with { id: id(argGroup), body: argGroup.body, type: labels(argGroup)[0], SubNodes: nodes } as containerNode
+                   RETURN {nodes: collect(containerNode) }`;
 module.exports = function(req, res){
 
     try {
@@ -23,8 +28,8 @@ module.exports = function(req, res){
             query: `MATCH (claim:Claim)
                     WHERE ID(claim) = ${req.params.claimid} 
                     WITH claim
-                    OPTIONAL MATCH argPath = (argument:Argument)-[focusLink]->(claim), subClaimPath = (subClaim:Claim)-[subLink]->(argument)
-                    RETURN claim, focusLink, argument, subLink, subClaim, nodes(argPath), nodes(subClaimPath)
+                    OPTIONAL MATCH immidiatePath = (subClaim:Claim)-[subLink]->(arguments:ArgGroup)-[focusLink]->(claim)
+                    RETURN claim, nodes(immidiatePath) as nodes, relationships(immidiatePath) as links
                     LIMIT 25`
         }, function (err, results) {
             if (err) throw err;
