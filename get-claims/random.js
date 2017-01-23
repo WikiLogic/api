@@ -8,9 +8,16 @@ var db = require('../neo4j/neo-connection.js');
 
 module.exports = function(req, res){
 
+    var builder = `MATCH (claim:Claim)-[:USED_IN]->(argGroup:ArgGroup)
+                   WHERE (argGroup)-->(:Claim)
+                   with argGroup, collect({ id: id(claim), body: claim.body, type: labels(claim)[0] }) as nodes
+                   with { id: id(argGroup), body: argGroup.body, type: labels(argGroup)[0], SubNodes: nodes } as containerNode
+                   RETURN {nodes: collect(containerNode) }`;
+    var match100 = 'MATCH (claim) RETURN claim LIMIT 100';
+
     try {
         db.cypher({
-            query: `MATCH (claim) RETURN claim LIMIT 100`
+            query: builder
         }, function (err, results) {
             
             if (err) throw err;
@@ -23,23 +30,25 @@ module.exports = function(req, res){
             } else {
                 var claims = [];
 
-                if (results.length > 0){
-                    results.map(function(match) {
-                        claims.push({
-                            id: match.claim._id,
-                            type: 'claim',
-                            body: match.claim.properties.body,
-                            state: match.claim.properties.state,
-                        });
-                    })
-                }
+                res.json(results);
+
+                // if (results.length > 0){
+                //     results.map(function(match) {
+                //         claims.push({
+                //             id: match.claim._id,
+                //             type: 'claim',
+                //             body: match.claim.properties.body,
+                //             state: match.claim.properties.state,
+                //         });
+                //     })
+                // }
                 
-                res.json({
-                    meta: 'aint no meta here yet',
-                    data: {
-                        claims: claims
-                    }
-                });
+                // res.json({
+                //     meta: 'aint no meta here yet',
+                //     data: {
+                //         claims: claims
+                //     }
+                // });
             }
         });
 
