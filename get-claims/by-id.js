@@ -29,7 +29,12 @@ module.exports = function(req, res){
                     WHERE ID(claim) = ${req.params.claimid} 
                     WITH claim
                     OPTIONAL MATCH immidiatePath = (subClaim:Claim)-[subLink]->(arguments:ArgGroup)-[focusLink]->(claim)
-                    RETURN claim, nodes(immidiatePath) as nodes, relationships(immidiatePath) as links
+                    WITH claim, nodes(immidiatePath) as nodes, relationships(immidiatePath) as links
+                    UNWIND nodes as nodelist
+                    UNWIND links as linklist
+                    WITH DISTINCT nodelist, linklist, claim
+                    WITH DISTINCT linklist, nodelist, claim
+                    RETURN claim, nodelist, linklist
                     LIMIT 25`
         }, function (err, results) {
             if (err) throw err;
