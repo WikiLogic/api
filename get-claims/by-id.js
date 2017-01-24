@@ -16,26 +16,23 @@ var exampleResponce = {
 
 }
 
-var builder = `MATCH (claim:Claim)-[:USED_IN]->(argGroup:ArgGroup)
-                   WHERE (argGroup)-->(:Claim)
-                   with argGroup, collect({ id: id(claim), body: claim.body, type: labels(claim)[0] }) as nodes
-                   with { id: id(argGroup), body: argGroup.body, type: labels(argGroup)[0], SubNodes: nodes } as containerNode
-                   RETURN {nodes: collect(containerNode) }`;
-module.exports = function(req, res){
-
-    try {
-        db.cypher({
-            query: `MATCH (claim:Claim)
-                    WHERE ID(claim) = ${req.params.claimid} 
+var builder = `MATCH (claim:Claim)
+                    WHERE ID(claim) = 4 
                     WITH claim
                     OPTIONAL MATCH immidiatePath = (subClaim:Claim)-[subLink]->(arguments:ArgGroup)-[focusLink]->(claim)
                     WITH claim, nodes(immidiatePath) as nodes, relationships(immidiatePath) as links
                     UNWIND nodes as nodelist
                     UNWIND links as linklist
-                    WITH DISTINCT nodelist, linklist, claim
-                    WITH DISTINCT linklist, nodelist, claim
                     RETURN claim, nodelist, linklist
-                    LIMIT 25`
+                    LIMIT 25`;
+module.exports = function(req, res){
+
+    try {
+        db.cypher({
+            query: `OPTIONAL MATCH p = ((subClaim:Claim)-[supLinks]->(arguments:ArgGroup)-[argLinks]->(claim:Claim))
+                    WHERE ID(claim) = ${req.params.claimid} 
+                    RETURN claim, COLLECT(subClaim) AS subClaims, COLLECT(arguments) as arguments, COLLECT(argLinks) as argLinks, COLLECT(supLinks) as supLinks
+                    LIMIT 100`
         }, function (err, results) {
             if (err) throw err;
             
