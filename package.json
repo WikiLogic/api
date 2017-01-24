@@ -16,7 +16,7 @@
     "node": ">= 0.12.0"
   },
   "scripts": {
-    "start": "node api-server.js"
+    "start": "nodemon api-server.js"
   },
   "dependencies": {
     "express": "^4.14.0",
@@ -25,6 +25,7 @@
   "devDependencies": {
     "babel-polyfill": "^6.20.0",
     "body-parser": "^1.15.2",
-    "neo4j": "^2.0.0-RC2"
+    "neo4j": "^2.0.0-RC2",
+    "nodemon": "^1.11.0"
   }
 }

@@ -15,10 +15,11 @@ module.exports = function(req, res){
             query: `OPTIONAL MATCH p = ((subClaim:Claim)-[subLink]->(argument:ArgGroup)-[argLink]->(claim:Claim))
                     WHERE ID(claim) = ${req.params.claimid} 
                     RETURN  
-                        {id: id(claim), body: claim.body, state: claim.state} AS claim, 
-                        COLLECT({id: ID(subClaim), body: subClaim.body, state: subClaim.state}) AS subClaims, 
-                        COLLECT({id: ID(argument), state: argument.state}) as argument, 
-                        COLLECT(argLink) as argLinks, 
+                        {id: id(claim), body: claim.body, state: claim.state, type: "claim"} AS claim, 
+                        COLLECT({id: ID(subClaim), body: subClaim.body, state: subClaim.state, type: "claim"}) AS subClaims, 
+                        COLLECT({id: ID(argument), state: argument.state, type: "argument"}) as argument, 
+                        COLLECT({id: ID(argLink), type: argLink.type, source: ID(startNode(argLink)), target: ID(endNode(argLink))}) as argLinks, 
+                        COLLECT(argLink) as argLinksCheck,
                         COLLECT(subLink) as subLinks
                     LIMIT 100`
         }, function (err, results) {
