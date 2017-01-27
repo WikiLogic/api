@@ -6,22 +6,21 @@ var db = require('../neo4j/neo-connection.js');
  *  - a random array of claims
  */
 
-module.exports = function(req, res){
+module.exports = function (req, res) {
 
-    var builder = `MATCH (claim:Claim)-[:USED_IN]->(argGroup:ArgGroup)
-                   WHERE (argGroup)-->(:Claim)
-                   with argGroup, collect({ id: id(claim), body: claim.body, type: labels(claim)[0] }) as nodes
-                   with { id: id(argGroup), body: argGroup.body, type: labels(argGroup)[0], SubNodes: nodes } as containerNode
-                   RETURN {nodes: collect(containerNode) }`;
+    var builder = `match (claim:Claim)-[:UsedIn]->(argGroup:ArgumentGroup)
+WHERE (argGroup)-->(:Claim {body: "Prisoners should get rehabilitation"})
+return argGroup, claim`;
+    //{nodes: collect(containerNode) }
     var match100 = 'MATCH (claim) RETURN claim LIMIT 100';
 
     try {
         db.cypher({
             query: builder
         }, function (err, results) {
-            
+
             if (err) throw err;
-            
+
             if (!results) {
                 console.log('No claims found.');
                 res.json({
@@ -42,7 +41,7 @@ module.exports = function(req, res){
                 //         });
                 //     })
                 // }
-                
+
                 // res.json({
                 //     meta: 'aint no meta here yet',
                 //     data: {
@@ -53,7 +52,7 @@ module.exports = function(req, res){
         });
 
     }
-    catch(err){
+    catch (err) {
         console.log('error happened - meep moop');
         res.json({
             errors: JSON.stringify(err),

@@ -49,3 +49,17 @@ WHERE (argGroup)-->(:Claim {body: "Prisoners should get rehabilitation"})
 with argGroup, collect({ id: id(claim), body: claim.body, type: labels(claim)[0] }) as nodes
 with { id: id(argGroup), body: argGroup.body, type: labels(argGroup)[0], SubNodes: nodes } as containerNode
 return {nodes: collect(containerNode) }
+
+match (claim:Claim)-[:UsedIn]->(argGroup:ArgumentGroup)
+WHERE (argGroup)-->(:Claim {body: "Prisoners should get rehabilitation"})
+with argGroup, collect({ id: id(claim), body: claim.body, type: labels(claim)[0] }) as nodes
+with { id: id(argGroup), body: argGroup.body, type: labels(argGroup)[0], SubNodes: nodes } as containerNode
+return {nodes: collect(containerNode) }
+
+
+
+MATCH (claim:Claim)-[:USED_IN]->(argGroup:ArgGroup)
+                   (argGroup)-->(:Claim {body: "Prisoners should get rehabilitation"})
+                   with argGroup, collect({ id: id(claim), body: claim.body, type: labels(claim)[0] }) as nodes
+                   with { id: id(argGroup), body: argGroup.body, type: labels(argGroup)[0], SubNodes: nodes } as containerNode
+                   RETURN {nodes: collect(containerNode) }
