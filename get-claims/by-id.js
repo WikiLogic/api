@@ -9,51 +9,19 @@ var db = require('../neo4j/neo-connection.js');
  *  - the claims that make up those arguments 
  */
 
-/*
-var flatQuery = `OPTIONAL MATCH p = ((subClaim:Claim)-[subLink]->(argument:ArgGroup)-[argLink]->(claim:Claim))
-                    WHERE ID(claim) = ${req.params.claimid} 
-                    RETURN  
-                        {id: id(claim), body: claim.body, state: claim.state, type: "claim"} AS claim, 
-                        COLLECT(DISTINCT {id: ID(argument), state: argument.state, type: "argument"}) AS arguments, 
-                        COLLECT(DISTINCT {id: ID(argLink), type: argLink.type, source: ID(startNode(argLink)), target: ID(endNode(argLink))}) AS argLinks, 
-                        COLLECT(DISTINCT {id: ID(subClaim), body: subClaim.body, state: subClaim.state, type: "claim"}) AS subClaims, 
-                        COLLECT(DISTINCT {id: ID(subLink), type: subLink.type, source: ID(startNode(subLink)), target: ID(endNode(subLink))}) AS subLinks,
-                        COLLECT(argLink) AS argLinkCheck
-                    LIMIT 100`;
-*/
-
-var nestedReturn = {
-    claim: { 
-        id:1, body: "the focus claim body"
-    },
-    arguments: [
-        {
-            id: 2,
-            subClaims: [
-                { id: 3, body: "a sub claim" }
-            ]
-        }
-    ],
-    argLinks: [
-        { id: 99, source: 1, target: 2 }
-    ],
-    subLinks: [
-        { id: 98, source: 3, target: 3 }
-    ]
-}
 module.exports = function(req, res){
 
     try {
         db.cypher({
-            query: `OPTIONAL MATCH p = ((subClaim:Claim)-[subLink]->(argument:ArgGroup)-[argLink]->(claim:Claim))
+            query: `MATCH (claim:Claim)
                     WHERE ID(claim) = ${req.params.claimid} 
+                    OPTIONAL MATCH p = ((subClaim:Claim)-[subLink]->(argument:ArgGroup)-[argLink]->(claim))
                     RETURN  
-                        {id: id(claim), body: claim.body, state: claim.state, type: "claim"} AS claim, 
-                        COLLECT(DISTINCT {id: ID(argument), state: argument.state, type: "argument"}) AS arguments, 
-                        COLLECT(DISTINCT {id: ID(argLink), type: argLink.type, source: ID(startNode(argLink)), target: ID(endNode(argLink))}) AS argLinks, 
-                        COLLECT(DISTINCT {id: ID(subClaim), body: subClaim.body, state: subClaim.state, type: "claim"}) AS subClaims, 
-                        COLLECT(DISTINCT {id: ID(subLink), type: subLink.type, source: ID(startNode(subLink)), target: ID(endNode(subLink))}) AS subLinks,
-                        COLLECT(argLink) AS argLinkCheck
+                        {id: id(claim), body: claim.body, state: claim.state, type: "claim"} AS claim,
+                        CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(argument), state: argument.state, type: "argument"}) END AS arguments, 
+                        CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(argLink), type: argLink.type, source: ID(startNode(argLink)), target: ID(endNode(argLink))}) END AS argLinks, 
+                        CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(subClaim), body: subClaim.body, state: subClaim.state, type: "claim"}) END AS subClaims, 
+                        CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(subLink), type: subLink.type, source: ID(startNode(subLink)), target: ID(endNode(subLink))}) END AS subLinks
                     LIMIT 100`
         }, function (err, results) {
             if (err) throw err;
@@ -62,12 +30,13 @@ module.exports = function(req, res){
                 console.log('No claims found.');
                 res.json({ error: 'No claims found' });
             } else {
-
                 if (results.length == 0){
+                    
                     res.json({
                         meta: 'No claims match ' + req.params.claimid,
                         data: {}
-                    });    
+                    });  
+                    return;  
                 } 
 
                 if (results.length > 1){
