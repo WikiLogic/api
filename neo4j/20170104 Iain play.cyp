@@ -50,11 +50,19 @@ CREATE
 
 //want a claim that has multiple arguments each with multiple claims
 CREATE
-    (claimOriginal:Claim {body:  "Javascript is the best language", state:false}),
-        (argForJS:ArgGroup {state:true})-[:SUPPORTS]->(claimOriginal),
-            (claimBestIsDefined:Claim {body: "The best language is the one with the most number of users", state:true})-[:USED_IN]->(argForJS),
-            (claimJsHasTheMost:Claim {body: "Javascript has the most number of users", state:true})-[:USED_IN]->(argForJS),
-        (argAgainstJS:ArgGroup {state:true})-[:OPPOSES]->(claimOriginal),
-            (claimStrongIsBetter:Claim {body: "Strongly typed languages are better than loosley typed languages", state:true})-[:USED_IN]->(argAgainstJS),
-            (claimJsIsLose:Claim {body: "Javascript is a loosley typed language", state:true})-[:USED_IN]->(argAgainstJS),
-            (claimStrongExists:Claim {body: "Strongly typed languages exist", state:true})-[:USED_IN]->(argAgainstJS);
+    (claimLearnJsFirst:Claim {body: "Javascript should be the first language people learn", stats: true}),
+        (argForLearningJsFirst:ArgGroup {state: true})-[:SUPPORTS]->(claimLearnJsFirst),
+            (claimOriginal:Claim {body:  "Javascript is the best language", state:false})-[:USED_IN]->(argForLearningJsFirst),
+                (argForJS:ArgGroup {state:true})-[:SUPPORTS]->(claimOriginal),
+                    (claimBestIsDefined:Claim {body: "The best language is the one with the most number of users", state:true})-[:USED_IN]->(argForJS),
+                    (claimJsHasTheMost:Claim {body: "Javascript has the most number of users", state:true})-[:USED_IN]->(argForJS),
+                (argAgainstJS:ArgGroup {state:true})-[:OPPOSES]->(claimOriginal),
+                    (claimStrongIsBetter:Claim {body: "Strongly typed languages are better than loosley typed languages", state:true})-[:USED_IN]->(argAgainstJS),
+                    (claimJsIsLose:Claim {body: "Javascript is a loosley typed language", state:true})-[:USED_IN]->(argAgainstJS),
+                    (claimStrongExists:Claim {body: "Strongly typed languages exist", state:true})-[:USED_IN]->(argAgainstJS),
+            (claimLearbBestFirst:Claim {body: "People should learn the best language first", state: false})-[:USED_IN]->(argForLearningJsFirst),
+        (argForJsFirst2:ArgGroup {state: true})-[:SUPPORTS]->(claimLearnJsFirst),
+            (claimJsIsEasiest:Claim {body: "Javascript is the easiest language", state: false})-[:USED_IN]->(argForJsFirst2),
+            (claimLearnEasiestFirst:Claim {body: "People should learn the easiest language first", state: true})-[:USED_IN]->(argForJsFirst2);
+
+//clear out DB
