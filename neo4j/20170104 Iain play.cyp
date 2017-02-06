@@ -66,3 +66,43 @@ CREATE
             (claimLearnEasiestFirst:Claim {body: "People should learn the easiest language first", state: true})-[:USED_IN]->(argForJsFirst2);
 
 //clear out DB
+MATCH (n) DETACH
+DELETE n
+
+//test data - claim000 has 2 for args, 2 against args and is used in 1 supporting argument and 1 opposing argument
+CREATE
+(claim000:Claim {body:"0", state:50}),
+    //agruments for
+    (arg0:ArgGroup {state:50})-[:SUPPORTS]->(claim000),
+        (claim001:Claim {body:"1", state:50})-[:USED_IN]->(arg0),
+        (claim002:Claim {body:"2", state:50})-[:USED_IN]->(arg0),
+        (claim003:Claim {body:"3", state:50})-[:USED_IN]->(arg0),
+    (arg1:ArgGroup {state:50})-[:SUPPORTS]->(claim000),
+        (claim004:Claim {body:"4", state:50})-[:USED_IN]->(arg1),
+        (claim005:Claim {body:"5", state:50})-[:USED_IN]->(arg1),
+        (claim006:Claim {body:"6", state:50})-[:USED_IN]->(arg1),
+    //arguments against
+    (arg2:ArgGroup {state:50})-[:OPPOSES]->(claim000),
+        (claim007:Claim {body:"7", state:50})-[:USED_IN]->(arg2),
+        (claim008:Claim {body:"8", state:50})-[:USED_IN]->(arg2),
+        (claim009:Claim {body:"9", state:50})-[:USED_IN]->(arg2),
+    (arg3:ArgGroup {state:50})-[:OPPOSES]->(claim000),
+        (claim010:Claim {body:"10", state:50})-[:USED_IN]->(arg3),
+        (claim011:Claim {body:"11", state:50})-[:USED_IN]->(arg3),
+        (claim012:Claim {body:"12", state:50})-[:USED_IN]->(arg3),
+
+    //1 supporting 
+    (claim019: Claim {body:"19", state:50}),
+        (arg4:ArgGroup {state:50})-[:SUPPORTS]->(claim019),
+            (claim000)-[:USED_IN]->(arg4),
+            (claim013: Claim {body:"13", state:50})-[:USED_IN]->(arg4),
+            (claim014: Claim {body:"14", state:50})-[:USED_IN]->(arg4),
+            (claim015: Claim {body:"15", state:50})-[:USED_IN]->(arg4),
+    //1 opposing
+    (claim020: Claim {body:"20", state:50}),
+        (arg5:ArgGroup {state:50})-[:OPPOSES]->(claim020),
+            (claim000)-[:USED_IN]->(arg5),
+            (claim016: Claim {body:"16", state:50})-[:USED_IN]->(arg5),
+            (claim017: Claim {body:"17", state:50})-[:USED_IN]->(arg5),
+            (claim018: Claim {body:"18", state:50})-[:USED_IN]->(arg5);
+
