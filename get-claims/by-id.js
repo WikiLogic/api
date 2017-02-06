@@ -17,9 +17,10 @@ module.exports = function(req, res){
             query: `MATCH (claim:Claim)
                     WHERE ID(claim) = ${req.params.claimid} 
                     OPTIONAL MATCH (subClaim:Claim)-[subLink]->(argument:ArgGroup)-[argLink]->(claim)
-                    OPTIONAL MATCH (claim)-[usedInLink]->(usedInArg)<-[]-(usedInSibling)
+                    OPTIONAL MATCH (claim)-[usedInLink]->(usedInArg)<-[usedInSiblingLink]-(usedInSibling)
                     RETURN  
                         CASE WHEN ID(usedInArg) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(usedInSibling), body: usedInSibling.body, state: usedInSibling.state, type: "claim"}) END AS usedInSiblings,
+                        CASE WHEN ID(usedInArg) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(usedInSiblingLink), type: "USED_IN", source: ID(startNode(usedInSiblingLink)), target: ID(endNode(usedInLink))}) END AS usedInSiblingLinks,
                         CASE WHEN ID(usedInArg) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(usedInArg), state: usedInArg.state, type: "argument"}) END AS usedInArgs,
                         CASE WHEN ID(usedInArg) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(usedInLink), type: "USED_IN", source: ID(startNode(usedInLink)), target: ID(endNode(usedInLink))}) END AS usedInLinks,
                         {id: id(claim), body: claim.body, state: claim.state, type: "claim"} AS claim,
