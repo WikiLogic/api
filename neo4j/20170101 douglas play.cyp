@@ -1,6 +1,6 @@
 CREATE
 //"Prisoners should get rehabilitation" back by argument group
-  (arg1:ArgumentGroup {status: false})-[:UsedFor]->(prisoners:Claim {body: "Prisoners should get rehabilitation"}),
+  (arg1:ArgGroup {status: false})-[:UsedFor]->(prisoners:Claim {body: "Prisoners should get rehabilitation"}),
   //3 claims used in the argument group
 (cost:Claim {body: "The cost of rehabilitation is less than the cost of prison"})-[:UsedIn]->(arg1),
 (lowestBest:Claim {body: "The lowest cost option is best"})-[:UsedIn]->(arg1),
@@ -19,7 +19,7 @@ CREATE
 // A-B the link will look like A-0-B with 0 representing a special node whose purpose is to represent the link/relationship
 
 //argument group
-(arg5:ArgumentGroup {status: true})-[:UsedFor]->(CantRelease),
+(arg5:ArgGroup {status: true})-[:UsedFor]->(CantRelease),
 (:Claim {body: "Commiting crimes is unacceptable in society"})-[:UsedIn]->(arg5),
 (:Claim {body: "There is a high chance a criminal will commit a crime again if nothing changes in their situation"})-[:UsedIn]->(arg5),
   
@@ -27,14 +27,14 @@ CREATE
  //claim of prisoners 'should' is based on what is good for society which is not specified. The user rewords it and copies links
   
   //a new altered version of original claim that now needs a new altered argument group
-   (arg6:ArgumentGroup {status: false})-[:UsedFor]->(prisonersExpanded:Claim {body: "Prisoners should get rehabilitation for the good of society"}),
+   (arg6:ArgGroup {status: false})-[:UsedFor]->(prisonersExpanded:Claim {body: "Prisoners should get rehabilitation for the good of society"}),
 //the argument group uses the same claims accept for a new worded version of the binary option one
 (cost)-[:UsedIn]->(arg6),
 (lowestBest)-[:UsedIn]->(arg6),
 //this one is also explianed with argument group
 (expandedBinaryClaim:Claim {body: "There is only a choice between prison or rehab when considering whats best for society"})-[:UsedIn]->(arg6),
   //the arg group followed by its claims
-  (arg7:ArgumentGroup {status: false})-[:UsedFor]->(expandedBinaryClaim),
+  (arg7:ArgGroup {status: false})-[:UsedFor]->(expandedBinaryClaim),
   (CantRelease)-[:UsedIn]->(arg7),
   (:Claim {body: "Executing prisoners is immoral"})-[:UsedIn]->(arg7)
   
@@ -44,13 +44,13 @@ CREATE
 
 http://stackoverflow.com/questions/41780737/neo4j-return-a-node-with-an-array-of-nodes-as-propery-or-seperate-array
 
-match (claim:Claim)-[:UsedIn]->(argGroup:ArgumentGroup)
+match (claim:Claim)-[:UsedIn]->(argGroup:ArgGroup)
 WHERE (argGroup)-->(:Claim {body: "Prisoners should get rehabilitation"})
 with argGroup, collect({ id: id(claim), body: claim.body, type: labels(claim)[0] }) as nodes
 with { id: id(argGroup), body: argGroup.body, type: labels(argGroup)[0], SubNodes: nodes } as containerNode
 return {nodes: collect(containerNode) }
 
-match (claim:Claim)-[:UsedIn]->(argGroup:ArgumentGroup)
+match (claim:Claim)-[:UsedIn]->(argGroup:ArgGroup)
 WHERE (argGroup)-->(:Claim {body: "Prisoners should get rehabilitation"})
 with argGroup, collect({ id: id(claim), body: claim.body, type: labels(claim)[0] }) as nodes
 with { id: id(argGroup), body: argGroup.body, type: labels(argGroup)[0], SubNodes: nodes } as containerNode

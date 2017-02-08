@@ -8,9 +8,9 @@ var db = require('../neo4j/neo-connection.js');
 
 module.exports = function (req, res) {
 
-    var builder = `match (claim:Claim)-[:UsedIn]->(argGroup:ArgumentGroup)
-WHERE (argGroup)-->(:Claim {body: "Prisoners should get rehabilitation"})
-return argGroup, claim`;
+    var builder = `match (claim:Claim)-[:UsedIn]->(argGroup:ArgumentGroup)-->(mainClaim:Claim)
+WHERE (argGroup)-->(mainClaim:Claim {body: "Prisoners should get rehabilitation"})
+return argGroup, claim, mainClaim`;
     //{nodes: collect(containerNode) }
     var match100 = 'MATCH (claim) RETURN claim LIMIT 100';
 
