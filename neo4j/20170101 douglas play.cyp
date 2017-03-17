@@ -9,7 +9,7 @@ CREATE
 
 
 
-(:Claim {body: "Lowering cost improves economy"})-[:UsedIn]->(arg8),
+(:Claim {body: "Lowering cost improves economy"})-[:UsedIn]->(arg8:ArgGroup),
 (:Claim {body: "Improved economy is good"})-[:UsedIn]->(arg8),
 (arg8)-[:UsedFor]->(lowestBest),
 
