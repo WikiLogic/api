@@ -6,14 +6,14 @@ CREATE
 (lowestBest:Claim {body: "The lowest cost option is best"})-[:UsedIn]->(arg1),
 (binaryClaim:Claim {body: "There is only a choice between prison or rehab"})-[:UsedIn]->(arg1),
 
-
-
-
 (:Claim {body: "Lowering cost improves economy"})-[:UsedIn]->(arg8:ArgGroup),
 (:Claim {body: "Improved economy is good"})-[:UsedIn]->(arg8),
 (arg8)-[:UsedFor]->(lowestBest),
 
-  
+(:Claim {body: "High costs improve money flow"})-[:UsedIn]->(arg9:ArgGroup),
+(:Claim {body: "Money flow improves the economy"})-[:UsedIn]->(arg9),
+(arg9)-[:UsedFor]->(lowestBest),
+
   //two exmaples of claims that can not be true if the claim they have an "opposingPoint" link to is also true
 (:Claim {body: "It is possible to execute prisoners"})-[:OpposingPoints]->(binaryClaim),
 (releasePrisoners:Claim {body: "It is possible to release prisoners"})-[:OpposingPoints]->(binaryClaim),
