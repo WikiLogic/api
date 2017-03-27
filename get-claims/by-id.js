@@ -55,11 +55,12 @@ module.exports = function(req, res){
         db.cypher({
             query: `MATCH (claim:Claim)
                     WHERE ID(claim) = ${req.params.claimid} 
-                    OPTIONAL MATCH (premis:Claim)-[premisLink]->(argument:ArgGroup)-[argLink]->(claim)
-                    RETURN  
-                        {id: id(claim), body: claim.body, state: claim.state, type: "claim"} AS claim,
-                        CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(argument), state: argument.state}) END AS arguments, 
-                        CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(premis), body: premis.body, state: premis.state}) END AS premises
+                    OPTIONAL MATCH (argument:ArgGroup)-[argLink]->(claim)
+                    OPTIONAL MATCH (premis:Claim)-[premisLink]->(argument)
+                    WITH claim, argument, {id: ID(premis), body: premis.body, state: premis.state} AS premises
+                    WITH claim, {id: ID(argument), state: argument.state, premises: COLLECT(premises)} AS arguments 
+                    WITH {id: id(claim), body: claim.body, state: claim.state, arguments: COLLECT(arguments)} AS claim
+                    RETURN claim
                     LIMIT 100`
         }, function (err, results) {
             if (err) throw err;
