@@ -22,6 +22,7 @@ app.use(function(req, res, next) {
 var db = require('./neo4j/neo-connection.js');
 
 var getClaims = require('./get-claims/_index.js');
+var getArgs = require('./get-claims/_index.js');
 
 //================================= Routes
 var apiRouter = express.Router();
@@ -38,6 +39,10 @@ apiRouter.get('/claims/random', function(req, res){
 
 apiRouter.get('/claims/:claimid', function(req, res){
     getClaims.byId(req, res);
+});
+
+apiRouter.get('/args/:claimid', function (req, res) {
+    getArgs.byClaimId(req, res);
 });
 
 app.use('/', apiRouter);
