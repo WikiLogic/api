@@ -1,0 +1,45 @@
+{
+    "list": [
+        { 
+            "display_title": "Affirmative conclusion from a negative premise",
+            "wikipedia_url": "https://en.wikipedia.org/wiki/Affirmative_conclusion_from_a_negative_premise",
+            "quick_description": "A negative premis is used in support of a positive conclusion" 
+        },
+        { 
+            "display_title": "Affirming a disjunct",
+            "wikipedia_url": "https://en.wikipedia.org/wiki/Affirming_a_disjunct",
+            "quick_description": "Where 'or' is inclusive (and or): A or B, A, Therefore, not B."
+        },
+        { 
+            "display_title": "Affirming the consequent",
+            "wikipedia_url": "https://en.wikipedia.org/wiki/Affirming_the_consequent",
+            "quick_description": "'If P, then Q. Q. Therefor P.' - affirming a positive conclusion 'backwards' without stating that P is the only suffiecnt conclusion for Q. Other things could make Q true."
+        },
+        { 
+            "display_title": "Chewbacca defense",
+            "alternate_titles": ["Ignoratio elenchi", "irrelevant conclusion", "missing the point"],
+            "wikipedia_url": "https://en.wikipedia.org/wiki/Chewbacca_defense",
+            "quick_description": ""
+        },
+        { 
+            "display_title": "Confusion of the inverse",
+            "wikipedia_url": "https://en.wikipedia.org/wiki/Confusion_of_the_inverse" 
+        },
+        { 
+            "display_title": "",
+            "wikipedia_url": "" 
+        },
+        { 
+            "display_title": "",
+            "wikipedia_url": "" 
+        },
+        { 
+            "display_title": "",
+            "wikipedia_url": "" 
+        },
+        { 
+            "display_title": "",
+            "wikipedia_url": "" 
+        }
+    ]
+}
