@@ -59,7 +59,7 @@ module.exports = function(req, res){
                     OPTIONAL MATCH (premis:Claim)-[premisLink]->(argument)
                     WITH claim, argument, {id: ID(premis), body: premis.body, state: premis.state} AS premises
                     WITH claim, {id: ID(argument), state: argument.state, premises: COLLECT(premises)} AS arguments 
-                    WITH {id: id(claim), body: claim.body, state: claim.state, arguments: COLLECT(arguments)} AS claim
+                    WITH {id: id(claim), body: claim.body, state: claim.state, type: labels(claim)[0], arguments: COLLECT(arguments)} AS claim
                     RETURN claim
                     LIMIT 100`
         }, function (err, results) {

@@ -38,8 +38,8 @@ module.exports = function (req, res) {
             query: `match (callingClaim:Claim)<-[:UsedFor]-(c:ArgGroup)<-[:UsedIn]-(n:Claim)
                     WHERE ID(callingClaim) = ${req.params.claimid} 
                     with c, collect({ id: id(n), body: n.body, type: labels(n)[0] }) as claims
-                    with { id: id(c), type: labels(c)[0], SubClaims: claims } as argument
-                    return {claims: collect(argument) }`
+                    with { id: id(c), type: labels(c)[0], subClaims: claims } as argument
+                    return {arguments: collect(argument) }`
         }, function (err, results) {
             if (err) throw err;
 
