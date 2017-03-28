@@ -1,47 +1,47 @@
 //http://prntscr.com/drkvlg
 
 CREATE
-(claimOriginal:Claim {body:  "Prisoners should get rehabilitation", state:false}),
+(claimOriginal:Claim {body:  "Prisoners should get rehabilitation", state:50}),
     //"Prisoners should get rehabilitation" back by argument group
-    (argForRehab:ArgGroup {state:true})-[:SUPPORTS]->(claimOriginal),
+    (argForRehab:ArgGroup {state:50})-[:SUPPORTS]->(claimOriginal),
         //3 claims used in the argument group
-        (claimRehabIsCheap:Claim {body: "The cost of rehabilitation is less than the cost of prison", state:true})-[:USED_IN]->(argForRehab),
-        (claimCheapIsGood:Claim {body: "The lowest cost option is best", state:true})-[:USED_IN]->(argForRehab),
-        (binaryClaim:Claim {body: "There is only a choice between prison or rehab", state:false})-[:USED_IN]->(argForRehab),
+        (claimRehabIsCheap:Claim {body: "The cost of rehabilitation is less than the cost of prison", state:50})-[:USED_IN]->(argForRehab),
+        (claimCheapIsGood:Claim {body: "The lowest cost option is best", state:50})-[:USED_IN]->(argForRehab),
+        (binaryClaim:Claim {body: "There is only a choice between prison or rehab", state:50})-[:USED_IN]->(argForRehab),
 
-    (argAgainstBinary:ArgGroup {state:true})-[:OPPOSES]->(binaryClaim),
-        (claimExecutionIsPossible:Claim {body: "It is possible to execute prisoners", state:true})-[:USED_IN]->(argAgainstBinary),
-        (claimReleaseIsPossible:Claim {body: "It is possible to release prisoners", state:true})-[:USED_IN]->(argAgainstBinary),
+    (argAgainstBinary:ArgGroup {state:50})-[:OPPOSES]->(binaryClaim),
+        (claimExecutionIsPossible:Claim {body: "It is possible to execute prisoners", state:50})-[:USED_IN]->(argAgainstBinary),
+        (claimReleaseIsPossible:Claim {body: "It is possible to release prisoners", state:50})-[:USED_IN]->(argAgainstBinary),
 
-    (argAgainstPossibleRelease:ArgGroup {state:true})-[:OPPOSES]->(claimReleaseIsPossible),
-        (claimCannotRelease:Claim {body: "Releasing prisoners is not an option for society", state:true})-[:USED_IN]->(argAgainstPossibleRelease),
+    (argAgainstPossibleRelease:ArgGroup {state:50})-[:OPPOSES]->(claimReleaseIsPossible),
+        (claimCannotRelease:Claim {body: "Releasing prisoners is not an option for society", state:50})-[:USED_IN]->(argAgainstPossibleRelease),
 
-    (argAgainstNoRelease:ArgGroup {status: true})-[:OPPOSES]->(claimCannotRelease),
-        (:Claim {body: "Commiting crimes is unacceptable in society", state:true})-[:USED_IN]->(argAgainstNoRelease),
-        (:Claim {body: "There is a high chance a criminal will commit a crime again if nothing changes in their situation", state:true})-[:USED_IN]->(argAgainstNoRelease),
+    (argAgainstNoRelease:ArgGroup {state: 50})-[:OPPOSES]->(claimCannotRelease),
+        (:Claim {body: "Commiting crimes is unacceptable in society", state:50})-[:USED_IN]->(argAgainstNoRelease),
+        (:Claim {body: "There is a high chance a criminal will commit a crime again if nothing changes in their situation", state:50})-[:USED_IN]->(argAgainstNoRelease),
 
-(claimModified:Claim {body: "Prisoners should get rehabilitation for the good of society", state:true}),
-    (argAgainstModifiedRehab:ArgGroup {status: true})-[:OPPOSES]->(claimModified),
+(claimModified:Claim {body: "Prisoners should get rehabilitation for the good of society", state:50}),
+    (argAgainstModifiedRehab:ArgGroup {state: 50})-[:OPPOSES]->(claimModified),
         (claimRehabIsCheap)-[:USED_IN]->(argAgainstModifiedRehab),
         (claimCheapIsGood)-[:USED_IN]->(argAgainstModifiedRehab),
-        (expandedBinaryClaim:Claim {body: "There is only a choice between prison or rehab when considering whats best for society", state:true})-[:USED_IN]->(argAgainstModifiedRehab),
+        (expandedBinaryClaim:Claim {body: "There is only a choice between prison or rehab when considering whats best for society", state:50})-[:USED_IN]->(argAgainstModifiedRehab),
 
-    (argAgainstNewBinary:ArgGroup {status: false})-[:OPPOSES]->(expandedBinaryClaim),
+    (argAgainstNewBinary:ArgGroup {statstateus: 50})-[:OPPOSES]->(expandedBinaryClaim),
         (CantRelease)-[:USED_IN]->(argAgainstNewBinary),
-        (:Claim {body: "Executing prisoners is immoral", state:true})-[:USED_IN]->(argAgainstNewBinary),
+        (:Claim {body: "Executing prisoners is immoral", state:50})-[:USED_IN]->(argAgainstNewBinary),
 
 //mutually exclusive groups...
-(claimFlatEarth:Claim {body:"The Earth is flat", status:false}),
-(claimSphericalEarth:Claim {body:"The Earth is spherical", status:false}),
-(claimConicalEarth:Claim {body:"The Earth is a cone", status:true}),
+(claimFlatEarth:Claim {body:"The Earth is flat", state:50}),
+(claimSphericalEarth:Claim {body:"The Earth is spherical", state:50}),
+(claimConicalEarth:Claim {body:"The Earth is a cone", state:50}),
     (earthExclusive:MutualExclusionGroup),
         (earthExclusive)-[:MUTUAL_EXCLUSION_LINK]->(claimFlatEarth),
         (earthExclusive)-[:MUTUAL_EXCLUSION_LINK]->(claimSphericalEarth),
         (earthExclusive)-[:MUTUAL_EXCLUSION_LINK]->(claimConicalEarth),
 
 //or mutually exclusive relationship?
-(claimNorthNegative:Claim {body:"The North Pole has a negative charge", state:true}),
-(claimNorthPositive:Claim {body:"The North Pole has a positive charge", state:false}),
+(claimNorthNegative:Claim {body:"The North Pole has a negative charge", state:50}),
+(claimNorthPositive:Claim {body:"The North Pole has a positive charge", state:50}),
     (claimNorthNegative)-[:MUTUALLY_EXCLUDES]->(claimNorthPositive);
 
   //display the magic!
@@ -50,20 +50,20 @@ CREATE
 
 //want a claim that has multiple arguments each with multiple claims
 CREATE
-    (claimLearnJsFirst:Claim {body: "Javascript should be the first language people learn", stats: true}),
-        (argForLearningJsFirst:ArgGroup {state: true})-[:SUPPORTS]->(claimLearnJsFirst),
-            (claimOriginal:Claim {body:  "Javascript is the best language", state:false})-[:USED_IN]->(argForLearningJsFirst),
-                (argForJS:ArgGroup {state:true})-[:SUPPORTS]->(claimOriginal),
-                    (claimBestIsDefined:Claim {body: "The best language is the one with the most number of users", state:true})-[:USED_IN]->(argForJS),
-                    (claimJsHasTheMost:Claim {body: "Javascript has the most number of users", state:true})-[:USED_IN]->(argForJS),
-                (argAgainstJS:ArgGroup {state:true})-[:OPPOSES]->(claimOriginal),
-                    (claimStrongIsBetter:Claim {body: "Strongly typed languages are better than loosley typed languages", state:true})-[:USED_IN]->(argAgainstJS),
-                    (claimJsIsLose:Claim {body: "Javascript is a loosley typed language", state:true})-[:USED_IN]->(argAgainstJS),
-                    (claimStrongExists:Claim {body: "Strongly typed languages exist", state:true})-[:USED_IN]->(argAgainstJS),
-            (claimLearbBestFirst:Claim {body: "People should learn the best language first", state: false})-[:USED_IN]->(argForLearningJsFirst),
-        (argForJsFirst2:ArgGroup {state: true})-[:SUPPORTS]->(claimLearnJsFirst),
-            (claimJsIsEasiest:Claim {body: "Javascript is the easiest language", state: false})-[:USED_IN]->(argForJsFirst2),
-            (claimLearnEasiestFirst:Claim {body: "People should learn the easiest language first", state: true})-[:USED_IN]->(argForJsFirst2);
+    (claimLearnJsFirst:Claim {body: "Javascript should be the first language people learn", stats: 50}),
+        (argForLearningJsFirst:ArgGroup {state: 50})-[:SUPPORTS]->(claimLearnJsFirst),
+            (claimOriginal:Claim {body:  "Javascript is the best language", state:50})-[:USED_IN]->(argForLearningJsFirst),
+                (argForJS:ArgGroup {state:50})-[:SUPPORTS]->(claimOriginal),
+                    (claimBestIsDefined:Claim {body: "The best language is the one with the most number of users", state:50})-[:USED_IN]->(argForJS),
+                    (claimJsHasTheMost:Claim {body: "Javascript has the most number of users", state:50})-[:USED_IN]->(argForJS),
+                (argAgainstJS:ArgGroup {state:50})-[:OPPOSES]->(claimOriginal),
+                    (claimStrongIsBetter:Claim {body: "Strongly typed languages are better than loosley typed languages", state:50})-[:USED_IN]->(argAgainstJS),
+                    (claimJsIsLose:Claim {body: "Javascript is a loosley typed language", state:50})-[:USED_IN]->(argAgainstJS),
+                    (claimStrongExists:Claim {body: "Strongly typed languages exist", state:50})-[:USED_IN]->(argAgainstJS),
+            (claimLearbBestFirst:Claim {body: "People should learn the best language first", state: 50})-[:USED_IN]->(argForLearningJsFirst),
+        (argForJsFirst2:ArgGroup {state: 50})-[:SUPPORTS]->(claimLearnJsFirst),
+            (claimJsIsEasiest:Claim {body: "Javascript is the easiest language", state: 50})-[:USED_IN]->(argForJsFirst2),
+            (claimLearnEasiestFirst:Claim {body: "People should learn the easiest language first", state: 50})-[:USED_IN]->(argForJsFirst2);
 
 //clear out DB
 MATCH (n) DETACH
