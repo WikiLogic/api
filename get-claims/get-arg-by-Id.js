@@ -37,8 +37,8 @@ module.exports = function (req, res) {
         db.cypher({
             query: `match (callingClaim:Claim)<-[:UsedFor]-(c:ArgGroup)<-[:UsedIn]-(n:Claim)
                     WHERE ID(callingClaim) = ${req.params.claimid} 
-                    with c, collect({ id: id(n), text: n.text, type: labels(n)[0] }) as claims
-                    with { id: id(c), type: labels(c)[0], subClaims: claims } as argument
+                    with c, collect({ id: id(n), text: n.text, probability: n.probability, type: labels(n)[0] }) as claims
+                    with { id: id(c), type: labels(c)[0], probability: c.probability, subClaims: claims } as argument
                     return {arguments: collect(argument) }`
         }, function (err, results) {
             if (err) throw err;
@@ -58,7 +58,6 @@ module.exports = function (req, res) {
 
                 if (results.length > 1) {
                     //should only return one claim when getting by id... something's wrong with the data (scream!)
-
                 }
 
                 res.json({
