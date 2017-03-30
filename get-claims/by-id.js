@@ -13,17 +13,17 @@ var returnObj = {
     "meta": "No meta yet",
     "data": {
         "id": "33",
-        "body": "body text",
-        "state": "null",
+        "text": "body text",
+        "probability": "null",
         "arguments": [
             {
                 "type": "SUPPORTS",
-                "state": "50",
+                "probability": "50",
                 "premises": [
                     {
                         "id": "34",
-                        "body": "premis body",
-                        "state": "50"
+                        "text": "premise body",
+                        "probability": "50"
                     }
                 ]
             }
@@ -56,10 +56,10 @@ module.exports = function(req, res){
             query: `MATCH (claim:Claim)
                     WHERE ID(claim) = ${req.params.claimid} 
                     OPTIONAL MATCH (argument:ArgGroup)-[argLink]->(claim)
-                    OPTIONAL MATCH (premis:Claim)-[premisLink]->(argument)
-                    WITH claim, argument, {id: ID(premis), body: premis.body, state: premis.state} AS premises
-                    WITH claim, {id: ID(argument), state: argument.state, premises: COLLECT(premises)} AS arguments 
-                    WITH {id: id(claim), body: claim.body, state: claim.state, type: labels(claim)[0], arguments: COLLECT(arguments)} AS claim
+                    OPTIONAL MATCH (premise:Claim)-[premisLink]->(argument)
+                    WITH claim, argument, {id: ID(premise), text: premise.text, probability: premise.probability} AS premises
+                    WITH claim, {id: ID(argument), probability: argument.probability, premises: COLLECT(premises)} AS arguments 
+                    WITH {id: id(claim), text: claim.text, probability: claim.probability, type: labels(claim)[0], arguments: COLLECT(arguments)} AS claim
                     RETURN claim
                     LIMIT 100`
         }, function (err, results) {

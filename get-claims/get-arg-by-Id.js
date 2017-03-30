@@ -13,17 +13,17 @@ var returnObj = {
     "meta": "No meta yet",
     "data": {
         "id": "33",
-        "body": "body text",
-        "state": "null",
+        "text": "body text",
+        "probability": "null",
         "arguments": [
             {
                 "type": "SUPPORTS",
-                "state": "50",
+                "probability": "50",
                 "premises": [
                     {
                         "id": "34",
-                        "body": "premis body",
-                        "state": "50"
+                        "text": "premis body",
+                        "probability": "50"
                     }
                 ]
             }
@@ -37,7 +37,7 @@ module.exports = function (req, res) {
         db.cypher({
             query: `match (callingClaim:Claim)<-[:UsedFor]-(c:ArgGroup)<-[:UsedIn]-(n:Claim)
                     WHERE ID(callingClaim) = ${req.params.claimid} 
-                    with c, collect({ id: id(n), body: n.body, type: labels(n)[0] }) as claims
+                    with c, collect({ id: id(n), text: n.text, type: labels(n)[0] }) as claims
                     with { id: id(c), type: labels(c)[0], subClaims: claims } as argument
                     return {arguments: collect(argument) }`
         }, function (err, results) {
