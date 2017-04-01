@@ -24,7 +24,6 @@ module.exports = function(req, res){
                 var claims = [];
 
                 results.map(function(claim){
-                    console.log("claim: ", claim.claim);
                     claims.push({
                         id: claim.claim._id,
                         labels: claim.claim.labels,

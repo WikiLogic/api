@@ -54,14 +54,14 @@ module.exports = function(req, res){
     try {
         db.cypher({
             query: `MATCH (claim)
-                    WHERE claim:Claim OR claim:Axiom AND ID(claim) = ${req.params.claimid} 
+                    WHERE (claim:Claim OR claim:Axiom) AND (ID(claim) = ${req.params.claimid})
                     OPTIONAL MATCH (argument:ArgGroup)-[argLink]->(claim)
                     OPTIONAL MATCH (premis:Claim)-[premisLink]->(argument)
                     WITH claim, argument, argLink, 
-                        CASE WHEN ID(premis) IS NULL THEN null ELSE {id: ID(premis), text: premis.text, state: premis.state} END AS premises
+                        CASE WHEN ID(premis) IS NULL THEN null ELSE {id: ID(premis), text: premis.text, labels: LABELS(premis), state: premis.state} END AS premises
                     WITH claim, 
                         CASE WHEN ID(argument) IS NULL THEN null ELSE {id: ID(argument), type:TYPE(argLink), state: argument.state, premises: COLLECT(premises)} END AS arguments 
-                    WITH {id: id(claim), text: claim.text, state: claim.state, arguments: COLLECT(arguments)} AS claim
+                    WITH {id: id(claim), text: claim.text, labels: LABELS(claim), state: claim.state, arguments: COLLECT(arguments)} AS claim
                     RETURN claim
                     LIMIT 100`
         }, function (err, results) {
@@ -82,7 +82,7 @@ module.exports = function(req, res){
 
                 if (results.length > 1){
                     //should only return one claim when getting by id... something's wrong with the data (scream!)
-
+                    console.log('many many many');
                 }
 
                 res.json({
