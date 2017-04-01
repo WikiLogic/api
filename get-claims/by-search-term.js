@@ -10,17 +10,21 @@ module.exports = function(req, res){
 
     try {
         db.cypher({
-            query: `MATCH (claim:Claim) WHERE claim.text CONTAINS "${req.query.search}" RETURN claim LIMIT 25`
+            query: `MATCH (claim:Claim)
+                    WHERE claim.text CONTAINS "${req.query.search}" 
+                    WITH claim 
+                    MATCH (axiom:Axiom)
+                    WHERE axiom.text CONTAINS "${req.query.search}" 
+                    RETURN axiom AS axioms, claim AS claims LIMIT 25`
         }, function (err, results) {
-            console.log("HI");
             if (err) throw err;
-            console.log("PHEW");
+            
             if (!results) {
-                console.log('No claims found.');
                 res.json({
                     error: 'No claims found'
                 });
             } else {
+                console.log("results: ", results);
                 var claims = [];
 
                 if (results.length > 0){
