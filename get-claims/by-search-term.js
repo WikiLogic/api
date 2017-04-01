@@ -10,7 +10,7 @@ module.exports = function(req, res){
 
     try {
         db.cypher({
-            query: `MATCH (claim:Claim) WHERE claim.body CONTAINS "${req.query.search}" RETURN claim LIMIT 25`
+            query: `MATCH (claim:Claim) WHERE claim.text CONTAINS "${req.query.search}" RETURN claim LIMIT 25`
         }, function (err, results) {
             console.log("HI");
             if (err) throw err;
@@ -28,7 +28,7 @@ module.exports = function(req, res){
                         claims.push({
                             id: match.claim._id,
                             type: 'claim',
-                            body: match.claim.properties.body,
+                            text: match.claim.properties.text,
                             state: match.claim.properties.state,
                         });
                     })
