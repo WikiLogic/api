@@ -58,11 +58,11 @@ CREATE
                     (claimJsHasTheMost:Claim {text: "Javascript has the most number of users", state:50})-[:USED_IN]->(argForJS),
                 (argAgainstJS:ArgGroup {state:50})-[:OPPOSES]->(claimOriginal),
                     (claimStrongIsBetter:Claim {text: "Strongly typed languages are better than loosley typed languages", state:50})-[:USED_IN]->(argAgainstJS),
-                    (claimJsIsLose:Axiom {text: "Javascript is a loosley typed language"})-[:USED_IN]->(argAgainstJS),
-                    (claimStrongExists:Axiom {text: "Strongly typed languages exist"})-[:USED_IN]->(argAgainstJS),
+                    (claimJsIsLose:Claim:Axiom {text: "Javascript is a loosley typed language"})-[:USED_IN]->(argAgainstJS),
+                    (claimStrongExists:Claim:Axiom {text: "Strongly typed languages exist"})-[:USED_IN]->(argAgainstJS),
             (claimLearbBestFirst:Claim {text: "People should learn the best language first", state: 50})-[:USED_IN]->(argForLearningJsFirst),
         (argForJsFirst2:ArgGroup {state: 50})-[:SUPPORTS]->(claimLearnJsFirst),
-            (claimJsIsEasiest:Axiom {text: "Javascript is the easiest language"})-[:USED_IN]->(argForJsFirst2),
+            (claimJsIsEasiest:Claim:Axiom {text: "Javascript is the easiest language"})-[:USED_IN]->(argForJsFirst2),
             (claimLearnEasiestFirst:Claim {text: "People should learn the easiest language first", state: 50})-[:USED_IN]->(argForJsFirst2);
 
 //clear out DB
@@ -76,20 +76,20 @@ CREATE
     (arg0:ArgGroup {state:50})-[:SUPPORTS]->(claim000),
         (claim001:Claim {text:"one", state:50})-[:USED_IN]->(arg0),
         (claim002:Claim {text:"two", state:50})-[:USED_IN]->(arg0),
-        (claim003:Axiom {text:"three"})-[:USED_IN]->(arg0),
+        (claim003:Claim:Axiom {text:"three"})-[:USED_IN]->(arg0),
     (arg1:ArgGroup {state:50})-[:SUPPORTS]->(claim000),
         (claim004:Claim {text:"four", state:50})-[:USED_IN]->(arg1),
         (claim005:Claim {text:"five", state:50})-[:USED_IN]->(arg1),
-        (claim006:Axiom {text:"six"})-[:USED_IN]->(arg1),
+        (claim006:Claim:Axiom {text:"six"})-[:USED_IN]->(arg1),
     //arguments against
     (arg2:ArgGroup {state:50})-[:OPPOSES]->(claim000),
         (claim007:Claim {text:"seven", state:50})-[:USED_IN]->(arg2),
         (claim008:Claim {text:"eight", state:50})-[:USED_IN]->(arg2),
-        (claim009:Axiom {text:"nine"})-[:USED_IN]->(arg2),
+        (claim009:Claim:Axiom {text:"nine"})-[:USED_IN]->(arg2),
     (arg3:ArgGroup {state:50})-[:OPPOSES]->(claim000),
         (claim010:Claim {text:"ten", state:50})-[:USED_IN]->(arg3),
         (claim011:Claim {text:"eleven", state:50})-[:USED_IN]->(arg3),
-        (claim012:Axiom {text:"twelve"})-[:USED_IN]->(arg3),
+        (claim012:Claim:Axiom {text:"twelve"})-[:USED_IN]->(arg3),
 
     //1 supporting 
     (claim019:Claim {text:"nineteen", state:50}),
@@ -97,12 +97,12 @@ CREATE
             (claim000)-[:USED_IN]->(arg4),
             (claim013:Claim {text:"thirteen", state:50})-[:USED_IN]->(arg4),
             (claim014:Claim {text:"fourteen", state:50})-[:USED_IN]->(arg4),
-            (claim015:Axiom {text:"fifteen"})-[:USED_IN]->(arg4),
+            (claim015:Claim:Axiom {text:"fifteen"})-[:USED_IN]->(arg4),
     //1 opposing
     (claim020:Claim {text:"twenty", state:50}),
         (arg5:ArgGroup {state:50})-[:OPPOSES]->(claim020),
             (claim000)-[:USED_IN]->(arg5),
             (claim016:Claim {text:"sixteen", state:50})-[:USED_IN]->(arg5),
             (claim017:Claim {text:"seventeen", state:50})-[:USED_IN]->(arg5),
-            (claim018:Axiom {text:"eighteen"})-[:USED_IN]->(arg5);
+            (claim018:Claim:Axiom {text:"eighteen"})-[:USED_IN]->(arg5);
 

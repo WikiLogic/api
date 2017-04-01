@@ -53,8 +53,8 @@ module.exports = function(req, res){
                         //CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(argLink), type: TYPE(argLink), source: ID(startNode(argLink)), target: ID(endNode(argLink))}) END AS argLinks, 
     try {
         db.cypher({
-            query: `MATCH (claim:Claim)
-                    WHERE ID(claim) = ${req.params.claimid} 
+            query: `MATCH (claim)
+                    WHERE claim:Claim OR claim:Axiom AND ID(claim) = ${req.params.claimid} 
                     OPTIONAL MATCH (argument:ArgGroup)-[argLink]->(claim)
                     OPTIONAL MATCH (premis:Claim)-[premisLink]->(argument)
                     WITH claim, argument, argLink, 
