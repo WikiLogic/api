@@ -21,7 +21,8 @@ app.use(function(req, res, next) {
 
 var db = require('./neo4j/neo-connection.js');
 
-var getClaims = require('./get-claims/_index.js');
+var getClaims = require('./read/_index.js');
+var create = require('./write/_index.js');
 
 //================================= Routes
 
@@ -42,18 +43,17 @@ apiRouter.get('/claims/:claimid', function(req, res){
 
 //--writing
 apiRouter.post('/create/claim', function(req, res, next){
-    console.log("create claim - check authentication");
+    console.log("TODO: check authentication");
     next();
 }, function(req, res){
-    console.log("create claim");
-    res.json({api: 'says hello!'});
+    create.claim(req, res);
 });
+
 apiRouter.post('/create/argument', function(req, res, next){
-    console.log("create claim - check authentication");
+    console.log("TODO: check authentication");
     next();
 }, function(req, res){
-    console.log("create argument");
-    res.json({api: 'says hello!'});
+    create.argument(req, res);
 });
 
 app.use('/', apiRouter);
