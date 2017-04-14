@@ -13,17 +13,17 @@ var returnObj = {
     "meta": "No meta yet",
     "data": {
         "id": "33",
-        "text": "body text",
-        "probability": "null",
+        "text": "text text",
+        "state": "null",
         "arguments": [
             {
                 "type": "SUPPORTS",
-                "probability": "50",
+                "state": "50",
                 "premises": [
                     {
                         "id": "34",
-                        "text": "premise body",
-                        "probability": "50"
+                        "text": "premis text",
+                        "state": "50"
                     }
                 ]
             }
@@ -36,15 +36,15 @@ var returnObj = {
 //                     OPTIONAL MATCH (subClaim:Claim)-[subLink]->(argument:ArgGroup)-[argLink]->(claim)
 //                     OPTIONAL MATCH (claim)-[usedInLink]->(usedInArg)<-[usedInSiblingLink]-(usedInSibling)
 //                     RETURN  
-//                         CASE WHEN ID(usedInArg) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(usedInSibling), body: usedInSibling.body, state: usedInSibling.state, type: "claim"}) END AS usedInSiblings,
+//                         CASE WHEN ID(usedInArg) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(usedInSibling), text: usedInSibling.text, state: usedInSibling.state, type: "claim"}) END AS usedInSiblings,
 //                         CASE WHEN ID(usedInArg) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(usedInSiblingLink), type: "USED_IN", source: ID(startNode(usedInSiblingLink)), target: ID(endNode(usedInLink))}) END AS usedInSiblingLinks,
 //                         CASE WHEN ID(usedInArg) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(usedInArg), state: usedInArg.state, type: "argument"}) END AS usedInArgs,
 //                         CASE WHEN ID(usedInArg) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(usedInLink), type: "USED_IN", source: ID(startNode(usedInLink)), target: ID(endNode(usedInLink))}) END AS usedInLinks,
-//                         {id: id(claim), body: claim.body, state: claim.state, type: "claim"} AS claim,
+//                         {id: id(claim), text: claim.text, state: claim.state, type: "claim"} AS claim,
 //                         CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(argLink), type: TYPE(argLink), source: ID(startNode(argLink)), target: ID(endNode(argLink))}) END AS argLinks, 
 //                         CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(argument), state: argument.state, type: "argument"}) END AS arguments, 
 //                         CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(subLink), type: TYPE(subLink), source: ID(startNode(subLink)), target: ID(endNode(subLink))}) END AS subLinks,
-//                         CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(subClaim), body: subClaim.body, state: subClaim.state, type: "claim"}) END AS subClaims
+//                         CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(subClaim), text: subClaim.text, state: subClaim.state, type: "claim"}) END AS subClaims
 //                     LIMIT 100`
 module.exports = function(req, res){
 
@@ -53,13 +53,15 @@ module.exports = function(req, res){
                         //CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(argLink), type: TYPE(argLink), source: ID(startNode(argLink)), target: ID(endNode(argLink))}) END AS argLinks, 
     try {
         db.cypher({
-            query: `MATCH (claim:Claim)
-                    WHERE ID(claim) = ${req.params.claimid} 
+            query: `MATCH (claim)
+                    WHERE (claim:Claim OR claim:Axiom) AND (ID(claim) = ${req.params.claimid})
                     OPTIONAL MATCH (argument:ArgGroup)-[argLink]->(claim)
-                    OPTIONAL MATCH (premise:Claim)-[premisLink]->(argument)
-                    WITH claim, argument, {id: ID(premise), text: premise.text, probability: premise.probability} AS premises
-                    WITH claim, {id: ID(argument), probability: argument.probability, premises: COLLECT(premises)} AS arguments 
-                    WITH {id: id(claim), text: claim.text, probability: claim.probability, type: labels(claim)[0], arguments: COLLECT(arguments)} AS claim
+                    OPTIONAL MATCH (premis:Claim)-[premisLink]->(argument)
+                    WITH claim, argument, argLink, 
+                        CASE WHEN ID(premis) IS NULL THEN null ELSE {id: ID(premis), text: premis.text, labels: LABELS(premis), state: premis.state} END AS premises
+                    WITH claim, 
+                        CASE WHEN ID(argument) IS NULL THEN null ELSE {id: ID(argument), type:TYPE(argLink), state: argument.state, premises: COLLECT(premises)} END AS arguments 
+                    WITH {id: id(claim), text: claim.text, labels: LABELS(claim), state: claim.state, arguments: COLLECT(arguments)} AS claim
                     RETURN claim
                     LIMIT 100`
         }, function (err, results) {
@@ -80,7 +82,7 @@ module.exports = function(req, res){
 
                 if (results.length > 1){
                     //should only return one claim when getting by id... something's wrong with the data (scream!)
-
+                    console.log('many many many');
                 }
 
                 res.json({

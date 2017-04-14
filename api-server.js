@@ -21,31 +21,49 @@ app.use(function(req, res, next) {
 
 var db = require('./neo4j/neo-connection.js');
 
-var getClaims = require('./get-claims/_index.js');
-var getArgs = require('./get-claims/_index.js');
+
+var getClaims = require('./read/_index.js');
+var getArgs = require('./read/_index.js');
+var create = require('./write/_index.js');
+
 
 //================================= Routes
+
 var apiRouter = express.Router();
 
+//--reading
 apiRouter.get('/claims', function(req, res){
     if (req.query.hasOwnProperty('search')){
         getClaims.bySearchTerm(req, res);
     }
 });
-
 apiRouter.get('/claims/random', function(req, res){
     getClaims.random(req, res);
 });
-
 apiRouter.get('/claims/:claimid', function(req, res){
     getClaims.byId(req, res);
 });
-
 apiRouter.get('/args/:claimid', function (req, res) {
     getArgs.byClaimId(req, res);
 });
 
+//--writing
+apiRouter.post('/create/claim', function(req, res, next){
+    console.log("TODO: check authentication");
+    next();
+}, function(req, res){
+    create.claim(req, res);
+});
+
+apiRouter.post('/create/argument', function(req, res, next){
+    console.log("TODO: check authentication");
+    next();
+}, function(req, res){
+    create.argument(req, res);
+});
+
 app.use('/', apiRouter);
+
 
 
 
