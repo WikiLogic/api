@@ -14,16 +14,16 @@ var returnObj = {
     "data": {
         "id": "33",
         "text": "text text",
-        "state": "null",
+        "probability": "null",
         "arguments": [
             {
                 "type": "SUPPORTS",
-                "state": "50",
+                "probability": "50",
                 "premises": [
                     {
                         "id": "34",
                         "text": "premis text",
-                        "state": "50"
+                        "probability": "50"
                     }
                 ]
             }
@@ -58,10 +58,10 @@ module.exports = function(req, res){
                     OPTIONAL MATCH (argument:ArgGroup)-[argLink]->(claim)
                     OPTIONAL MATCH (premis:Claim)-[premisLink]->(argument)
                     WITH claim, argument, argLink, 
-                        CASE WHEN ID(premis) IS NULL THEN null ELSE {id: ID(premis), text: premis.text, labels: LABELS(premis), state: premis.state} END AS premises
+                        CASE WHEN ID(premis) IS NULL THEN null ELSE {id: ID(premis), text: premis.text, labels: LABELS(premis), probability: premis.probability} END AS premises
                     WITH claim, 
-                        CASE WHEN ID(argument) IS NULL THEN null ELSE {id: ID(argument), type:TYPE(argLink), state: argument.state, premises: COLLECT(premises)} END AS arguments 
-                    WITH {id: id(claim), text: claim.text, labels: LABELS(claim), state: claim.state, arguments: COLLECT(arguments)} AS claim
+                        CASE WHEN ID(argument) IS NULL THEN null ELSE {id: ID(argument), type:TYPE(argLink), probability: argument.probability, premises: COLLECT(premises)} END AS arguments 
+                    WITH {id: id(claim), text: claim.text, labels: LABELS(claim), probability: claim.probability, arguments: COLLECT(arguments)} AS claim
                     RETURN claim
                     LIMIT 100`
         }, function (err, results) {

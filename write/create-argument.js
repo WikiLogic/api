@@ -16,7 +16,7 @@ var returnObj = {
     "data": {
         "id": "33",
         "text": "text text",
-        "state": "null",
+        "probability": "null",
         "arguments": []
     }
 }

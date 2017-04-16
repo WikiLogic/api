@@ -1,3 +1,4 @@
+-------------------------------------------------------------------------------------
 CREATE
 //"Prisoners should get rehabilitation" back by argument group
   (arg1:ArgGroup {probability : 100})-[:UsedFor]->(prisoners:Claim {text: "Prisoners should get rehabilitation", axiom : true, probability : 100}),
@@ -52,7 +53,7 @@ CREATE
   //display the magic!
   //match (n) return (n)limit 100
 
-
+----------------------------------------------------------------------------------------------------------------------------
 http://stackoverflow.com/questions/41780737/neo4j-return-a-node-with-an-array-of-nodes-as-propery-or-seperate-array
 
 match (claim:Claim)-[:UsedIn]->(argGroup:ArgGroup)
@@ -68,9 +69,48 @@ with { id: id(argGroup), text: argGroup.text, type: labels(argGroup)[0], SubNode
 return {nodes: collect(containerNode) }
 
 
-
 MATCH (claim:Claim)-[:USED_IN]->(argGroup:ArgGroup)
                    (argGroup)-->(:Claim {text: "Prisoners should get rehabilitation"})
                    with argGroup, collect({ id: id(claim), text: claim.text, type: labels(claim)[0] }) as nodes
                    with { id: id(argGroup), text: argGroup.text, type: labels(argGroup)[0], SubNodes: nodes } as containerNode
                    RETURN {nodes: collect(containerNode) }
+--------------------------------------------------------------------------------------------------------------------------------
+
+//test data - claim000 has 2 for args, 2 against args and is used in 1 supporting argument and 1 opposing argument
+CREATE
+(claim000:Claim {text:"zero", probability :50}),
+    //agruments for
+    (arg0:ArgGroup {probability:50})-[:SUPPORTS]->(claim000),
+        (claim001:Claim {text:"one", probability:50 })-[:USED_IN]->(arg0),
+        (claim002:Claim {text:"two", probability:50})-[:USED_IN]->(arg0),
+        (claim003:Claim:Axiom {text:"three"})-[:USED_IN]->(arg0),
+    (arg1:ArgGroup {probability:50})-[:SUPPORTS]->(claim000),
+        (claim004:Claim {text:"four", probability:50})-[:USED_IN]->(arg1),
+        (claim005:Claim {text:"five", probability:50})-[:USED_IN]->(arg1),
+        (claim006:Claim:Axiom {text:"six"})-[:USED_IN]->(arg1),
+    //arguments against
+    (arg2:ArgGroup {probability:50})-[:OPPOSES]->(claim000),
+        (claim007:Claim {text:"seven", probability:50})-[:USED_IN]->(arg2),
+        (claim008:Claim {text:"eight", probability:50})-[:USED_IN]->(arg2),
+        (claim009:Claim:Axiom {text:"nine"})-[:USED_IN]->(arg2),
+    (arg3:ArgGroup {probability:50})-[:OPPOSES]->(claim000),
+        (claim010:Claim {text:"ten", probability:50})-[:USED_IN]->(arg3),
+        (claim011:Claim {text:"eleven", probability:50})-[:USED_IN]->(arg3),
+        (claim012:Claim:Axiom {text:"twelve"})-[:USED_IN]->(arg3),
+
+    //1 supporting 
+    (claim019:Claim {text:"nineteen", probability:50}),
+        (arg4:ArgGroup {probability:50})-[:SUPPORTS]->(claim019),
+            (claim000)-[:USED_IN]->(arg4),
+            (claim013:Claim {text:"thirteen", probability:50})-[:USED_IN]->(arg4),
+            (claim014:Claim {text:"fourteen", probability:50})-[:USED_IN]->(arg4),
+            (claim015:Claim:Axiom {text:"fifteen"})-[:USED_IN]->(arg4),
+    //1 opposing
+    (claim020:Claim {text:"twenty", probability:50}),
+        (arg5:ArgGroup {probability:50})-[:OPPOSES]->(claim020),
+            (claim000)-[:USED_IN]->(arg5),
+            (claim016:Claim {text:"sixteen", probability:50})-[:USED_IN]->(arg5),
+            (claim017:Claim {text:"seventeen", probability:50})-[:USED_IN]->(arg5),
+            (claim018:Claim:Axiom {text:"eighteen"})-[:USED_IN]->(arg5);
+
+--------------------------------------------------------------------------------------------------------------------------------

@@ -12,7 +12,7 @@ var returnObj = {
     "data": {
         "id": "33",
         "text": "text text",
-        "state": "null",
+        "probability": "null",
         "arguments": []
     }
 }
@@ -21,7 +21,7 @@ module.exports = function(req, res){
     console.log("TODO: escape post data");
     try {
         db.cypher({
-            query: `CREATE (newClaim:Claim {text:  "${req.body.text}", state:50})
+            query: `CREATE (newClaim:Claim {text:  "${req.body.text}", probability:50})
                     RETURN newClaim`
         }, function (err, results) {
             if (err) throw err;
