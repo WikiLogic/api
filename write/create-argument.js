@@ -22,13 +22,17 @@ var returnObj = {
 }
 
 function testPostData(postData){
-    if (!postData.hasOwnProperty('parent_claim')) {
+    if (!postData.hasOwnProperty('parent_claim_id')) {
+        console.log("1", postData.parent_claim_id);
         return false;
     }
-    if (!postData.hasOwnProperty('type') || (postData.type != 'SUPPORTS' || postData.type != 'OPPOSES') ) {
+    if (!postData.hasOwnProperty('type') || (postData.type != 'SUPPORTS' && postData.type != 'OPPOSES') ) {
+        console.log("2", postData.type);
         return false;
     }
-    if (!postData.hasOwnProperty('premises') || postData.premises.length < 2) {
+    if (!postData.hasOwnProperty('premise_ids') || postData.premise_ids.length < 2) {
+        //premise_ids should be an array of claim IDs
+        console.log("3", postData.premises);
         return false;
     }
     return true;
@@ -36,7 +40,7 @@ function testPostData(postData){
 
 module.exports = function(req, res){
     
-    console.log("TODO: escape post data");
+    console.log("TODO: escape post data", typeof req.body);
 
     if (!testPostData(req.body)) {
         return res.json({
@@ -44,14 +48,28 @@ module.exports = function(req, res){
         });
     }
 
-    var premisMatch = req.body.premises;
+    var premisMatch = req.body.premise_ids;
     premisMatch.toString();
 
     try {
+        //create an argument node with a ${req.body.type} link to the ${req.body.parent_claim_id} claim node and multiple USED_IN links from the req.body.premise_ids claims
         db.cypher({
             query: `MATCH (claim:Claim), (premis:Claim)
-                    WHERE ID(claim) = ${req.body.parent_claim} AND ID(premis) IN [${premisMatch}]
-                    RETURN claim premis`
+                    WHERE ID(claim) = ${req.body.parent_claim_id} AND ID(premis) IN [${premisMatch}]
+                    WITH claim, COLLECT(premis) AS premises
+                    CREATE (newArgument:ArgGroup)-[:${req.body.type}]->(claim)
+                    WITH newArgument, premises, claim
+                    FOREACH (premise IN premises | CREATE (premise)-[:USED_IN]->(newArgument))
+                    WITH claim
+                    OPTIONAL MATCH (argument:ArgGroup)-[argLink]->(claim)
+                    OPTIONAL MATCH (premis:Claim)-[premisLink]->(argument)
+                    WITH claim, argument, argLink, 
+                        CASE WHEN ID(premis) IS NULL THEN null ELSE {id: ID(premis), text: premis.text, labels: LABELS(premis), state: premis.state} END AS premises
+                    WITH claim, 
+                        CASE WHEN ID(argument) IS NULL THEN null ELSE {id: ID(argument), type:TYPE(argLink), state: argument.state, premises: COLLECT(premises)} END AS arguments 
+                    WITH {id: id(claim), text: claim.text, labels: LABELS(claim), state: claim.state, arguments: COLLECT(arguments)} AS claim
+                    RETURN claim
+                    LIMIT 100`
         }, function (err, results) {
             if (err) throw err;
             
@@ -70,7 +88,7 @@ module.exports = function(req, res){
 
                 res.json({
                     meta: 'No meta yet',
-                    data: results
+                    data: results[0]
                 });
             }
         });
