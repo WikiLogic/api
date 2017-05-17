@@ -21,12 +21,12 @@ var returnObj = {
     }
 }
 
-function testPostData(postData){
+function testPostData(postData) {
     if (!postData.hasOwnProperty('parent_claim_id')) {
         console.log("1", postData.parent_claim_id);
         return false;
     }
-    if (!postData.hasOwnProperty('type') || (postData.type != 'SUPPORTS' && postData.type != 'OPPOSES') ) {
+    if (!postData.hasOwnProperty('type') || (postData.type != 'SUPPORTS' && postData.type != 'OPPOSES')) {
         console.log("2", postData.type);
         return false;
     }
@@ -38,8 +38,8 @@ function testPostData(postData){
     return true;
 }
 
-module.exports = function(req, res){
-    
+module.exports = function (req, res) {
+
     console.log("TODO: escape post data", typeof req.body);
 
     if (!testPostData(req.body)) {
@@ -53,48 +53,78 @@ module.exports = function(req, res){
 
     try {
         //create an argument node with a ${req.body.type} link to the ${req.body.parent_claim_id} claim node and multiple USED_IN links from the req.body.premise_ids claims
+        //call WL.CreateArgumentGroup([1243, 1254])
+        //call WL.AttachArgumentGroup(1243, 1254, "SUPPORTS")
+
+        var newArgGroupID = 0;
+
+        console.log("step by step:1");
+
         db.cypher({
-            query: `MATCH (claim:Claim), (premis:Claim)
-                    WHERE ID(claim) = ${req.body.parent_claim_id} AND ID(premis) IN [${premisMatch}]
-                    WITH claim, COLLECT(premis) AS premises
-                    CREATE (newArgument:ArgGroup)-[:${req.body.type}]->(claim)
-                    WITH newArgument, premises, claim
-                    FOREACH (premise IN premises | CREATE (premise)-[:USED_IN]->(newArgument))
-                    WITH claim
-                    OPTIONAL MATCH (argument:ArgGroup)-[argLink]->(claim)
-                    OPTIONAL MATCH (premis:Claim)-[premisLink]->(argument)
-                    WITH claim, argument, argLink, 
-                        CASE WHEN ID(premis) IS NULL THEN null ELSE {id: ID(premis), text: premis.text, labels: LABELS(premis), state: premis.state} END AS premises
-                    WITH claim, 
-                        CASE WHEN ID(argument) IS NULL THEN null ELSE {id: ID(argument), type:TYPE(argLink), state: argument.state, premises: COLLECT(premises)} END AS arguments 
-                    WITH {id: id(claim), text: claim.text, labels: LABELS(claim), state: claim.state, arguments: COLLECT(arguments)} AS claim
-                    RETURN claim
-                    LIMIT 100`
+            query: `call WL.CreateArgumentGroup([${premisMatch}])`
         }, function (err, results) {
+            console.log("step by step:2");
             if (err) throw err;
-            
+
             if (!results) {
                 console.log('No claims found.');
-                res.json({ error: 'No claims found' });
+                res.json({
+                    error: 'No claims found'
+                });
             } else {
-                if (results.length == 0){
-                    
+                if (results.length == 0) {
+
                     res.json({
                         meta: 'Claim was not returned, probably means it wasn\'t created ',
                         data: {}
-                    });  
-                    return;  
-                } 
+                    });
+                    return;
+                }
+                
+                newArgGroupID = results[0].value;
 
-                res.json({
-                    meta: 'No meta yet',
-                    data: results[0]
+                db.cypher({
+                    query: `call WL.AttachArgumentGroup(${newArgGroupID}, 1302, "SUPPORTS")`
+                }, function (err, results) {
+                    if (err) throw err;
+
+                    if (!results) {
+                        console.log('No claims found.');
+                        res.json({
+                            error: 'No claims found'
+                        });
+                    } else {
+                        if (results.length == 0) {
+
+                            res.json({
+                                meta: 'Claim was not returned, probably means it wasn\'t created ',
+                                data: {}
+                            });
+                            return;
+                        }
+                        console.log(results);
+
+                        res.json({
+                            meta: 'No meta yet',
+                            data: results[0]
+                        });
+                    }
                 });
+
+
+
+                // res.json({
+                //     meta: 'No meta yet',
+                //     data: results[0]
+                // });
             }
         });
 
-    }
-    catch(err){
+        console.log("step by step:3");
+
+
+
+    } catch (err) {
         console.log('error happened - meep moop');
         res.json({
             errors: JSON.stringify(err),
