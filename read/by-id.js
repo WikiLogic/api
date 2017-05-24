@@ -65,7 +65,13 @@ module.exports = function(req, res){
                     RETURN claim
                     LIMIT 100`
         }, function (err, results) {
-            if (err) throw err;
+            if (err) {
+                console.log('eer', err);
+                res.json({
+                    meta: 'There was a server error, :/',
+                    data: {}
+                });
+            }
             
             if (!results) {
                 console.log('No claims found.');
@@ -94,7 +100,7 @@ module.exports = function(req, res){
 
     }
     catch(err){
-        console.log('error happened - meep moop');
+        console.log('error in by id', err);
         res.json({
             errors: JSON.stringify(err),
         });

@@ -1,0 +1,6 @@
+api:
+  image: node
+  ports:
+   - "80:3030"
+  volumes:
+   - .:/usr/src/api #copy files from the wlsrc directory into the node container

@@ -19,7 +19,12 @@ return argGroup, claim, mainClaim`;
             query: builder
         }, function (err, results) {
 
-            if (err) throw err;
+            if (err) {
+                res.json({
+                    meta: 'There was a server error, :/',
+                    data: {}
+                });
+            }
 
             if (!results) {
                 console.log('No claims found.');
@@ -53,7 +58,7 @@ return argGroup, claim, mainClaim`;
 
     }
     catch (err) {
-        console.log('error happened - meep moop');
+        console.log('error in random', err);
         res.json({
             errors: JSON.stringify(err),
         });

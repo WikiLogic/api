@@ -14,7 +14,12 @@ module.exports = function(req, res){
                     WHERE claim.text CONTAINS "${req.query.search}" 
                     RETURN claim LIMIT 25`
         }, function (err, results) {
-            if (err) throw err;
+            if (err) {
+                res.json({
+                    meta: 'There was a server error, :/',
+                    data: {}
+                });
+            }
             
             if (!results) {
                 res.json({
@@ -43,7 +48,7 @@ module.exports = function(req, res){
 
     }
     catch(err){
-        console.log('error happened - meep moop');
+        console.log('error in search term', err);
         res.json({
             errors: JSON.stringify(err),
         });
