@@ -1,5 +1,5 @@
 "use strict";
-var db = require('../neo4j/neo-connection.js');
+var neo = require('../neo4j/neo-connection.js');
 
 /* /claims/:claimid
  * returns 
@@ -9,7 +9,7 @@ var db = require('../neo4j/neo-connection.js');
 module.exports = function(req, res){
 
     try {
-        db.cypher({
+        neo.db.cypher({
             query: `MATCH (claim)
                     WHERE claim.text CONTAINS "${req.query.search}" 
                     RETURN claim LIMIT 25`

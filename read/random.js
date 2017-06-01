@@ -1,5 +1,5 @@
 "use strict";
-var db = require('../neo4j/neo-connection.js');
+var neo = require('../neo4j/neo-connection.js');
 
 /* /claims/random
  * returns 
@@ -15,7 +15,7 @@ return argGroup, claim, mainClaim`;
     var match100 = 'MATCH (claim) RETURN claim LIMIT 100';
 
     try {
-        db.cypher({
+        neo.db.cypher({
             query: builder
         }, function (err, results) {
 
