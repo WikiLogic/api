@@ -52,6 +52,7 @@ module.exports = function(req, res){
                         //CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(subLink), type: TYPE(subLink), source: ID(startNode(subLink)), target: ID(endNode(subLink))}) END AS subLinks,
                         //CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(argLink), type: TYPE(argLink), source: ID(startNode(argLink)), target: ID(endNode(argLink))}) END AS argLinks, 
     try {
+        console.log('trying connection');
         neo.db.cypher({
             query: `MATCH (claim)
                     WHERE (claim:Claim OR claim:Axiom) AND (ID(claim) = ${req.params.claimid})
@@ -71,6 +72,7 @@ module.exports = function(req, res){
                     meta: 'There was a server error, :/',
                     data: {}
                 });
+                return;
             }
             
             if (!results) {
