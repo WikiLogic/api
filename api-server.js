@@ -19,7 +19,7 @@ app.use(function(req, res, next) {
     next();
 });
 
-var db = require('./neo4j/neo-connection.js');
+var neo = require('./neo4j/neo-connection.js');
 
 var getClaims = require('./read/_index.js');
 var create = require('./write/_index.js');
@@ -54,6 +54,15 @@ apiRouter.post('/create/argument', function(req, res, next){
     next();
 }, function(req, res){
     create.argument(req, res);
+});
+
+//--development
+apiRouter.get('/test', function(req, res){
+    neo.db.cypher({
+        query: "CALL dbms.procedures()"
+    }, function (err, results) {
+        res.json({err:err,results:results});
+    });
 });
 
 app.use('/', apiRouter);
