@@ -62,6 +62,13 @@ apiRouter.post('/create/argument', function(req, res, next){
     create.argument(req, res);
 });
 
+apiRouter.post('/create/explanation', function (req, res, next) {
+    console.log("TODO: check authentication");
+    next();
+}, function (req, res) {
+    create.explanation(req, res);
+});
+
 app.use('/', apiRouter);
 
 
