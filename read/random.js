@@ -1,5 +1,5 @@
 "use strict";
-var db = require('../neo4j/neo-connection.js');
+var neo = require('../neo4j/neo-connection.js');
 
 /* /claims/random
  * returns 
@@ -15,11 +15,16 @@ return argGroup, claim, mainClaim`;
     var match100 = 'MATCH (claim) RETURN claim LIMIT 100';
 
     try {
-        db.cypher({
+        neo.db.cypher({
             query: builder
         }, function (err, results) {
 
-            if (err) throw err;
+            if (err) {
+                res.json({
+                    meta: 'There was a server error, :/',
+                    data: {}
+                });
+            }
 
             if (!results) {
                 console.log('No claims found.');
@@ -53,7 +58,7 @@ return argGroup, claim, mainClaim`;
 
     }
     catch (err) {
-        console.log('error happened - meep moop');
+        console.log('error in random', err);
         res.json({
             errors: JSON.stringify(err),
         });

@@ -1,5 +1,5 @@
 "use strict";
-var db = require('../neo4j/neo-connection.js');
+var neo = require('../neo4j/neo-connection.js');
 
 /* /create/argument POST data expects:
  *      parent_claim: ID
@@ -53,6 +53,7 @@ module.exports = function (req, res) {
 
     try {
         //create an argument node with a ${req.body.type} link to the ${req.body.parent_claim_id} claim node and multiple USED_IN links from the req.body.premise_ids claims
+
         //call WL.CreateArgumentGroup([1243, 1254])
         //call WL.AttachArgumentGroup(1243, 1254, "SUPPORTS")
 

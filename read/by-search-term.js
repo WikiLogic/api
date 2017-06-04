@@ -1,5 +1,5 @@
 "use strict";
-var db = require('../neo4j/neo-connection.js');
+var neo = require('../neo4j/neo-connection.js');
 
 /* /claims/:claimid
  * returns 
@@ -9,12 +9,18 @@ var db = require('../neo4j/neo-connection.js');
 module.exports = function(req, res){
 
     try {
-        db.cypher({
-            query: `MATCH (claim:Claim) WHERE claim.text CONTAINS "${req.query.search}" RETURN claim LIMIT 25`
+        neo.db.cypher({
+            query: `MATCH (claim)
+                    WHERE claim.text CONTAINS "${req.query.search}" 
+                    RETURN claim LIMIT 25`
         }, function (err, results) {
-            console.log("HI");
-            if (err) throw err;
-            console.log("PHEW");
+            if (err) {
+                res.json({
+                    meta: 'There was a server error, :/',
+                    data: {}
+                });
+            }
+            
             if (!results) {
                 console.log('No claims found.');
                 res.json({
@@ -45,7 +51,7 @@ module.exports = function(req, res){
 
     }
     catch(err){
-        console.log('error happened - meep moop');
+        console.log('error in search term', err);
         res.json({
             errors: JSON.stringify(err),
         });

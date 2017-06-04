@@ -1,5 +1,5 @@
 "use strict";
-var db = require('../neo4j/neo-connection.js');
+var neo = require('../neo4j/neo-connection.js');
 
 /* /create/claim POST data
  * returns:
@@ -20,8 +20,10 @@ var returnObj = {
 module.exports = function(req, res){
     console.log("TODO: escape post data");
     try {
+
         db.cypher({
             query: `CREATE (newClaim:Claim {text:  "${req.body.text}", probability:50})
+
                     RETURN newClaim`
         }, function (err, results) {
             if (err) throw err;

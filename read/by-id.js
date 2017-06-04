@@ -1,5 +1,5 @@
 "use strict";
-var db = require('../neo4j/neo-connection.js');
+var neo = require('../neo4j/neo-connection.js');
 
 /* /claims/:claimid
  * returns:
@@ -52,10 +52,18 @@ module.exports = function(req, res){
                         //CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(subLink), type: TYPE(subLink), source: ID(startNode(subLink)), target: ID(endNode(subLink))}) END AS subLinks,
                         //CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(argLink), type: TYPE(argLink), source: ID(startNode(argLink)), target: ID(endNode(argLink))}) END AS argLinks, 
     try {
-        db.cypher({
+
+        db.cypher({ //should be neo.db.cypher ??
             query: `call WL.GetClaimWithArgs(${req.params.claimid})`
         }, function (err, results) {
-            if (err) throw err;
+            if (err) {
+                console.log('eer', err);
+                res.json({
+                    meta: 'There was a server error, :/',
+                    data: {}
+                });
+                return;
+            }
             
             if (!results) {
                 console.log('No claims found.');
@@ -84,7 +92,7 @@ module.exports = function(req, res){
 
     }
     catch(err){
-        console.log('error happened - meep moop');
+        console.log('error in by id', err);
         res.json({
             errors: JSON.stringify(err),
         });

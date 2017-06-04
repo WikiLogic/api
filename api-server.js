@@ -19,7 +19,14 @@ app.use(function(req, res, next) {
     next();
 });
 
-var db = require('./neo4j/neo-connection.js');
+//Trust the proxy!
+app.set('trust proxy', function (ip) {
+    console.log('ip', ip);
+  if (ip === '127.0.0.1' || ip === '123.123.123.123') return true // trusted IPs
+  else return false
+})
+
+var neo = require('./neo4j/neo-connection.js');
 
 
 var getClaims = require('./read/_index.js');
@@ -71,6 +78,17 @@ apiRouter.post('/create/explanation', function (req, res, next) {
 
 app.use('/', apiRouter);
 
+//--development
+apiRouter.get('/test', function(req, res){
+    console.log('test route');
+    neo.db.cypher({
+        query: "CALL dbms.procedures()"
+    }, function (err, results) {
+        res.json({err:err,results:results});
+    });
+});
+
+app.use('/api', apiRouter);
 
 
 
