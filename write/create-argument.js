@@ -61,7 +61,7 @@ module.exports = function (req, res) {
 
         console.log("step by step:1");
 
-        db.cypher({
+        neo.db.cypher({
             query: `call WL.CreateArgumentGroup([${premisMatch}])`
         }, function (err, results) {
             console.log("step by step:2");
@@ -84,7 +84,7 @@ module.exports = function (req, res) {
                 
                 newArgGroupID = results[0].value;
 
-                db.cypher({
+                neo.db.cypher({
                     query: `call WL.AttachArgumentGroup(${newArgGroupID}, 1302, "SUPPORTS")`
                 }, function (err, results) {
                     if (err) throw err;

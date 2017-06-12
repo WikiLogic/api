@@ -21,7 +21,7 @@ module.exports = function(req, res){
     console.log("TODO: escape post data");
     try {
 
-        db.cypher({
+        neo.db.cypher({
             query: `CREATE (newClaim:Claim {text:  "${req.body.text}", probability:50})
 
                     RETURN newClaim`

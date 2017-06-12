@@ -1,5 +1,5 @@
 "use strict";
-var db = require('../neo4j/neo-connection.js');
+var neo = require('../neo4j/neo-connection.js');
 
 /* /create/explanation POST data expects:
  *      parent_claim: ID
@@ -60,7 +60,7 @@ module.exports = function (req, res) {
 
         console.log("step by step:1");
 
-        db.cypher({
+        neo.db.cypher({
             query: `call WL.CreateArgumentGroup([${premisMatch}])`
         }, function (err, results) {
             console.log("step by step:2");

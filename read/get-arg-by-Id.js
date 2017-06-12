@@ -1,5 +1,5 @@
 "use strict";
-var db = require('../neo4j/neo-connection.js');
+var neo = require('../neo4j/neo-connection.js');
 
 /* /args/:claimid
  * returns:
@@ -34,7 +34,7 @@ var returnObj = {
 module.exports = function (req, res) {
 
     try {
-        db.cypher({
+        neo.db.cypher({
             query: `match (callingClaim:Claim)<-[:UsedFor]-(c:ArgGroup)<-[:UsedIn]-(n:Claim)
                     WHERE ID(callingClaim) = ${req.params.claimid} 
                     with c, collect({ id: id(n), text: n.text, probability: n.probability, type: labels(n)[0] }) as claims

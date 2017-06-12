@@ -53,7 +53,7 @@ module.exports = function(req, res){
                         //CASE WHEN ID(argument) IS NULL THEN [] ELSE COLLECT(DISTINCT {id: ID(argLink), type: TYPE(argLink), source: ID(startNode(argLink)), target: ID(endNode(argLink))}) END AS argLinks, 
     try {
 
-        db.cypher({ //should be neo.db.cypher ??
+        neo.db.cypher({ //should be neo.db.cypher ??
             query: `call WL.GetClaimWithArgs(${req.params.claimid})`
         }, function (err, results) {
             if (err) {
