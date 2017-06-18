@@ -7,10 +7,11 @@ var app        = express();                 // define our app using express
 var path       = require('path');
 var bodyParser = require('body-parser');
 var port       = process.env.PORT || 3030;
-
+var morgan     = require('morgan');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(morgan('combined'));
 
 //CORS
 app.use(function(req, res, next) {
@@ -22,9 +23,13 @@ app.use(function(req, res, next) {
 //Trust the proxy!
 app.set('trust proxy', function (ip) {
     console.log('ip', ip);
-  if (ip === '127.0.0.1' || ip === '123.123.123.123') return true // trusted IPs
-  else return false
+  if (ip === '127.0.0.1') {
+    return true; // trusted IPs
+  } else {
+    return false;
+  } 
 })
+
 
 var neo = require('./neo4j/neo-connection.js');
 
@@ -39,6 +44,9 @@ var create = require('./write/_index.js');
 var apiRouter = express.Router();
 
 //--reading
+apiRouter.get('/', function(req, res){
+    res.send('WL API');
+});
 apiRouter.get('/claims', function(req, res){
     if (req.query.hasOwnProperty('search')){
         getClaims.bySearchTerm(req, res);
@@ -76,8 +84,6 @@ apiRouter.post('/create/explanation', function (req, res, next) {
     create.explanation(req, res);
 });
 
-app.use('/', apiRouter);
-
 //--development
 apiRouter.get('/test', function(req, res){
     console.log('test route');
@@ -90,6 +96,9 @@ apiRouter.get('/test', function(req, res){
 
 app.use('/api', apiRouter);
 
+app.get('/', function (req, res) {
+  res.send('API rooter tooter');
+})
 
 
 //================================= Begin
