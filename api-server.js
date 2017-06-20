@@ -12,7 +12,8 @@ var morgan     = require('morgan');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(morgan('combined'));
-
+ 
+ 
 //CORS
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");

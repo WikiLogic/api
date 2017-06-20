@@ -10,7 +10,7 @@ RUN npm install
 RUN npm install nodemon -g
 
 # Define default command.
-CMD ["nodemon", "api-server.js"]
+CMD ["nodemon", "api-server.js", "-L"]
 
 VOLUME ["/var/www/api/api-server.js", "/var/www/api/read", "/var/www/api/write", "/var/www/api/neo4j"]
 
