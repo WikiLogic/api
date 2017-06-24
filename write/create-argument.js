@@ -48,9 +48,10 @@ module.exports = function (req, res) {
         });
     }
 
-    var premisMatch = req.body.premise_ids;
-    premisMatch.toString();
-
+    var premisMatch = String(req.body.premise_ids);
+    var parentClaimId = String(req.body.parent_claim_id);
+    var type = String(req.body.type);
+    
     try {
         //create an argument node with a ${req.body.type} link to the ${req.body.parent_claim_id} claim node and multiple USED_IN links from the req.body.premise_ids claims
 
@@ -83,9 +84,12 @@ module.exports = function (req, res) {
                 }
                 
                 newArgGroupID = results[0].value;
+                console.log("newArgGroupID", newArgGroupID);
+                console.log("parentClaimId", parentClaimId);
+                console.log("type", type);
 
                 neo.db.cypher({
-                    query: `call WL.AttachArgumentGroup(${newArgGroupID}, 1302, "SUPPORTS")`
+                    query: `call WL.AttachArgumentGroup(${newArgGroupID}, ${parentClaimId}, "${type}")`
                 }, function (err, results) {
                     if (err) throw err;
 

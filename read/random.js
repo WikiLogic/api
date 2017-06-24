@@ -24,6 +24,7 @@ return argGroup, claim, mainClaim`;
                     meta: 'There was a server error, :/',
                     data: {}
                 });
+                return;
             }
 
             if (!results) {

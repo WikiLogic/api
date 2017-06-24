@@ -15,14 +15,16 @@ module.exports = function(req, res){
                     RETURN claim LIMIT 25`
         }, function (err, results) {
             if (err) {
+                console.log("search term db error: ", err);
                 res.json({
                     meta: 'There was a server error, :/',
                     data: {}
                 });
+                return;
             }
             
             if (!results) {
-                console.log('No claims found.');
+                console.log('No claims found by search term.');
                 res.json({
                     error: 'No claims found'
                 });
@@ -39,7 +41,7 @@ module.exports = function(req, res){
                         });
                     })
                 }
-                
+                console.log("returning results by search term")
                 res.json({
                     meta: 'aint no meta here yet',
                     data: {
