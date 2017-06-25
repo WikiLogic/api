@@ -23,12 +23,13 @@ app.use(function(req, res, next) {
 
 //Trust the proxy!
 app.set('trust proxy', function (ip) {
-    console.log('ip', ip);
-  if (ip === '127.0.0.1') {
-    return true; // trusted IPs
-  } else {
-    return false;
-  } 
+    console.log('proxy ip', ip);
+    return true;
+//   if (ip === '127.0.0.1') {
+//     return true; // trusted IPs
+//   } else {
+//     return false;
+//   } 
 })
 
 

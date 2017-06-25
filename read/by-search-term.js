@@ -41,7 +41,7 @@ module.exports = function(req, res){
                         });
                     })
                 }
-                console.log("returning results by search term")
+                console.log("returning results by search term", req.query.search, claims)
                 res.json({
                     meta: 'aint no meta here yet',
                     data: {
