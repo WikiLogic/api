@@ -22,8 +22,7 @@ module.exports = function(req, res){
     try {
 
         neo.db.cypher({
-            query: `CREATE (newClaim:Claim {text:  "${req.body.text}", probability:50})
-
+            query: `CREATE (newClaim:Claim {text:  "${req.body.text}", probability:0.5})
                     RETURN newClaim`
         }, function (err, results) {
             if (err) throw err;
