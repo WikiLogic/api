@@ -18,12 +18,12 @@ var returnObj = {
         "arguments": [
             {
                 "type": "SUPPORTS",
-                "probability": "50",
+                "probability": "0.5",
                 "premises": [
                     {
                         "id": "34",
                         "text": "premis text",
-                        "probability": "50"
+                        "probability": "0.5"
                     }
                 ]
             }
