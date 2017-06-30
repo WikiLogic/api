@@ -19,10 +19,11 @@ var returnObj = {
 
 module.exports = function(req, res){
     console.log("TODO: escape post data");
-    try {
 
+    try {
+        //MERGE will only create a claim if it's unique ... O(n) I think
         neo.db.cypher({
-            query: `CREATE (newClaim:Claim {text:  "${req.body.text}", probability:0.5})
+            query: `MERGE (newClaim:Claim {text: "merge unique test"}) 
                     RETURN newClaim`
         }, function (err, results) {
             if (err) throw err;
