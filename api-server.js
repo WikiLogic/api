@@ -55,14 +55,13 @@ app.use(function(req, res, next) {
 
 //Trust the proxy!
 app.set('trust proxy', function (ip) {
-    console.log('proxy ip', ip);
     return true;
 //   if (ip === '127.0.0.1') {
 //     return true; // trusted IPs
 //   } else {
 //     return false;
 //   } 
-})
+});
 
 
 var neo = require('./neo4j/neo-connection.js');
@@ -77,11 +76,9 @@ var create = require('./write/_index.js');
 
 var apiRouter = express.Router();
     apiRouter.post("/login", function(req, res) {
-        console.log('--- login route!');
         if(req.body.name && req.body.password){
             var name = req.body.name;
             var password = req.body.password;
-            console.log('--- login: ' + name + password);
         }
         // usually this would be a database call:
         var user = users[_.findIndex(users, {name: name})];
