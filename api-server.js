@@ -71,67 +71,70 @@ var getArgs = require('./read/_index.js');
 var create = require('./write/_index.js');
 
 
-app.post("/login", function(req, res) {
-  if(req.body.name && req.body.password){
-    var name = req.body.name;
-    var password = req.body.password;
-  }
-  // usually this would be a database call:
-  var user = users[_.findIndex(users, {name: name})];
-  if( ! user ){
-    res.status(401).json({message:"no such user found"});
-  }
-
-  if(user.password === req.body.password) {
-    // from now on we'll identify the user by the id and the id is the only personalized value that goes into our token
-    var payload = {id: user.id};
-    var token = jwt.sign(payload, jwtOptions.secretOrKey);
-    res.json({message: "ok", token: token});
-  } else {
-    res.status(401).json({message:"passwords did not match"});
-  }
-});
 
 
 //================================= API Routes
 
 var apiRouter = express.Router();
+    apiRouter.post("/login", function(req, res) {
+        console.log('--- login route!');
+        if(req.body.name && req.body.password){
+            var name = req.body.name;
+            var password = req.body.password;
+            console.log('--- login: ' + name + password);
+        }
+        // usually this would be a database call:
+        var user = users[_.findIndex(users, {name: name})];
+        if( ! user ){
+            res.status(401).json({message:"no such user found"});
+        }
 
+        if(user.password === req.body.password) {
+            // from now on we'll identify the user by the id and the id is the only personalized value that goes into our token
+            var payload = {id: user.id};
+            var token = jwt.sign(payload, jwtOptions.secretOrKey);
+            res.json({message: "ok", token: token});
+        } else {
+            res.status(401).json({message:"passwords did not match"});
+        }
+    });
+    
     //--reading
     apiRouter.get('/', function(req, res){
         res.send('WL API');
     });
-    apiRouter.get('/claims', function(req, res){
+
+    apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), function(req, res){
         if (req.query.hasOwnProperty('search')){
             getClaims.bySearchTerm(req, res);
         }
     });
-    apiRouter.get('/claims/random', function(req, res){
+    apiRouter.get('/claims/random', passport.authenticate('jwt', { session: false }), function(req, res){
         getClaims.random(req, res);
     });
-    apiRouter.get('/claims/:claimid', function(req, res){
+    apiRouter.get('/claims/:claimid', passport.authenticate('jwt', { session: false }), function(req, res){
         getClaims.byId(req, res);
     });
-    apiRouter.get('/args/:claimid', function (req, res) {
+    apiRouter.get('/args/:claimid', passport.authenticate('jwt', { session: false }), function (req, res) {
         getArgs.byClaimId(req, res);
     });
 
     //--writing
-    apiRouter.post('/create/claim', function(req, res, next){
+    apiRouter.post('/create/claim', passport.authenticate('jwt', { session: false }), function(req, res, next){
         console.log("TODO: check authentication");
         next();
     }, function(req, res){
         create.claim(req, res);
     });
 
-    apiRouter.post('/create/argument', function(req, res, next){
+    apiRouter.post('/create/argument', passport.authenticate('jwt', { session: false }), function(req, res, next){
         console.log("TODO: check authentication");
         next();
     }, function(req, res){
         create.argument(req, res);
     });
 
-    apiRouter.post('/create/explanation', function (req, res, next) {
+    apiRouter.post('/create/explanation', passport.authenticate('jwt', { session: false }), function (req, res, next) {
         console.log("TODO: check authentication");
         next();
     }, function (req, res) {
@@ -148,7 +151,7 @@ var apiRouter = express.Router();
         });
     });
 
-app.use('/api', passport.authenticate('jwt', { session: false }), apiRouter);
+app.use('/api/', apiRouter);
 
 app.get('/', function (req, res) {
   res.send('API rooter tooter');
