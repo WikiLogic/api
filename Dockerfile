@@ -6,6 +6,7 @@ FROM node
 WORKDIR /var/www/api/
 #copy the package.json & install
 COPY ./package.json package.json
+COPY ./node_modules /var/www/api/node_modules
 RUN npm install
 
 #copy the api code into that directory
