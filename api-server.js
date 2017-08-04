@@ -140,18 +140,18 @@ var apiRouter = express.Router();
 
     //--development
     apiRouter.get('/test', function(req, res){
-        console.log('test route');
-        neo.db.cypher({
-            query: "CALL dbms.procedures()"
-        }, function (err, results) {
-            res.json({err:err,results:results});
-        });
+         console.log('test');
+        // neo.db.cypher({
+        //     query: "CALL dbms.procedures()"
+        // }, function (err, results) {
+        //     res.json({err:err,results:results});
+        // });
     });
 
 app.use('/api/', apiRouter);
 
 app.get('/', function (req, res) {
-  res.send('API rooter tooter');
+  res.send('API rooter tooter super scooter');
 });
 
 //================================= Begin
