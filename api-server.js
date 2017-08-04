@@ -141,11 +141,11 @@ var apiRouter = express.Router();
     //--development
     apiRouter.get('/test', function(req, res){
          console.log('test');
-        // neo.db.cypher({
-        //     query: "CALL dbms.procedures()"
-        // }, function (err, results) {
-        //     res.json({err:err,results:results});
-        // });
+        neo.db.cypher({
+            query: "MATCH (n) RETURN count(*)"
+        }, function (err, results) {
+            res.json({err:err,results:results});
+        });
     });
 
 app.use('/api/', apiRouter);
