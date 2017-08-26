@@ -17,6 +17,10 @@ var app = express(); // define our app using express
 var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;
 
+Database = require('arangojs').Database;
+db = new Database(process.env.ARANGO_URL || 'http://arango:8529');
+console.log("--------------------------------- db", db);
+
 var users = [
   {
     id: 1,

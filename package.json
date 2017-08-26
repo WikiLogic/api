@@ -23,6 +23,7 @@
     "neo4j-driver": "^1.1.0-M03"
   },
   "devDependencies": {
+    "arangojs": "^5.7.0",
     "babel-polyfill": "^6.20.0",
     "body-parser": "^1.15.2",
     "jsonwebtoken": "^7.4.1",
