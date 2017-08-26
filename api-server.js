@@ -80,9 +80,10 @@ var apiRouter = express.Router();
             var name = req.body.name;
             var password = req.body.password;
         }
+
         // usually this would be a database call:
         var user = users[_.findIndex(users, {name: name})];
-        if( ! user ){
+        if(!user){
             res.status(401).json({message:"no such user found"});
         }
 
@@ -90,7 +91,14 @@ var apiRouter = express.Router();
             // from now on we'll identify the user by the id and the id is the only personalized value that goes into our token
             var payload = {id: user.id};
             var token = jwt.sign(payload, jwtOptions.secretOrKey);
-            res.json({message: "ok", token: token});
+            res.json({ 
+                data: {
+                    token: token,
+                    user: {
+                        name: 'Mr Demo'
+                    }
+                }
+            });
         } else {
             res.status(401).json({message:"passwords did not match"});
         }
@@ -99,6 +107,17 @@ var apiRouter = express.Router();
     //--reading
     apiRouter.get('/', function(req, res){
         res.send('WL API');
+    });
+
+    apiRouter.get('/user', passport.authenticate('jwt', { session: false }), function(req, res){
+        console.log('----- USER');
+        res.json({
+            data: {
+                user: {
+                    name:'Mr Demo'
+                }
+            }
+        });
     });
 
     apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), function(req, res){
