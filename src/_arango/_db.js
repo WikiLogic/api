@@ -3,6 +3,7 @@ db = new Database(process.env.ARANGO_URL || 'http://arango:8529');
 
 var database_name = "wl_dev";
 var usersCollection, nodesCollection;
+
 function initDbConnection(){
     db.listDatabases()
     .then((names) => {

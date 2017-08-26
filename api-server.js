@@ -68,9 +68,9 @@ app.set('trust proxy', function (ip) {
 });
 
 
-var neo = require('./neo4j/neo-connection.js');
-var getClaims = require('./read/_index.js');
-var getArgs = require('./read/_index.js');
+var neo = require('./src/_neo/neo-connection.js');
+var Claims = require('./src/claims/controller.js');
+var Arguments = require('./src/arguments/controller.js');
 var create = require('./write/_index.js');
 
 
