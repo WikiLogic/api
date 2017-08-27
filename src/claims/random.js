@@ -1,6 +1,6 @@
 "use strict";
-var neo = require('../neo4j/neo-connection.js');
-
+var neo = require('../_neo/_db.js'); 
+ 
 /* /claims/random
  * returns 
  *  - a random array of claims

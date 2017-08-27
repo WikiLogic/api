@@ -17,9 +17,8 @@ var app = express(); // define our app using express
 var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;
 
-Database = require('arangojs').Database;
-db = new Database(process.env.ARANGO_URL || 'http://arango:8529');
-console.log("--------------------------------- db", db);
+var arango = require('./src/_arango/_db');
+var arangoReady = false;
 
 var users = [
   {
@@ -68,12 +67,12 @@ app.set('trust proxy', function (ip) {
 });
 
 
-var neo = require('./src/_neo/neo-connection.js');
+var neo = require('./src/_neo/_db.js');
+
+var Users = require('./src/users/controller.js');
 var Claims = require('./src/claims/controller.js');
 var Arguments = require('./src/arguments/controller.js');
-var create = require('./write/_index.js');
-
-
+var Explanations = require('./src/explanations/controller.js');
 
 
 //================================= API Routes
@@ -127,16 +126,17 @@ var apiRouter = express.Router();
     apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), function(req, res){
         if (req.query.hasOwnProperty('search')){
             getClaims.bySearchTerm(req, res);
+            Claims.search(req, res);
         }
     });
     apiRouter.get('/claims/random', passport.authenticate('jwt', { session: false }), function(req, res){
-        getClaims.random(req, res);
+        Claims.getRandom(req, res);
     });
     apiRouter.get('/claims/:claimid', passport.authenticate('jwt', { session: false }), function(req, res){
-        getClaims.byId(req, res);
+        Claims.getById(req, res);
     });
     apiRouter.get('/args/:claimid', passport.authenticate('jwt', { session: false }), function (req, res) {
-        getArgs.byClaimId(req, res);
+        Arguments.getByClaimId(req, res);
     });
 
     //--writing
@@ -144,26 +144,37 @@ var apiRouter = express.Router();
         console.log("TODO: check authentication");
         next();
     }, function(req, res){
-        create.claim(req, res);
+        Claims.create(req, res);
     });
 
     apiRouter.post('/create/argument', passport.authenticate('jwt', { session: false }), function(req, res, next){
         console.log("TODO: check authentication");
         next();
     }, function(req, res){
-        create.argument(req, res);
+        Arguments.create(req, res);
     });
 
     apiRouter.post('/create/explanation', passport.authenticate('jwt', { session: false }), function (req, res, next) {
         console.log("TODO: check authentication");
         next();
     }, function (req, res) {
-        create.explanation(req, res);
+        Explanations.create(req, res);
     });
 
     //--development
     apiRouter.get('/test', function(req, res){
-         console.log('test');
+        if (!arangoReady) {
+            arango.init()
+            .then((connected) => { 
+                arangoReady = true;
+                console.log("DB UP!", connected); 
+            }).catch((err) => { 
+                console.log("DB init failed: ", err); 
+            });
+        }
+
+        console.log('test');
+
         neo.db.cypher({
             query: "MATCH (n) RETURN count(*)"
         }, function (err, results) {

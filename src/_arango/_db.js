@@ -1,46 +1,54 @@
+/**
+ * This file connects to the DB
+ * Collection objects are created here and exposed to the model controllers to ineract with
+ */
 Database = require('arangojs').Database;
 db = new Database(process.env.ARANGO_URL || 'http://arango:8529');
-
+ready = false;
 var database_name = "wl_dev";
-var usersCollection, nodesCollection;
+var usersCollection;
 
 function initDbConnection(){
-    db.listDatabases()
-    .then((names) => {
-        if (names.indexOf(database_name) > -1){
-            db.useDatabase(database_name);
-            initDbCollections();
-            db.get().then(
-                ()=> console.log("Using database "+database_name),
-                error=> console.error("Error connecting to database: "+error)
-            );
-        } else {
-            db.createDatabase(database_name).then(
-                () => {
-                    console.log("Database created successfully: "+database_name);
+    return new Promise(function (resolve, reject) {
+        db.listDatabases()
+        .then((names) => {
+            console.log("names: ", names);
+            if (names.indexOf(database_name) > -1){
+                db.useDatabase(database_name);
+                initDbCollections();
+                db.get().then(()=> {
+                    ready = true;
+                    resolve(database_name);
+                },(err) => {
+                    reject(error);
+                });
+            } else {
+                db.createDatabase(database_name).then(() => {
                     db.useDatabase(database_name);
                     initDbCollections();
-                },
-                error=> console.error("Error creating database: "+error)
-            );
-        }
+                    ready = true;
+                    resolve(database_name);
+                },(err) => {
+                    reject(error)
+                });
+            }
+        }).catch((err) => {
+            console.log("db error", err);
+            reject(error);
+        });
     });
 }
 
 function initDbCollections(){
     usersCollection = db.collection('users');
-    nodesCollection = db.collection('nodes');
 }
 
-function get(collection){
-
-}
-
-function set(collection, id){
-
+function getUserCollectoin(){
+    if (!ready) { return false; }
+    return usersCollection;
 }
 
 module.exports = {
-    get,
-    set
+    init: initDbConnection,
+    getUserCollectoin: getUserCollectoin
 }

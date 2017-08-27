@@ -1,5 +1,5 @@
 "use strict";
-var neo = require('../neo4j/neo-connection.js');
+var neo = require('../_neo/_db.js'); 
 
 /* /create/argument POST data expects:
  *      parent_claim: ID

@@ -11,9 +11,7 @@ RUN npm install
 
 #copy the api code into that directory
 COPY ./api-server.js ./api-server.js
-COPY ./read ./read
-COPY ./write ./write
-COPY ./neo4j ./neo4j
+COPY ./src ./src
 
 # Define default command.
 CMD ["node", "api-server.js"]
