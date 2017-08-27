@@ -6,11 +6,24 @@ var UserModel = {
     signUpDate: "dateString"
 }
 
-function createUser(userObject){
-    UsersCollection.save(userObject).then(
-        meta => console.log('Document saved:', meta._rev),
-        err => console.error('Failed to save document:', err)
-    );
+function createUser(email, name, password){
+    return new Promise(function (resolve, reject) {
+        UsersCollection.save({
+            name: name,
+            email: email,
+            password: password,
+            signUpDate: "today"
+        }).then((meta) => {
+            console.log('User signup success:', meta);
+            resolve(meta);
+        },(err) => {
+            console.error('Failed to save document:', err)
+            reject(err);
+        }).catch((err) => {
+            console.log("Sign up error", err);
+            reject(err);
+        });
+    });
 }
 
 function getUser(ident){

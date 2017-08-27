@@ -106,6 +106,27 @@ var apiRouter = express.Router();
             res.status(401).json({message:"passwords did not match"});
         }
     });
+
+     apiRouter.post("/signup", function(req, res) {
+        if(req.body.email && req.body.name && req.body.password){
+            var email = req.body.email;
+            var name = req.body.name;
+            var password = req.body.password;
+        }
+
+        Users.createUser(email, name, password).then((newUser) => {
+            var payload = {id: newUser.id};
+            var token = jwt.sign(payload, jwtOptions.secretOrKey);
+            res.json({ 
+                data: {
+                    token: token,
+                    user: newUser
+                }
+            });
+        }).catch((err) => {
+            res.status(401).json({message:"sign up error " + err});
+        });
+    });
     
     //--reading
     apiRouter.get('/', function(req, res){
