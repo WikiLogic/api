@@ -124,7 +124,7 @@ var apiRouter = express.Router();
                 }
             });
         }).catch((err) => {
-            res.status(401).json({message:"sign up error " + err});
+            res.json({message:"sign up error " + err});
         });
     });
     

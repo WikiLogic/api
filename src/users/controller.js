@@ -1,4 +1,3 @@
-var UsersCollection = require('../_arango/_db').users;
 var UserModel = {
     name: "username",
     email: "email",
@@ -7,6 +6,7 @@ var UserModel = {
 }
 
 function createUser(email, name, password){
+    var UsersCollection = require('../_arango/_db').getUserCollectoin;
     return new Promise(function (resolve, reject) {
         UsersCollection.save({
             name: name,

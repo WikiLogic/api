@@ -45,7 +45,7 @@ function initDbCollections(){
 
 function getUserCollectoin(){
     if (!ready) { return false; }
-    return usersCollection;
+    return db.collection('users');
 }
 
 module.exports = {
