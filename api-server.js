@@ -202,5 +202,3 @@ app.get('/', function (req, res) {
 
 //================================= Begin
 app.listen(port);
-
-console.log('http://localhost:' + port);
