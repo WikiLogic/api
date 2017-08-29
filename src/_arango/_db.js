@@ -4,9 +4,10 @@
  */
 Database = require('arangojs').Database;
 db = new Database(process.env.ARANGO_URL || 'http://arango:8529');
+var usersCollection;
+
 ready = false;
 var database_name = "wl_dev";
-var usersCollection;
 
 function initDbConnection(){
     return new Promise(function (resolve, reject) {
@@ -41,14 +42,46 @@ function initDbConnection(){
 
 function initDbCollections(){
     usersCollection = db.collection('users');
+    usersCollection.create();
 }
 
-function getUserCollectoin(){
-    if (!ready) { return false; }
+function getUserCollection(){
+    if (!ready) { initDbConnection(); }
     return db.collection('users');
 }
 
+function listAllCollections(){
+    return new Promise(function (resolve, reject) {
+        db.listCollections().then((data) => {
+            resolve(data);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
+function getHealth(){
+    if (!ready) { 
+        initDbConnection();
+    }
+
+    return new Promise(function (resolve, reject) {
+        db.listCollections().then((data) => {
+            resolve({
+                arangoHealth: data
+            });
+        }).catch((err) => {
+            reject({
+                arangoErr: err
+            });
+        });
+    });
+}
+
 module.exports = {
+    db:db,
     init: initDbConnection,
-    getUserCollectoin: getUserCollectoin
+    getUserCollection: getUserCollection,
+    listAllCollections: listAllCollections,
+    getHealth: getHealth,
 }

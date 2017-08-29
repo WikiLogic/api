@@ -9,17 +9,25 @@ var db = new neo4j.GraphDatabase({
     url: process.env.NEO4J_URL ||'http://neo4j:neo5j@db:7474'
 });
 
-console.log('db', db);
-/**
- * An error handler for when the db failes in some way,
- * Log the fail
- * @param {string} message 
- */
-function failed(message){
 
+function getHealth(message){
+    return new Promise((resolve, reject) => {
+        db.cypher({
+            query: "MATCH (n) RETURN count(*)"
+        }, function (err, results) {
+            if (err) {
+                reject({
+                    neoErr: err
+                });
+            }
+            resolve({
+                neoHealth: results
+            });
+        });
+    })
 }
 
 module.exports = {
     db:db,
-    failed:failed
+    getHealth:getHealth
 };

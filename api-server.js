@@ -18,7 +18,6 @@ var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;
 
 var arango = require('./src/_arango/_db');
-var arangoReady = false;
 
 var users = [
   {
@@ -184,22 +183,14 @@ var apiRouter = express.Router();
 
     //--development
     apiRouter.get('/test', function(req, res){
-        if (!arangoReady) {
-            arango.init()
-            .then((connected) => { 
-                arangoReady = true;
-                console.log("DB UP!", connected); 
-            }).catch((err) => { 
-                console.log("DB init failed: ", err); 
-            });
-        }
+        let neoHealth = neo.getHealth();
+        let arangoHealth = arango.getHealth();
 
-        console.log('test');
-
-        neo.db.cypher({
-            query: "MATCH (n) RETURN count(*)"
-        }, function (err, results) {
-            res.json({err:err,results:results});
+        Promise.all([neoHealth, arangoHealth]).then(values => { 
+            res.json({data: values});
+        }).catch((err) => {
+            console.log('-------- err', err);
+            res.json({err: err});
         });
     });
 
