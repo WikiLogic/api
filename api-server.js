@@ -145,7 +145,7 @@ var apiRouter = express.Router();
 
     apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), function(req, res){
         if (req.query.hasOwnProperty('search')){
-            getClaims.bySearchTerm(req, res);
+            //getClaims.bySearchTerm(req, res);
             Claims.search(req, res);
         }
     });
