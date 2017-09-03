@@ -160,6 +160,7 @@ var apiRouter = express.Router();
 
     apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), function(req, res){
         if (req.query.hasOwnProperty('search')){
+
             Claims.search(req, res);
         }
     });
@@ -216,5 +217,3 @@ app.get('/', function (req, res) {
 
 //================================= Begin
 app.listen(port);
-
-console.log('http://localhost:' + port);
