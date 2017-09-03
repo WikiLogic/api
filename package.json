@@ -25,6 +25,7 @@
   "devDependencies": {
     "arangojs": "^5.7.0",
     "babel-polyfill": "^6.20.0",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.15.2",
     "jsonwebtoken": "^7.4.1",
     "lodash": "^4.17.4",

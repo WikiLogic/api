@@ -2,18 +2,18 @@ var Arango = require('../_arango/_db')
 var UserModel = {
     name: "username",
     email: "email",
-    password: "hash",
+    hash: "hash",
     signUpDate: "dateString"
 }
 
-function createUser(email, name, password){
+function createUser(email, name, hash){
     var UsersCollection = Arango.getUserCollection();
-    console.log("------ create user: ",UsersCollection, email, name, password);
+    console.log("------ create user: ",UsersCollection, email, name, hash);
     return new Promise(function (resolve, reject) {
         UsersCollection.save({
             "name": name,
             "email": email,
-            "password": password,
+            "hash": hash,
             "signUpDate": "today"
         }).then((meta) => {
             console.log('User signup success:', meta);

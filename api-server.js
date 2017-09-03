@@ -7,7 +7,7 @@ var express = require('express'); // call express
 var bodyParser = require('body-parser');
 var port = process.env.PORT || 3030;
 var morgan = require('morgan');
-
+var bcrypt = require('bcryptjs');
 var passport = require("passport"); // authentication!
 var jwt = require('jsonwebtoken');
 var passportJWT = require("passport-jwt");
@@ -91,7 +91,7 @@ var apiRouter = express.Router();
             res.status(401).json({message:"no such user found"});
         }
 
-        if(user.password === req.body.password) {
+        if(bcrypt.compareSync(req.body.password, user.hash)) {
             // from now on we'll identify the user by the id and the id is the only personalized value that goes into our token
             var payload = {id: user.id};
             var token = jwt.sign(payload, jwtOptions.secretOrKey);
@@ -113,11 +113,16 @@ var apiRouter = express.Router();
             var email = req.body.email;
             var name = req.body.name;
             var password = req.body.password;
+        } else {
+            res.json({message: "Need all the fields"});
+            return;
         }
         
         //check if email is in whitelist
         let pass = false;
+        console.log('----- email', email);
         for (var p = 0; p < guestlist.people.length; p++){
+            console.log("----- guestlist.people[p].email", guestlist.people[p].email);
             if (email == guestlist.people[p].email) {
                 pass = true;
             }
@@ -128,7 +133,10 @@ var apiRouter = express.Router();
             return;
         }
 
-        Users.createUser(email, name, password).then((newUser) => {
+        var salt = bcrypt.genSaltSync(10);
+        var hash = bcrypt.hashSync(password, salt);
+
+        Users.createUser(email, name, hash).then((newUser) => {
             var payload = {id: newUser.id};
             var token = jwt.sign(payload, jwtOptions.secretOrKey);
             res.json({ 
