@@ -79,39 +79,54 @@ var Explanations = require('./src/explanations/controller.js');
 //================================= API Routes
 
 var apiRouter = express.Router();
+
     apiRouter.post("/login", function(req, res) {
-        if(req.body.name && req.body.password){
-            var name = req.body.name;
+        if(req.body.username && req.body.password){
+            var username = req.body.username;
             var password = req.body.password;
         }
 
         // usually this would be a database call:
-        var user = users[_.findIndex(users, {name: name})];
-        if(!user){
-            res.status(401).json({message:"no such user found"});
-        }
+        Users.getUserByUsername(username).then((data) => {
+            let user = data[0];
+            if (data.length == 0) {
+                res.json({ 
+                    errors: [
+                        {
+                            title: 'No user found',
+                            detail: 'There are no users in the database with that username.'
+                        }
+                    ]
+                });
+            }
 
-        if(bcrypt.compareSync(req.body.password, user.hash)) {
-            // from now on we'll identify the user by the id and the id is the only personalized value that goes into our token
-            var payload = {id: user.id};
-            var token = jwt.sign(payload, jwtOptions.secretOrKey);
-            res.json({ 
-                data: {
-                    token: token,
-                    user: {
-                        name: 'Mr Demo'
+            if(bcrypt.compareSync(req.body.password, user.hash)) {
+                // from now on we'll identify the user by the id and the id is the only personalized value that goes into our token
+                var payload = {id: user._id};
+                var token = jwt.sign(payload, jwtOptions.secretOrKey);
+                res.json({ 
+                    data: {
+                        token: token,
+                        user: {
+                            username: user.username
+                        }
                     }
-                }
-            });
-        } else {
-            res.status(401).json({message:"passwords did not match"});
-        }
+                });
+            } else {
+                res.status(401).json({message:"passwords did not match"});
+            }
+
+        }).catch((err) => {
+            console.log("===== err", err);
+            res.status(401).json({message:"err"});
+        });
+
     });
 
      apiRouter.post("/signup", function(req, res) {
-        if(req.body.email && req.body.name && req.body.password){
+        if(req.body.email && req.body.username && req.body.password){
             var email = req.body.email;
-            var name = req.body.name;
+            var username = req.body.username;
             var password = req.body.password;
         } else {
             res.json({message: "Need all the fields"});

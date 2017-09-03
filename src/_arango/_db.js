@@ -50,6 +50,25 @@ function getUserCollection(){
     return db.collection('users');
 }
 
+function getAllUsers(){
+    return db.database(database_name).then((wlDb) => {
+        return wlDb.query(`FOR doc IN users RETURN doc`);
+    }).then((cursor) => {
+        return cursor.all();
+    })
+}
+
+function getUserByUsername(username){
+    return db.database(database_name).then((wlDb) => {
+        return wlDb.query(`
+            FOR doc IN users 
+            FILTER doc.name == "${username}" 
+            RETURN doc`);
+    }).then((cursor) => {
+        return cursor.all();
+    })
+}
+
 function listAllCollections(){
     return new Promise(function (resolve, reject) {
         db.listCollections().then((data) => {
@@ -84,4 +103,6 @@ module.exports = {
     getUserCollection: getUserCollection,
     listAllCollections: listAllCollections,
     getHealth: getHealth,
+    getAllUsers: getAllUsers,
+    getUserByUsername: getUserByUsername
 }

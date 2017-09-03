@@ -1,17 +1,17 @@
-var Arango = require('../_arango/_db')
+var Arango = require('../_arango/_db');
 var UserModel = {
-    name: "username",
+    username: "username",
     email: "email",
     hash: "hash",
     signUpDate: "dateString"
 }
 
-function createUser(email, name, hash){
+function createUser(email, username, hash){
     var UsersCollection = Arango.getUserCollection();
-    console.log("------ create user: ",UsersCollection, email, name, hash);
+    console.log("------ create user: ",UsersCollection, email, username, hash);
     return new Promise(function (resolve, reject) {
         UsersCollection.save({
-            "name": name,
+            "username": username,
             "email": email,
             "hash": hash,
             "signUpDate": "today"
@@ -28,12 +28,29 @@ function createUser(email, name, hash){
     });
 }
 
-function getUser(ident){
-    //assume name for now
-    UsersCollection.document(ident).then(
-        doc => console.log('Document:', JSON.stringify(doc, null, 2)),
-        err => console.error('Failed to fetch document:', err)
-    );
+function getUserByUsername(username){
+
+    return new Promise(function (resolve, reject) {
+        console.log("runninb quesy");
+        db.query(`
+            FOR doc IN users 
+                FILTER doc.username == "${username}"
+                RETURN doc
+            `).then((cursor) => {
+
+                cursor.all().then((data) => {
+                    console.log('===== DATAAA', JSON.stringify(data));
+                    resolve(data);
+                }).catch((err) => {
+                    console.log("Cursor to get user by name", err);
+                    reject(err);
+                });
+
+            }).catch((err) => {
+                console.log("DB Failed to get user by name", err);
+                reject(err);
+            });
+    });
 }
 
 function updateUser(userObject){
@@ -52,7 +69,7 @@ function deleteUser(ident){
 
 module.exports = {
     createUser: createUser,
-    getUser: getUser,
+    getUserByUsername: getUserByUsername,
     updateUser: updateUser,
     deleteUser: deleteUser
 }
