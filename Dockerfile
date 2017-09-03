@@ -13,6 +13,8 @@ RUN npm install
 COPY ./api-server.js ./api-server.js
 COPY ./src ./src
 
+COPY ./guestlist.js guestlist.js
+
 # Define default command.
 CMD ["node", "api-server.js"]
 

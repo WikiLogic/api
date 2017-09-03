@@ -14,6 +14,8 @@ var passportJWT = require("passport-jwt");
 
 var app = express(); // define our app using express
 
+var guestlist = require('./guestlist.js');
+
 var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;
 
@@ -112,6 +114,19 @@ var apiRouter = express.Router();
             var name = req.body.name;
             var password = req.body.password;
         }
+        
+        //check if email is in whitelist
+        let pass = false;
+        for (var p = 0; p < guestlist.people.length; p++){
+            if (email == guestlist.people[p].email) {
+                pass = true;
+            }
+        }
+
+        if (!pass) {
+            res.json({message: "We're not open to public sign ups yet,please contact us to sign up"});
+            return;
+        }
 
         Users.createUser(email, name, password).then((newUser) => {
             var payload = {id: newUser.id};
@@ -145,7 +160,6 @@ var apiRouter = express.Router();
 
     apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), function(req, res){
         if (req.query.hasOwnProperty('search')){
-            getClaims.bySearchTerm(req, res);
             Claims.search(req, res);
         }
     });
