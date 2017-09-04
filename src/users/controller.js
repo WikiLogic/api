@@ -8,7 +8,6 @@ var UserModel = {
 
 function createUser(email, username, hash){
     var UsersCollection = Arango.getUserCollection();
-    console.log("------ create user: ",UsersCollection, email, username, hash);
     return new Promise(function (resolve, reject) {
         UsersCollection.save({
             "username": username,
@@ -61,10 +60,8 @@ function checkIfUnique(newUserObject){
                 cursor.all().then((data) => {
 
                     if (data.length > 0) {
-                        console.log("----- ----- unique check resolving false", JSON.stringify(data));
                         resolve(false);
                     } else {
-                        console.log("----- ----- unique check resolving true", JSON.stringify(data));
                         resolve(true);   
                     }
 

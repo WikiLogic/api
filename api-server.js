@@ -34,12 +34,9 @@ jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
 jwtOptions.secretOrKey = 'tasmanianDevil';
 
 var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
-  console.log('payload received', jwt_payload);
-  // usually this would be a database call:
-  Users.getUserByKey(username).then((data) => {
-    let user = data[0];
-    if (user) {
-      next(null, user);
+  Users.getUserByKey(jwt_payload.id).then((userObject) => {
+    if (userObject) {
+      next(null, userObject);
     } else {
       next(null, false);
     }
@@ -180,7 +177,7 @@ var apiRouter = express.Router();
             username:username, 
             email:email
         }).then((isUnique) => {
-            console.log("----- -----unique check returned!", JSON.stringify(isUnique));
+            console.log("---- isUnique", username, isUnique);
             if (!isUnique) {
                 res.status(400);
                 res.json({message: "Duplicate credentials"});
@@ -197,7 +194,9 @@ var apiRouter = express.Router();
                 res.json({ 
                     data: {
                         token: token,
-                        user: newUser
+                        user: {
+                            username: newUser.username
+                        }
                     }
                 });
 
@@ -212,23 +211,27 @@ var apiRouter = express.Router();
         
     });
     
-    apiRouter.delete("/user", passport.authenticate('jwt', { session: false }), function(req, res) {
-
-    });
-
+    
     //--reading
     apiRouter.get('/', function(req, res){
         res.send('WL API');
     });
-
+    
     apiRouter.get('/user', passport.authenticate('jwt', { session: false }), function(req, res){
+        console.log(" ----- /user, returning: ", JSON.stringify(req.user))
+        res.set(200);
         res.json({
             data: {
                 user: {
-                    name:'Mr Demo'
+                    username: req.user.username,
+                    email: req.user.email,
+                    signUpDate: req.user.signUpDate
                 }
             }
         });
+    });
+    apiRouter.delete("/user", passport.authenticate('jwt', { session: false }), function(req, res) {
+
     });
 
     apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), function(req, res){
