@@ -36,6 +36,8 @@ jwtOptions.secretOrKey = 'tasmanianDevil';
 var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
   console.log('payload received', jwt_payload);
   // usually this would be a database call:
+//   Users.getUserByUsername(username).then((data) => {
+//             let user = data[0];
   var user = users[_.findIndex(users, {id: jwt_payload.id})];
   if (user) {
     next(null, user);
@@ -81,12 +83,25 @@ var Explanations = require('./src/explanations/controller.js');
 var apiRouter = express.Router();
 
     apiRouter.post("/login", function(req, res) {
-        if(req.body.username && req.body.password){
-            var username = req.body.username;
-            var password = req.body.password;
+        let errors = [];
+
+        if (!req.body.hasOwnProperty('username') || req.body.username == '') {
+            errors.push({title:'Username is required'});
         }
 
-        // usually this would be a database call:
+        if (!req.body.hasOwnProperty('password') || req.body.password == '') {
+            errors.push({title:'Password is required'});
+        }
+
+        if (errors.length > 0) {
+            res.status(400);
+            res.json({ errors: errors });
+            return;
+        }
+        
+        var username = req.body.username;
+        var password = req.body.password;
+
         Users.getUserByUsername(username).then((data) => {
             let user = data[0];
             if (data.length == 0) {
@@ -124,14 +139,29 @@ var apiRouter = express.Router();
     });
 
      apiRouter.post("/signup", function(req, res) {
-        if(req.body.email && req.body.username && req.body.password){
-            var email = req.body.email;
-            var username = req.body.username;
-            var password = req.body.password;
-        } else {
-            res.json({message: "Need all the fields"});
+        let errors = [];
+
+        if (!req.body.hasOwnProperty('username') || req.body.username == '') {
+            errors.push({title:'Username is required'});
+        }
+
+        if (!req.body.hasOwnProperty('email') || req.body.email == '') {
+            errors.push({title:'Email is required'});
+        }
+
+        if (!req.body.hasOwnProperty('password') || req.body.password == '') {
+            errors.push({title:'Password is required'});
+        }
+
+        if (errors.length > 0) {
+            res.status(400);
+            res.json({ errors: errors });
             return;
         }
+
+        var email = req.body.email;
+        var username = req.body.username;
+        var password = req.body.password;
         
         //check if email is in whitelist
         let pass = false;
@@ -151,7 +181,7 @@ var apiRouter = express.Router();
         var salt = bcrypt.genSaltSync(10);
         var hash = bcrypt.hashSync(password, salt);
 
-        Users.createUser(email, name, hash).then((newUser) => {
+        Users.createUser(email, username, hash).then((newUser) => {
             var payload = {id: newUser.id};
             var token = jwt.sign(payload, jwtOptions.secretOrKey);
             res.json({ 
