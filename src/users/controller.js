@@ -16,13 +16,13 @@ function createUser(email, username, hash){
             "hash": hash,
             "signUpDate": "today"
         }).then((meta) => {
-            console.log('User signup success:', meta);
-            resolve(meta);
+            resolve({
+                "username": username,
+                "id": meta._key
+            });
         },(err) => {
-            console.error('Failed to save document:', err)
             reject(err);
         }).catch((err) => {
-            console.log("Sign up error", err);
             reject(err);
         });
     });
@@ -31,7 +31,6 @@ function createUser(email, username, hash){
 function getUserByUsername(username){
 
     return new Promise(function (resolve, reject) {
-        console.log("runninb quesy");
         db.query(`
             FOR doc IN users 
                 FILTER doc.username == "${username}"
@@ -39,17 +38,54 @@ function getUserByUsername(username){
             `).then((cursor) => {
 
                 cursor.all().then((data) => {
-                    console.log('===== DATAAA', JSON.stringify(data));
                     resolve(data);
                 }).catch((err) => {
-                    console.log("Cursor to get user by name", err);
                     reject(err);
                 });
 
             }).catch((err) => {
-                console.log("DB Failed to get user by name", err);
                 reject(err);
             });
+    });
+}
+
+//used to check if a signup can happen
+function checkIfUnique(newUserObject){
+    return new Promise(function (resolve, reject) {
+        db.query(`
+            FOR doc IN users 
+                FILTER doc.username == "${newUserObject.username}" || doc.email == "${newUserObject.email}"
+                RETURN doc
+            `).then((cursor) => {
+
+                cursor.all().then((data) => {
+
+                    if (data.length > 0) {
+                        console.log("----- ----- unique check resolving false", JSON.stringify(data));
+                        resolve(false);
+                    } else {
+                        console.log("----- ----- unique check resolving true", JSON.stringify(data));
+                        resolve(true);   
+                    }
+
+                }).catch((err) => {
+                    reject(err);
+                });
+
+            }).catch((err) => {
+                reject(err);
+            });
+    });
+}
+
+function getUserByKey(key){
+    return new Promise(function (resolve, reject) {
+        var UsersCollection = Arango.getUserCollection();
+        UsersCollection.document(key).then((userObject) => {
+            resolve(userObject);
+        }).catch((err) => {
+            reject(err);
+        });
     });
 }
 
@@ -70,6 +106,8 @@ function deleteUser(ident){
 module.exports = {
     createUser: createUser,
     getUserByUsername: getUserByUsername,
+    checkIfUnique: checkIfUnique,
+    getUserByKey: getUserByKey,
     updateUser: updateUser,
     deleteUser: deleteUser
 }

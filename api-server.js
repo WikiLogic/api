@@ -36,14 +36,14 @@ jwtOptions.secretOrKey = 'tasmanianDevil';
 var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
   console.log('payload received', jwt_payload);
   // usually this would be a database call:
-//   Users.getUserByUsername(username).then((data) => {
-//             let user = data[0];
-  var user = users[_.findIndex(users, {id: jwt_payload.id})];
-  if (user) {
-    next(null, user);
-  } else {
-    next(null, false);
-  }
+  Users.getUserByKey(username).then((data) => {
+    let user = data[0];
+    if (user) {
+      next(null, user);
+    } else {
+      next(null, false);
+    }
+  });
 });
 
 passport.use(strategy);
@@ -117,7 +117,7 @@ var apiRouter = express.Router();
 
             if(bcrypt.compareSync(req.body.password, user.hash)) {
                 // from now on we'll identify the user by the id and the id is the only personalized value that goes into our token
-                var payload = {id: user._id};
+                var payload = {id: user._key};
                 var token = jwt.sign(payload, jwtOptions.secretOrKey);
                 res.json({ 
                     data: {
@@ -132,13 +132,12 @@ var apiRouter = express.Router();
             }
 
         }).catch((err) => {
-            console.log("===== err", err);
             res.status(401).json({message:"err"});
         });
 
     });
 
-     apiRouter.post("/signup", function(req, res) {
+    apiRouter.post("/signup", function(req, res) {
         let errors = [];
 
         if (!req.body.hasOwnProperty('username') || req.body.username == '') {
@@ -164,44 +163,65 @@ var apiRouter = express.Router();
         var password = req.body.password;
         
         //check if email is in whitelist
-        let pass = false;
-        console.log('----- email', email);
+        let whitelisted = false;
         for (var p = 0; p < guestlist.people.length; p++){
-            console.log("----- guestlist.people[p].email", guestlist.people[p].email);
             if (email == guestlist.people[p].email) {
-                pass = true;
+                whitelisted = true;
             }
         }
-
-        if (!pass) {
+        
+        if (!whitelisted) {
             res.json({message: "We're not open to public sign ups yet,please contact us to sign up"});
             return;
         }
 
-        var salt = bcrypt.genSaltSync(10);
-        var hash = bcrypt.hashSync(password, salt);
+        //check if username has been taken
+        Users.checkIfUnique({
+            username:username, 
+            email:email
+        }).then((isUnique) => {
+            console.log("----- -----unique check returned!", JSON.stringify(isUnique));
+            if (!isUnique) {
+                res.status(400);
+                res.json({message: "Duplicate credentials"});
+                return;
+            }
 
-        Users.createUser(email, username, hash).then((newUser) => {
-            var payload = {id: newUser.id};
-            var token = jwt.sign(payload, jwtOptions.secretOrKey);
-            res.json({ 
-                data: {
-                    token: token,
-                    user: newUser
-                }
+            var salt = bcrypt.genSaltSync(10);
+            var hash = bcrypt.hashSync(password, salt);
+            
+            Users.createUser(email, username, hash).then((newUser) => {
+                var payload = {id: newUser.id};
+                var token = jwt.sign(payload, jwtOptions.secretOrKey);
+                res.status(200);
+                res.json({ 
+                    data: {
+                        token: token,
+                        user: newUser
+                    }
+                });
+
+            }).catch((err) => {
+                res.json({message:"sign up error " + err});
             });
+
         }).catch((err) => {
-            res.json({message:"sign up error " + err});
+            res.status(400);
+            res.json({message: "Duplicate credentials"});
         });
+        
     });
     
+    apiRouter.delete("/user", passport.authenticate('jwt', { session: false }), function(req, res) {
+
+    });
+
     //--reading
     apiRouter.get('/', function(req, res){
         res.send('WL API');
     });
 
     apiRouter.get('/user', passport.authenticate('jwt', { session: false }), function(req, res){
-        console.log('----- USER');
         res.json({
             data: {
                 user: {
@@ -229,21 +249,18 @@ var apiRouter = express.Router();
 
     //--writing
     apiRouter.post('/create/claim', passport.authenticate('jwt', { session: false }), function(req, res, next){
-        console.log("TODO: check authentication");
         next();
     }, function(req, res){
         Claims.create(req, res);
     });
 
     apiRouter.post('/create/argument', passport.authenticate('jwt', { session: false }), function(req, res, next){
-        console.log("TODO: check authentication");
         next();
     }, function(req, res){
         Arguments.create(req, res);
     });
 
     apiRouter.post('/create/explanation', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-        console.log("TODO: check authentication");
         next();
     }, function (req, res) {
         Explanations.create(req, res);
@@ -257,7 +274,6 @@ var apiRouter = express.Router();
         Promise.all([neoHealth, arangoHealth]).then(values => { 
             res.json({data: values});
         }).catch((err) => {
-            console.log('-------- err', err);
             res.json({err: err});
         });
     });
