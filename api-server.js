@@ -177,7 +177,7 @@ var apiRouter = express.Router();
             username:username, 
             email:email
         }).then((isUnique) => {
-            console.log("---- isUnique", username, isUnique);
+            
             if (!isUnique) {
                 res.status(400);
                 res.json({message: "Duplicate credentials"});
@@ -231,7 +231,16 @@ var apiRouter = express.Router();
         });
     });
     apiRouter.delete("/user", passport.authenticate('jwt', { session: false }), function(req, res) {
-
+        console.log("----- /user delete", req.user._key);
+        Users.deleteUser(req.user._key).then((meta) => {
+            console.log("----- running logout");
+            req.logout();
+            res.set(200);
+            res.json({message: 'User was deleted'});
+        }).catch((err) => {
+            res.set(500);
+            res.json({errors: [{title:'There was a problem when deleting this user'}]});
+        });
     });
 
     apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), function(req, res){

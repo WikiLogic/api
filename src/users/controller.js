@@ -93,11 +93,15 @@ function updateUser(userObject){
     );
 }
 
-function deleteUser(ident){
-    UsersCollection.remove(ident).then(
-        meta => console.log('Document saved:', meta._rev),
-        err => console.error('Failed to save document:', err)
-    );
+function deleteUser(userKey){
+    return new Promise(function (resolve, reject) {
+        var UsersCollection = Arango.getUserCollection();
+        UsersCollection.remove(userKey).then((meta) => {
+            resolve(meta);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
 }
 
 module.exports = {
