@@ -64,7 +64,8 @@ function post(req, res) {
                 data: {
                     token: token,
                     user: {
-                        username: newUser.username
+                        username: newUser.username,
+                        signUpDate: newUser.signUpDate
                     }
                 }
             });

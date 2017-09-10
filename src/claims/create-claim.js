@@ -23,7 +23,7 @@ module.exports = function(req, res){
     try {
         //MERGE will only create a claim if it's unique ... O(n) I think
         neo.db.cypher({
-            query: `MERGE (newClaim:Claim {text: "merge unique test"}) 
+            query: `MERGE (newClaim:Claim {text: "merge unique test"})
                     RETURN newClaim`
         }, function (err, results) {
             if (err) throw err;

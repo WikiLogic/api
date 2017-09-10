@@ -9,14 +9,16 @@ var UserModel = {
 function createUser(email, username, hash){
     var UsersCollection = Arango.getUserCollection();
     return new Promise(function (resolve, reject) {
+        var datetime = new Date().toISOString().replace(/T/, ' ').substr(0, 10);
         UsersCollection.save({
             "username": username,
             "email": email,
             "hash": hash,
-            "signUpDate": "today"
+            "signUpDate": datetime
         }).then((meta) => {
             resolve({
                 "username": username,
+                "signUpDate": datetime,
                 "id": meta._key
             });
         },(err) => {
