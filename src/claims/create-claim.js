@@ -26,7 +26,8 @@ module.exports = function(req, res){
         ClaimsCollection.save({
             "text": claimText,
             "probability": initProbability,
-            "creationDate": datetime
+            "creationDate": datetime,
+            "arguments": []
         }).then((meta) => {
             resolve({
                 "text": text,
@@ -40,46 +41,4 @@ module.exports = function(req, res){
             reject(err);
         });
     });
-
-    // try {
-    //     //MERGE will only create a claim if it's unique ... O(n) I think
-    //     neo.db.cypher({
-    //         query: `MERGE (newClaim:Claim {text: "merge unique test"})
-    //                 RETURN newClaim`
-    //     }, function (err, results) {
-    //         if (err) throw err;
-            
-    //         if (!results) {
-    //             console.log('No claims found.');
-    //             res.json({ error: 'No claims found' });
-    //         } else {
-    //             if (results.length == 0){
-    //                 res.status(500);
-    //                 res.json({
-    //                     meta: 'Claim was not returned, probably means it wasn\'t created ',
-    //                     data: {}
-    //                 });  
-    //                 return;  
-    //             } 
-
-    //             if (results.length > 1){
-    //                 //should only return one claim when getting by id... something's wrong with the data (scream!)
-    //                 console.log('many many many');
-    //             }
-
-    //             res.status(200);
-    //             res.json({
-    //                 meta: 'No meta yet',
-    //                 data: results[0]
-    //             });
-    //         }
-    //     });
-
-    // }
-    // catch(err){
-    //     console.log('error happened - meep moop');
-    //     res.json({
-    //         errors: JSON.stringify(err),
-    //     });
-    // }
 }
