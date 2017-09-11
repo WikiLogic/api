@@ -43,11 +43,18 @@ function initDbConnection(){
 function initDbCollections(){
     usersCollection = db.collection('users');
     usersCollection.create();
+    claimsCollection = db.collection('claims');
+    claimsCollection.create();
 }
 
 function getUserCollection(){
     if (!ready) { initDbConnection(); }
     return db.collection('users');
+}
+
+function getClaimCollection(){
+    if (!ready) { initDbConnection(); }
+    return db.collection('claims');
 }
 
 function getAllUsers(){
@@ -101,6 +108,7 @@ module.exports = {
     db:db,
     init: initDbConnection,
     getUserCollection: getUserCollection,
+    getClaimCollection: getClaimCollection,
     listAllCollections: listAllCollections,
     getHealth: getHealth,
     getAllUsers: getAllUsers,
