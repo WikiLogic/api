@@ -62,7 +62,6 @@ var apiRouter = express.Router();
     });
     
     apiRouter.get('/user', passport.authenticate('jwt', { session: false }), function(req, res){
-        console.log(" ----- /user, returning: ", JSON.stringify(req.user))
         res.set(200);
         res.json({
             data: {
@@ -75,9 +74,7 @@ var apiRouter = express.Router();
         });
     });
     apiRouter.delete("/user", passport.authenticate('jwt', { session: false }), function(req, res) {
-        console.log("----- /user delete", req.user._key);
         Users.deleteUser(req.user._key).then((meta) => {
-            console.log("----- running logout");
             req.logout();
             res.set(200);
             res.json({message: 'User was deleted'});
@@ -87,18 +84,13 @@ var apiRouter = express.Router();
         });
     });
 
-    apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), function(req, res){
-        if (req.query.hasOwnProperty('search')){
+    apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), Claims.search);
+    apiRouter.post('/claims', passport.authenticate('jwt', { session: false }), Claims.create);
+    apiRouter.get('/claims/random', passport.authenticate('jwt', { session: false }), Claims.getRandom);
+    apiRouter.get('/claims/:claimid', passport.authenticate('jwt', { session: false }), Claims.getById);
 
-            Claims.search(req, res);
-        }
-    });
-    apiRouter.get('/claims/random', passport.authenticate('jwt', { session: false }), function(req, res){
-        Claims.getRandom(req, res);
-    });
-    apiRouter.get('/claims/:claimid', passport.authenticate('jwt', { session: false }), function(req, res){
-        Claims.getById(req, res);
-    });
+
+
     apiRouter.get('/args/:claimid', passport.authenticate('jwt', { session: false }), function (req, res) {
         Arguments.getByClaimId(req, res);
     });

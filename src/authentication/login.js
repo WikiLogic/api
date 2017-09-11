@@ -25,7 +25,6 @@ function post(req, res){
 
     Users.getUserByUsername(username).then((data) => {
         let user = data[0];
-        console.log(' ----- username!', username, data);
         if (data.length == 0) {
             res.status(400);
             res.json({ 

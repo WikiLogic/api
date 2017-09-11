@@ -32,7 +32,6 @@ function createUser(email, username, hash){
 function getUserByUsername(username){
 
     return new Promise(function (resolve, reject) {
-        console.log(' ========== un', username);
         db.query(`
             FOR doc IN users 
                 FILTER doc.username == "${username}"
@@ -40,7 +39,6 @@ function getUserByUsername(username){
             `).then((cursor) => {
 
                 cursor.all().then((data) => {
-                    console.log('---------- resolving data; ', data);
                     resolve(data);
                 }).catch((err) => {
                     reject(err);
