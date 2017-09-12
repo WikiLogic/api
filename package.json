@@ -1,5 +1,5 @@
 {
-  "name": "Wikilogic api.",
+  "name": "api",
   "description": "",
   "version": "0.0.0",
   "homepage": "",
@@ -24,15 +24,14 @@
   },
   "devDependencies": {
     "arangojs": "^5.7.0",
-    "babel-polyfill": "^6.20.0",
+    "babel-polyfill": "^6.26.0",
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.15.2",
-    "c": "^2.0.0",
+    "body-parser": "^1.18.0",
+    "ghooks": "^2.0.0",
     "jsonwebtoken": "^7.4.1",
     "lodash": "^4.17.4",
     "morgan": "^1.8.2",
     "neo4j": "^2.0.0-RC2",
-    "nodemon": "^1.11.0",
     "passport": "^0.3.2",
     "passport-jwt": "^2.2.1"
   },

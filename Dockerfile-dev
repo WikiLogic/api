@@ -8,6 +8,7 @@ WORKDIR /var/www/api/
 COPY ./package.json package.json
 COPY ./node_modules /var/www/api/node_modules
 # RUN npm install COPYing node_modules to cut down on docker build time
+RUN npm cache clean
 RUN npm install nodemon -g
 
 COPY ./guestlist.js guestlist.js
