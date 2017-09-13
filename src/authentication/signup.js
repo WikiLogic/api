@@ -30,6 +30,7 @@ function post(req, res) {
     
     //check if email is in whitelist
     let whitelisted = false;
+    console.log("-----------------", guestlist);
     for (var p = 0; p < guestlist.people.length; p++){
         if (email == guestlist.people[p].email) {
             whitelisted = true;
