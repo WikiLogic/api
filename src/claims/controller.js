@@ -3,6 +3,16 @@ var createClaim = require('./create-claim.js');
 var getClaimById = require('./get-claim-by-id');
 var getClaimByText = require('./get-claim-by-text.js');
 
+function claimFormatter(claim){
+    let returnClaim = {
+        text: claim.text,
+        probability: claim.probability,
+        creationDate: claim.creationDate,
+        id: claim._key
+    }
+    return returnClaim;
+}
+
 function getById(req, res){
     console.log("TODO: escape post data: ", JSON.stringify(req.body));
 
@@ -21,12 +31,7 @@ function getById(req, res){
     let id = req.params.claimid;
 
     getClaimById(id).then((claim) => {
-        let returnClaim = {
-            text: claim.text,
-            probability: claim.probability,
-            creationDate: claim.creationDate,
-            id: claim._key
-        }
+        let returnClaim = claimFormatter(claim);
         res.status(200);
         res.json({data: {claim:returnClaim} });
     }).catch((err) => {
@@ -60,12 +65,7 @@ function create(req, res){
 
     getClaimByText(text).then((data) => {
         if (data.length > 0) {
-            let returnClaim = {
-                text: data[0].text,
-                probability: data[0].probability,
-                creationDate: data[0].creationDate,
-                id: data[0]._key
-            }
+            let returnClaim = claimFormatter(data[0]);
             console.log('----- returning claim that already exists');
             res.status(200);
             res.json({
@@ -77,12 +77,7 @@ function create(req, res){
         console.log('----- continuing after existing claim check has happened');
 
         createClaim({text: text, probability: probability}).then((newClaim) => {
-            let returnClaim = {
-                text: newClaim.text,
-                probability: newClaim.probability,
-                creationDate: newClaim.creationDate,
-                id: newClaim._key
-            }
+            let returnClaim = claimFormatter(newClaim);
             console.log('sending 200');
             res.status(200);
             res.json({data:{claim:newClaim}});
@@ -101,7 +96,34 @@ function create(req, res){
 }
 
 function search(req, res){
+    console.log("TODO: escape post data: ", JSON.stringify(req.body));
+    console.log('----- search router', req.query);
 
+    let errors = [];
+
+    if (!req.query.hasOwnProperty('s') || req.query.s == '') {
+        errors.push({title:'search term is required'});
+    }
+
+    if (errors.length > 0) {
+        res.status(400);
+        res.json({ errors: errors });
+        return;
+    }
+
+    var searchTerm = req.query.s;
+
+    getClaimByText(searchTerm).then((data) => {
+        let resultsArray = [];
+        for (var c = 0; c < data.length; c++) {
+            resultsArray.push(claimFormatter(data[c]));
+        }
+        
+        res.status(200);
+        res.json({
+            data: {results:resultsArray}
+        });
+    });
 }
 
 module.exports = {

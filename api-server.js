@@ -89,6 +89,8 @@ var apiRouter = express.Router();
     apiRouter.get('/claims/random', passport.authenticate('jwt', { session: false }), Claims.getRandom);
     apiRouter.get('/claims/:claimid', passport.authenticate('jwt', { session: false }), Claims.getById);
 
+    
+
 
 
     apiRouter.get('/args/:claimid', passport.authenticate('jwt', { session: false }), function (req, res) {
