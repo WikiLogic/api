@@ -1,19 +1,15 @@
-module.expots = function checkIfUnique(newClaimObject){
+var Arango = require("../_arango/_db");
+
+module.exports = function(text){
     return new Promise(function (resolve, reject) {
-        db.query(`
+        Arango.db.query(`
             FOR doc IN claims 
-                FILTER doc.text == "${newClaimObject.username}""
+                FILTER doc.text == "${text}"
                 RETURN doc
             `).then((cursor) => {
 
                 cursor.all().then((data) => {
-
-                    if (data.length > 0) {
-                        resolve(false);
-                    } else {
-                        resolve(true);   
-                    }
-
+                    resolve(data);
                 }).catch((err) => {
                     reject(err);
                 });

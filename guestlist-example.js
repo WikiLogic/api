@@ -1,4 +1,4 @@
-module.expots = {
+module.exports = {
     "people": [
         { "email": "you@thing.com" },
         { "email": "test@test.com" },

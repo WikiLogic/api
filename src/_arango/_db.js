@@ -20,8 +20,9 @@ function initDbConnection(){
                 db.get().then(()=> {
                     ready = true;
                     resolve(database_name);
-                },(err) => {
-                    reject(error);
+                }).catch((err) => {
+                    console.log("db init error", err);
+                    reject(err);
                 });
             } else {
                 db.createDatabase(database_name).then(() => {
@@ -62,6 +63,8 @@ function getAllUsers(){
         return wlDb.query(`FOR doc IN users RETURN doc`);
     }).then((cursor) => {
         return cursor.all();
+    }).catch((err) => {
+        conole.log("get all users error", err);
     })
 }
 
@@ -73,6 +76,8 @@ function getUserByUsername(username){
             RETURN doc`);
     }).then((cursor) => {
         return cursor.all();
+    }).catch((err) => {
+        console.log('get by username errr', err);
     })
 }
 

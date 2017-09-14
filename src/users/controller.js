@@ -32,7 +32,7 @@ function createUser(email, username, hash){
 function getUserByUsername(username){
 
     return new Promise(function (resolve, reject) {
-        db.query(`
+        Arango.db.query(`
             FOR doc IN users 
                 FILTER doc.username == "${username}"
                 RETURN doc
@@ -53,7 +53,7 @@ function getUserByUsername(username){
 //used to check if a signup can happen
 function checkIfUnique(newUserObject){
     return new Promise(function (resolve, reject) {
-        db.query(`
+        Arango.db.query(`
             FOR doc IN users 
                 FILTER doc.username == "${newUserObject.username}" || doc.email == "${newUserObject.email}"
                 RETURN doc
@@ -89,10 +89,11 @@ function getUserByKey(key){
 }
 
 function updateUser(userObject){
-    UsersCollection.update(userObject).then(
-        meta => console.log('Document saved:', meta._rev),
-        err => console.error('Failed to save document:', err)
-    );
+    UsersCollection.update(userObject).then((meta) => {
+        console.log('Document saved:', meta._rev);
+    }).catch((err) => {
+        console.error('Failed to save document:', err)
+    });
 }
 
 function deleteUser(userKey){

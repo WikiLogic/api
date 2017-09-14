@@ -18,6 +18,9 @@ var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
     } else {
       next(null, false);
     }
+  }).catch((err) => {
+    console.log("jwt errpr: ", err);
+    next(null, false);
   });
 });
 

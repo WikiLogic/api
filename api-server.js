@@ -96,11 +96,11 @@ var apiRouter = express.Router();
     });
 
     //--writing
-    apiRouter.post('/create/claim', passport.authenticate('jwt', { session: false }), function(req, res, next){
-        next();
-    }, function(req, res){
-        Claims.create(req, res);
-    });
+    // apiRouter.post('/create/claim', passport.authenticate('jwt', { session: false }), function(req, res, next){
+    //     next();
+    // }, function(req, res){
+    //     Claims.create(req, res);
+    // });
 
     apiRouter.post('/create/argument', passport.authenticate('jwt', { session: false }), function(req, res, next){
         next();
