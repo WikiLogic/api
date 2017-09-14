@@ -1,4 +1,3 @@
-var getRandom = require('./random.js');
 var createClaim = require('./create-claim.js');
 var getClaimById = require('./get-claim-by-id');
 var getClaimByText = require('./get-claim-by-text.js');
@@ -128,7 +127,6 @@ function search(req, res){
 
 module.exports = {
     search: search,
-    getRandom: getRandom,
     getById: getById,
     create: create
 }
