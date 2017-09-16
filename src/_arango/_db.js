@@ -46,6 +46,8 @@ function initDbCollections(){
     usersCollection.create();
     claimsCollection = db.collection('claims');
     claimsCollection.create();
+    argumentsCollection = db.collection('arguments');
+    argumentsCollection.create();
 }
 
 function getUserCollection(){
@@ -56,6 +58,11 @@ function getUserCollection(){
 function getClaimCollection(){
     if (!ready) { initDbConnection(); }
     return db.collection('claims');
+}
+
+function getArgumentCollection(){
+    if (!ready) { initDbConnection(); }
+    return db.collection('arguments');
 }
 
 function getAllUsers(){
@@ -114,6 +121,7 @@ module.exports = {
     init: initDbConnection,
     getUserCollection: getUserCollection,
     getClaimCollection: getClaimCollection,
+    getArgumentCollection: getArgumentCollection,
     listAllCollections: listAllCollections,
     getHealth: getHealth,
     getAllUsers: getAllUsers,

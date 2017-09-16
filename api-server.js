@@ -86,9 +86,10 @@ var apiRouter = express.Router();
 
     apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), Claims.search);
     apiRouter.post('/claims', passport.authenticate('jwt', { session: false }), Claims.create);
-    apiRouter.get('/claims/random', passport.authenticate('jwt', { session: false }), Claims.getRandom);
+    // apiRouter.get('/claims/random', passport.authenticate('jwt', { session: false }), Claims.getRandom);
     apiRouter.get('/claims/:claimid', passport.authenticate('jwt', { session: false }), Claims.getById);
 
+    apiRouter.post('/arguments', passport.authenticate('jwt', { session: false }), Arguments.create);
     
 
 

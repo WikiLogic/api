@@ -1,4 +1,5 @@
 "use strict";
+var Utils = reuire('../_utils');
 var Arango = require('../_arango/_db');
 var ClaimModel = {
     "meta": "No meta yet",
@@ -19,7 +20,7 @@ var ClaimModel = {
 module.exports = function(newClaim){
     return new Promise(function (resolve, reject) {
         var ClaimsCollection = Arango.getClaimCollection();
-        var datetime = new Date().toISOString().replace(/T/, ' ').substr(0, 10);
+        var datetime = Utils.getCreateDateForDb();
         ClaimsCollection.save({
             "text": newClaim.text,
             "probability": newClaim.probability,
