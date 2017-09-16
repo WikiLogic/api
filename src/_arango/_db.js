@@ -48,6 +48,9 @@ function initDbCollections(){
     claimsCollection.create();
     argumentsCollection = db.collection('arguments');
     argumentsCollection.create();
+
+    premisLinkCollection = db.edgeCollection('premisLinks');
+    premisLinkCollection.create();
 }
 
 function getUserCollection(){
