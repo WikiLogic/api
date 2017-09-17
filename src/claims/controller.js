@@ -1,5 +1,6 @@
 var ClaimModel = require('../models/claim-model');
 var PremiseLinkModel = require('../models/premise-link-model.js');
+var ArgumentModel = require('../models/argument-model.js');
 
 function claimFormatter(claim){
     let returnClaim = {
@@ -32,16 +33,29 @@ function getById(req, res){
     ClaimModel.getById(id).then((claim) => {
         let returnClaim = claimFormatter(claim);
         //now to hydrate the claim's arguments
-        PremiseLinkModel.getEdgeWithId(claim._key).then((edges) => {
-            console.log("GET THE EDGES!", edges);
+        PremiseLinkModel.getEdgeWithId(claim._id).then((edges) => {
+            let promises = [];
+            for (var e = 0; e < edges.length; e++) {
+                promises.push(ArgumentModel.getByKey(edges[e]._from));
+            }
+            Promise.all(promises).then((results) => {
+                claim.arguments = results;
+                console.log('RETURNING THIS CLAIM: ', claim);
+                res.status(200);
+                res.json({data: { claim: claim }});
+            }).catch((err) => {
+                console.log('getting claim by id - failed to get arguments linked to the claim', err);
+                res.status(500);
+                res.json({errors:[
+                    {title: 'getting claim by id - failed to get arguments linked to the claim'}
+                ]});
+            });
         }).catch((err) => {
             res.status(500);
             res.json({errors:[
                 {title: 'getting claim by id - failed to get links to claim arguments'}
             ]});
         });
-        res.status(200);
-        res.json({data: {claim:returnClaim} });
     }).catch((err) => {
         console.log('get claim by id error: ', err);
         res.status(500);

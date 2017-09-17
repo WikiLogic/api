@@ -43,7 +43,7 @@ function create(newArgument){
 function getById(id){
     return new Promise(function (resolve, reject) {
         var ArgumentsCollection = Arango.getArgumentCollection();
-        ArgumentsCollection.document(argumentId).then((argumentObject) => {
+        ArgumentsCollection.document(id).then((argumentObject) => {
             resolve(argumentObject);
         }).catch((err) => {
             reject(err);
@@ -51,7 +51,13 @@ function getById(id){
     });
 }
 
+function getByKey(key){
+    let id = key.replace('arguments/', '');
+    return getById(id);
+}
+
 module.exports = {
     create,
-    getById
+    getById,
+    getByKey
 };

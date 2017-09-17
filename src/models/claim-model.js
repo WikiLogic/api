@@ -40,7 +40,13 @@ function getById(id){
     return new Promise(function (resolve, reject) {
         var ClaimsCollection = Arango.getClaimCollection();
         ClaimsCollection.document(id).then((claimObject) => {
-            resolve(claimObject);
+            resolve({
+                text: claimObject.text,
+                probability: claimObject.probability,
+                creationDate: claimObject.creationDate,
+                id: claimObject._key,
+                _key: claimObject._key
+            });
         }).catch((err) => {
             reject(err);
         });
