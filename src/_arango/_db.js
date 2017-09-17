@@ -68,6 +68,11 @@ function getArgumentCollection(){
     return db.collection('arguments');
 }
 
+function getPremisLinkCollection(){
+    if (!ready) { initDbConnection(); }
+    return db.collection('premisLinks');
+}
+
 function getAllUsers(){
     return db.database(database_name).then((wlDb) => {
         return wlDb.query(`FOR doc IN users RETURN doc`);
@@ -125,6 +130,7 @@ module.exports = {
     getUserCollection: getUserCollection,
     getClaimCollection: getClaimCollection,
     getArgumentCollection: getArgumentCollection,
+    getPremisLinkCollection: getPremisLinkCollection,
     listAllCollections: listAllCollections,
     getHealth: getHealth,
     getAllUsers: getAllUsers,

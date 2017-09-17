@@ -1,6 +1,8 @@
 var getByClaimId = require('./get-arg-by-Id');
 var createArgument = require('./create-argument.js');
 var getClaimById = require('../claims/get-claim-by-id');
+var linkArgToClaim = require('./link-arg-to-claim.js');
+var PremiseLinks = require('../premiseLinks');
 var Utils = reuire('../_utils');
 
 function create(req, res){
@@ -52,6 +54,13 @@ function create(req, res){
 
         createArgument({ parentClaimId, type, premisIds, probability }).then((newArgumentNode) => {
             //now we have to link the new argument node... I think
+            PremiseLinks.create(newArgumentNode.id, parentClaimId, type).then((data) => {
+                console.log('----- premise link created: ', JSON.stringify(data));
+            }).catch((err) => {
+                console.log('creating a new argument failed when trying to link it to the parent claim: ', err);
+                res.status(500);
+                res.send({errors:[{"title":"creating a new argument failed when trying to link it to the parent claim"}]});
+            });
 
         }).catch((err) => {
             console.log('get claims by text error: ', err);
