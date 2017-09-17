@@ -31,16 +31,17 @@ function getById(req, res){
     let id = req.params.claimid;
 
     ClaimModel.getById(id).then((claim) => {
-        let returnClaim = claimFormatter(claim);
+        console.log('1 - get by id', claim);
         //now to hydrate the claim's arguments
         PremiseLinkModel.getEdgeWithId(claim._id).then((edges) => {
             let promises = [];
+            console.log('2 - got ag edges', edges);
             for (var e = 0; e < edges.length; e++) {
                 promises.push(ArgumentModel.getByKey(edges[e]._from));
             }
             Promise.all(promises).then((results) => {
                 claim.arguments = results;
-                console.log('RETURNING THIS CLAIM: ', claim);
+                console.log('3 - built claim', claim);
                 res.status(200);
                 res.json({data: { claim: claim }});
             }).catch((err) => {

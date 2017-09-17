@@ -45,6 +45,7 @@ function getById(id){
                 probability: claimObject.probability,
                 creationDate: claimObject.creationDate,
                 id: claimObject._key,
+                _id: claimObject._id,
                 _key: claimObject._key
             });
         }).catch((err) => {
