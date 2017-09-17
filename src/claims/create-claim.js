@@ -1,5 +1,5 @@
 "use strict";
-var Utils = reuire('../_utils');
+var Utils = require('../_utils');
 var Arango = require('../_arango/_db');
 var ClaimModel = {
     "meta": "No meta yet",

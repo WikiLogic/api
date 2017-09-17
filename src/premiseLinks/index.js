@@ -1,27 +1,19 @@
 var Arango = require('../_arango/_db');
+var createPremiseLink = require('./link-arg-to-claim.js');
 
 //create a premise link between argId and claimId of type, then reutrn it
 function create(argId, claimId, type){
     return new Promise(function (resolve, reject) {
-        var ArgumentsCollection = Arango.getArgumentCollection(); // TODO: change this into the premise link collection
-        var datetime = Utils.getCreateDateForDb();
-        ArgumentsCollection.save({
-            "parentClaimId": newArgument.parentClaimId,
-            "probability": newArgument.probability,
-            "premisIds": newArgument.premisIds,
-            "type": newArgument.type,
-            "creationDate": datetime
-        }).then((meta) => {
-            resolve({
-                "parentClaimId": newArgument.parentClaimId,
-                "probability": newArgument.probability,
-                "premisIds": newArgument.premisIds,
-                "type": newArgument.type,
-                "creationDate": datetime,
-                "id": meta._key
-            });
+        createPremiseLink(argId, claimId, type).then((data) => {
+            resolve(data);
         }).catch((err) => {
-            reject(err);
+            console.log('creating a premise link errored out', err.ArangoError);
+            res.status(500);
+            res.send({
+                errors: [
+                    { title: 'creating a premise link errored out' }
+                ]
+            });
         });
     });
 }

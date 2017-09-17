@@ -1,6 +1,6 @@
 //just creates the argument node, other people will attach them to claims. I think.
 "use strict";
-var Utils = reuire('../_utils');
+var Utils = require('../_utils');
 var Arango = require('../_arango/_db');
 var ArgumentModel = {
     "meta": "No meta yet",
@@ -31,7 +31,8 @@ module.exports = function(newArgument){
                 "premisIds": newArgument.premisIds,
                 "type": newArgument.type,
                 "creationDate": datetime,
-                "id": meta._key
+                "id": meta._key,
+                "_id": meta._id
             });
         }).catch((err) => {
             reject(err);
