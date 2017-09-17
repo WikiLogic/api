@@ -40,17 +40,7 @@ function create(req, res){
 
     //get the parent claim & check to see if it has an argument like this already
     ClaimModel.getById(parentClaimId).then((parentClaim) => {
-        for (var a = 0; a < parentClaim.arguments.length; a++) {
-            if (Utils.doArraysMatch(parentClaim.arguments[a], premisIds)) {
-                errors.push({title: 'parentClaim already has this argument'});
-                res.status(200);
-                res.json({data: parentClaim, errors: errors});
-                return;
-            }
-        }
-
         //looks like it's a new argument - time to add it.
-
         ArgumentModel.create({ parentClaimId, type, premisIds, probability }).then((newArgumentNode) => {
             //now we have to link the new argument node... I think
             PremiseLinks.create(newArgumentNode._id, parentClaim._id, type).then((data) => {
@@ -79,6 +69,10 @@ function create(req, res){
             res.status(500);
             res.json({errors:[{title:'get claims by text error'}]});
         });
+    }).catch((err) => {
+        console.log('Argument controller getting claim failed: ', err);
+        res.status(500);
+        res.json({errors:[{title:'Argument controller getting claim failed'}]});
     });
 }
 

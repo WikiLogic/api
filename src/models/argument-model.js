@@ -16,6 +16,7 @@ var ClaimModel = {
 
 function create(newArgument){
     return new Promise(function (resolve, reject) {
+        console.log('TODO: check to see if this argument exists already, if so just return that');
         var ArgumentsCollection = Arango.getArgumentCollection();
         var datetime = Utils.getCreateDateForDb();
         ArgumentsCollection.save({

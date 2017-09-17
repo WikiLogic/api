@@ -29,6 +29,7 @@ function getEdgeWithId(documentId){
     return new Promise(function (resolve, reject) {
         var PremiseCollection = Arango.getPremisLinkCollection();
         PremiseCollection.edges(documentId).then((data) => {
+            console.log('GOT EDGES!', data);
             resolve(data);
         }).catch((err) => {
             reject(err);
