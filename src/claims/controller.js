@@ -1,13 +1,13 @@
-var createClaim = require('./create-claim.js');
-var getClaimById = require('./get-claim-by-id');
-var getClaimByText = require('./get-claim-by-text.js');
+var ClaimModel = require('../models/claim-model');
+var PremiseLinkModel = require('../models/premise-link-model.js');
 
 function claimFormatter(claim){
     let returnClaim = {
         text: claim.text,
         probability: claim.probability,
         creationDate: claim.creationDate,
-        id: claim._key
+        id: claim._key,
+        arguments: claim.arguments
     }
     return returnClaim;
 }
@@ -29,8 +29,17 @@ function getById(req, res){
 
     let id = req.params.claimid;
 
-    getClaimById(id).then((claim) => {
+    ClaimModel.getById(id).then((claim) => {
         let returnClaim = claimFormatter(claim);
+        //now to hydrate the claim's arguments
+        PremiseLinkModel.getEdgeWithId(claim._key).then((edges) => {
+            console.log("GET THE EDGES!", edges);
+        }).catch((err) => {
+            res.status(500);
+            res.json({errors:[
+                {title: 'getting claim by id - failed to get links to claim arguments'}
+            ]});
+        });
         res.status(200);
         res.json({data: {claim:returnClaim} });
     }).catch((err) => {
@@ -62,10 +71,9 @@ function create(req, res){
     var text = req.body.text;
     var probability = req.body.probability;
 
-    getClaimByText(text).then((data) => {
+    ClaimModel.getByText(text).then((data) => {
         if (data.length > 0) {
             let returnClaim = claimFormatter(data[0]);
-            console.log('----- returning claim that already exists');
             res.status(200);
             res.json({
                 data: {claim:returnClaim} ,
@@ -75,7 +83,7 @@ function create(req, res){
         }
         console.log('----- continuing after existing claim check has happened');
 
-        createClaim({text: text, probability: probability}).then((newClaim) => {
+        Claim.create({text: text, probability: probability}).then((newClaim) => {
             let returnClaim = claimFormatter(newClaim);
             console.log('sending 200');
             res.status(200);
@@ -112,7 +120,7 @@ function search(req, res){
 
     var searchTerm = req.query.s;
 
-    getClaimByText(searchTerm).then((data) => {
+    ClaimModel.getByText(searchTerm).then((data) => {
         let resultsArray = [];
         for (var c = 0; c < data.length; c++) {
             resultsArray.push(claimFormatter(data[c]));

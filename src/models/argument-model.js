@@ -1,27 +1,27 @@
-//just creates the argument node, other people will attach them to claims. I think.
 "use strict";
 var Utils = require('../_utils');
 var Arango = require('../_arango/_db');
-var ArgumentModel = {
-    "meta": "No meta yet",
-    "data": {
-        "id": "33",
-        "parentClaimId": "id",
-        "type": "FOR / AGAINST", // or 1 / 0 ?
-        "premisIds": [],
-        "probability": "null",
-        "creationDate": ""
-    }
+var ClaimModel = {
+    "id": "33",
+    "text": "text text",
+    "probability": "null"
 }
+//Arguments that link to the claim are listed in the edges collection
 
-module.exports = function(newArgument){
+/* /claims POST data
+ * returns:
+ * 
+ *  - the claim that was just created (with no arguments, as it will not have nay yet)
+ */
+
+function create(newArgument){
     return new Promise(function (resolve, reject) {
         var ArgumentsCollection = Arango.getArgumentCollection();
         var datetime = Utils.getCreateDateForDb();
         ArgumentsCollection.save({
             "parentClaimId": newArgument.parentClaimId,
             "probability": newArgument.probability,
-            "premisIds": newArgument.premisIds,
+            "premisIds": newArgument.premisIds, //this may not actually be needed - details will be held in the edge collection
             "type": newArgument.type,
             "creationDate": datetime
         }).then((meta) => {
@@ -39,3 +39,19 @@ module.exports = function(newArgument){
         });
     });
 }
+
+function getById(id){
+    return new Promise(function (resolve, reject) {
+        var ArgumentsCollection = Arango.getArgumentCollection();
+        ArgumentsCollection.document(argumentId).then((argumentObject) => {
+            resolve(argumentObject);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
+module.exports = {
+    create,
+    getById
+};

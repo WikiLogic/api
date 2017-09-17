@@ -1,14 +1,8 @@
-"use strict";
-
-/**
- * Argument -----> Claim
- * Here we forge the link
- */
-
-var Utils = require('../_utils');
 var Arango = require('../_arango/_db');
+var Utils = require('../_utils');
 
-module.exports = function(argDbKey, claimDbKey, type){
+//create a premise link between argId and claimId of type, then reutrn it
+function create(argDbKey, claimDbKey, type){
     return new Promise(function (resolve, reject) {
         var PremiseCollection = Arango.getPremisLinkCollection();
         var datetime = Utils.getCreateDateForDb();
@@ -29,4 +23,20 @@ module.exports = function(argDbKey, claimDbKey, type){
             reject(err);
         });
     });
+}
+
+function getEdgeWithId(documentId){
+    return new Promise(function (resolve, reject) {
+        var PremiseCollection = Arango.getPremisLinkCollection();
+        PremiseCollection.edges(documentId).then((data) => {
+            resolve(data);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
+module.exports = {
+    create: create,
+    getEdgeWithId: getEdgeWithId
 }

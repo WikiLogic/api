@@ -13,7 +13,6 @@ function initDbConnection(){
     return new Promise(function (resolve, reject) {
         db.listDatabases()
         .then((names) => {
-            console.log("names: ", names);
             if (names.indexOf(database_name) > -1){
                 db.useDatabase(database_name);
                 initDbCollections();
@@ -70,7 +69,7 @@ function getArgumentCollection(){
 
 function getPremisLinkCollection(){
     if (!ready) { initDbConnection(); }
-    return db.collection('premisLinks');
+    return db.edgeCollection('premisLinks');
 }
 
 function getAllUsers(){

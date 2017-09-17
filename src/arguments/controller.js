@@ -1,8 +1,8 @@
-var getByClaimId = require('./get-arg-by-Id');
-var createArgument = require('./create-argument.js');
-var getClaimById = require('../claims/get-claim-by-id');
-var PremiseLinks = require('../premiseLinks');
+var ClaimModel = require('../models/claim-model.js');
+var ArgumentModel = require('../models/argument-model.js');
+var PremiseLinks = require('../models/premise-link-model.js');
 var Utils = require('../_utils');
+var Arango = require('../_arango/_db');
 
 function create(req, res){
     console.log("TODO: escape post data: ", JSON.stringify(req.body));
@@ -39,7 +39,7 @@ function create(req, res){
     }
 
     //get the parent claim & check to see if it has an argument like this already
-    getClaimById(parentClaimId).then((parentClaim) => {
+    ClaimModel.getById(parentClaimId).then((parentClaim) => {
         for (var a = 0; a < parentClaim.arguments.length; a++) {
             if (Utils.doArraysMatch(parentClaim.arguments[a], premisIds)) {
                 errors.push({title: 'parentClaim already has this argument'});
@@ -51,12 +51,9 @@ function create(req, res){
 
         //looks like it's a new argument - time to add it.
 
-        createArgument({ parentClaimId, type, premisIds, probability }).then((newArgumentNode) => {
+        ArgumentModel.create({ parentClaimId, type, premisIds, probability }).then((newArgumentNode) => {
             //now we have to link the new argument node... I think
-            console.log("newArgumentNode", newArgumentNode);
-            console.log("parentClaim", parentClaim);
             PremiseLinks.create(newArgumentNode._id, parentClaim._id, type).then((data) => {
-                console.log('----- premise link created: ', data);
                 res.status(200);
                 res.send({data:{claim: {
                     id: parentClaim._key,
@@ -85,7 +82,18 @@ function create(req, res){
     });
 }
 
+function getById(argumentId) {
+    //TODO: turn this into a route not just a return
+    return new Promise(function (resolve, reject) {
+        ArgumentModel.getById(argumentId).then((argumentObject) => {
+            resolve(argumentObject);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 module.exports = {
-    getByClaimId: getByClaimId,
+    getById: getById,
     create: create
 };
