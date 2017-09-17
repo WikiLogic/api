@@ -1,9 +1,9 @@
 "use strict";
 var Utils = require('../_utils');
 var Arango = require('../_arango/_db');
-var ClaimModel = {
+var ArgumentModel = {
     "id": "33",
-    "text": "text text",
+    "premiseIds": ['1','2'],
     "probability": "null"
 }
 //Arguments that link to the claim are listed in the edges collection
@@ -16,7 +16,6 @@ var ClaimModel = {
 
 function create(newArgument){
     return new Promise(function (resolve, reject) {
-        console.log('TODO: check to see if this argument exists already, if so just return that');
         var ArgumentsCollection = Arango.getArgumentCollection();
         var datetime = Utils.getCreateDateForDb();
         ArgumentsCollection.save({
