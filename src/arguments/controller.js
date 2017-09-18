@@ -27,10 +27,13 @@ function create(req, res){
         return;
     }
 
+    let parentClaimObject = {}; //this is what will eventually be returned
+    let parentClaimArguments = [];
     var parentClaimId = req.body.parentClaimId;
     var type = req.body.type;
     var premisIds = req.body.premisIds;
     var probability = 0.5;
+    let dupeCheckPass = true;
 
     if (!req.body.hasOwnProperty('probability') || req.body.probability == '') {
         errors.push({title:'probability is recommended for this early stage of WL'});
@@ -38,72 +41,65 @@ function create(req, res){
         probability = req.body.probability;
     }
 
-    //check to see that there are no duplicates
-    PremiseLinks.getEdgeWithId(parentClaimId).then((edges) => {
-        //get all the argument's from those edges
+    //the eventual return value will be the parent claim, so let's get that first
+    ClaimModel.getById(parentClaimId).then((parentClaim) => {
+        console.log('PARENT CLAIM: ', parentClaim);
+        parentClaimObject = parentClaim;
+        //now to fill it's arguments, we need to get a list of the arguments that are linked
+        return PremiseLinks.getEdgeWithId(parentClaimId);
+    }).then((edges) => {
+        //get all the argument's from those edges - these are the things we'll check for duplicates
         let promises = [];
         for (var e = 0; e < edges.length; e++) {
             promises.push(ArgumentModel.getByKey(edges[e]._from));
         }
-        Promise.all(promises).then((existingArguments) => {
-            
-            //check all the results to see if any are the proposed new argument
-            let dupeCheckPass = true;
-            for (var a = 0; a < existingArguments.length; a++) {
-                if (existingArguments[a].type == type) {
-                    //check all the premise ids in this argument
-                    if (Utils.doArraysMatch(existingArguments[a].premisIds, premisIds)) {
-                        dupeCheckPass = false;
-                    }
+        console.log('THIS IS RETURNING WITHOUT EDGES... ?');
+        return Promise.all(promises);
+    }).then((existingArguments) => {
+        console.log('EXISTING ARGUMENTS!', existingArguments);
+        //now we have 'hydrated' the parent claim
+        parentClaimObject.arguments = existingArguments;
+        
+        //check to see if the argument we're looking to create already exists:
+        for (var a = 0; a < existingArguments.length; a++) {
+            if (existingArguments[a].type == type) {
+                //check all the premise ids in this argument
+                console.log('----- CHECKING DUPES: ', existingArguments[a].premisIds, premisIds);
+                if (Utils.doArraysMatch(existingArguments[a].premisIds, premisIds)) {
+                    dupeCheckPass = false;
                 }
             }
+        }
 
-
-            ClaimModel.getById(parentClaimId).then((parentClaim) => {
-                if (!dupeCheckPass) {
-                    //populate the parent claim with existingArguments
-                    parentClaim.arguments = existingArguments;
-                    res.status(200);
-                    res.send({data: {claim: parentClaim} });
-                }
-                //create new argument
-                ArgumentModel.create({ parentClaimId, type, premisIds, probability }).then((newArgumentNode) => {
-                    //create the premise link between the argument and the parent claim
-                    existingArguments.push(newArgumentNode);
-                    PremiseLinks.create(newArgumentNode._id, parentClaim._id, type).then((data) => {
-                        //got the new link created. add the new argument to the existingArguments, add them to the parent claim, return
-                        parentClaim.arguments = existingArguments;
-                        res.status(200);
-                        res.send({data: {claim: parentClaim} });
-                    }).catch((err) => {
-                        console.log('Argument.create creating a new premise link failed: ', err);
-                        res.status(500);
-                        res.send({errors:[{"title":"creating a new argument failed when trying to link it to the parent claim"}]});
-                    });
-                }).catch((err) => {
-                    console.log('creating a new argument failed when trying to link it to the parent claim: ', err);
-                    res.status(500);
-                    res.send({errors:[{"title":"creating a new argument failed when trying to link it to the parent claim"}]});
-                });
+        //if there is an existing argument that is the same - no need to go any further, just return the parent claim.
+        if (!dupeCheckPass) {
+            //populate the parent claim with existingArguments
+            parentClaimObject.arguments = existingArguments;
+            res.status(200);
+            res.send({data: {claim: parentClaimObject} });
+        } else {
+            //if the new argument is not a duplicate, it's time to start making it!
+            ArgumentModel.create({ parentClaimId, type, premisIds, probability }).then((newArgumentNode) => {
+                //create the premise link between the argument and the parent claim
+                parentClaimObject.arguments.push(newArgumentNode);
+                console.log('NEW ARGUMENT NODE: ', newArgumentNode);
+                return PremiseLinks.create(newArgumentNode._id, parentClaimObject._id, type);
+            }).then((data) => {
+                //The new link has been created! The argument node was added in the last step so we're actually good to return now.
+                res.status(200);
+                res.send({data: {claim: parentClaimObject} });
             }).catch((err) => {
-                console.log('Argument.create - failed to get parent claim', err);
                 res.status(500);
-                res.json({errors:[
-                    {title: 'Argument.create - failed to get parent claim'}
-                ]});        
+                res.json({
+                    errors: [{title:'Argument.create: setting up the new argument failed'}]
+                })
             });
-        }).catch((err) => {
-            console.log('Argument.create - failed to get arguments linked to by the parent claim', err);
-            res.status(500);
-            res.json({errors:[
-                {title: 'Argument.create - failed to get arguments linked to by the parent claim'}
-            ]});
-        });
+        }
     }).catch((err) => {
         res.status(500);
         res.json({
-            errors: [{title:'getting premise links to the proposed parent claim failed'}]
-        })
+            errors:[{title:'Argument.create: checking parent claim for dups failed'}]
+        });
     });
 }
 
