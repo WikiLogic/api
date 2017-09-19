@@ -43,20 +43,17 @@ function create(req, res){
 
     //the eventual return value will be the parent claim, so let's get that first
     ClaimModel.getById(parentClaimId).then((parentClaim) => {
-        console.log('PARENT CLAIM: ', parentClaim);
         parentClaimObject = parentClaim;
         //now to fill it's arguments, we need to get a list of the arguments that are linked
-        return PremiseLinks.getEdgeWithId(parentClaimId);
+        return PremiseLinks.getEdgeWithId(parentClaim._id);
     }).then((edges) => {
         //get all the argument's from those edges - these are the things we'll check for duplicates
         let promises = [];
         for (var e = 0; e < edges.length; e++) {
             promises.push(ArgumentModel.getByKey(edges[e]._from));
         }
-        console.log('THIS IS RETURNING WITHOUT EDGES... ?');
         return Promise.all(promises);
     }).then((existingArguments) => {
-        console.log('EXISTING ARGUMENTS!', existingArguments);
         //now we have 'hydrated' the parent claim
         parentClaimObject.arguments = existingArguments;
         
@@ -64,7 +61,6 @@ function create(req, res){
         for (var a = 0; a < existingArguments.length; a++) {
             if (existingArguments[a].type == type) {
                 //check all the premise ids in this argument
-                console.log('----- CHECKING DUPES: ', existingArguments[a].premisIds, premisIds);
                 if (Utils.doArraysMatch(existingArguments[a].premisIds, premisIds)) {
                     dupeCheckPass = false;
                 }
@@ -82,7 +78,6 @@ function create(req, res){
             ArgumentModel.create({ parentClaimId, type, premisIds, probability }).then((newArgumentNode) => {
                 //create the premise link between the argument and the parent claim
                 parentClaimObject.arguments.push(newArgumentNode);
-                console.log('NEW ARGUMENT NODE: ', newArgumentNode);
                 return PremiseLinks.create(newArgumentNode._id, parentClaimObject._id, type);
             }).then((data) => {
                 //The new link has been created! The argument node was added in the last step so we're actually good to return now.

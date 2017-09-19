@@ -41,7 +41,6 @@ function create(newArgument){
 }
 
 function getById(id){
-    console.log('>>>>> getting arg by id', id);
     return new Promise(function (resolve, reject) {
         var ArgumentsCollection = Arango.getArgumentCollection();
         ArgumentsCollection.document(id).then((argumentObject) => {
@@ -53,9 +52,7 @@ function getById(id){
 }
 
 function getByKey(key){
-    console.log("===== key", key);
     let id = key.replace('arguments/', '');
-    console.log("===== id", id);
     return getById(id);
 }
 
