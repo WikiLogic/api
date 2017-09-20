@@ -31,8 +31,8 @@ function create(newArgument){
                 "premisIds": newArgument.premisIds,
                 "type": newArgument.type,
                 "creationDate": datetime,
-                "id": meta._key,
-                "_id": meta._id
+                "_id": meta._id,
+                "_key": meta._key
             });
         }).catch((err) => {
             reject(err);
@@ -56,10 +56,10 @@ function getByKey(key){
     return getById(id);
 }
 
-function remove(argument){
+function remove(_key){
     return new Promise(function (resolve, reject) {
         var ArgumentsCollection = Arango.getArgumentCollection();
-        ArgumentsCollection.remove(argument._key).then((meta) => {
+        ArgumentsCollection.remove(_key).then((meta) => {
             resolve(meta);
         }).catch((err) => {
             reject(err);

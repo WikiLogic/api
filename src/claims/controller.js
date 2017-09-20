@@ -7,7 +7,8 @@ function claimFormatter(claim){
         text: claim.text,
         probability: claim.probability,
         creationDate: claim.creationDate,
-        id: claim._key,
+        _id: claim._id,
+        _key: claim._key,
         arguments: claim.arguments
     }
     return returnClaim;
@@ -22,8 +23,8 @@ function getById(req, res){
 
     let errors = [];
 
-    if (!req.params.hasOwnProperty('claimid') || req.params.claimid == '') {
-        errors.push({title:'ID is required'});
+    if (!req.params.hasOwnProperty('_key') || req.params._key == '') {
+        errors.push({title:'_key is required'});
     }
 
     if (errors.length > 0) {
@@ -32,11 +33,11 @@ function getById(req, res){
         return;
     }
 
-    let id = req.params.claimid;
+    let _key = req.params._key;
 
-    ClaimModel.getById(id).then((claim) => {
+    ClaimModel.getById(_key).then((claim) => {
         //now to hydrate the claim's arguments
-        PremiseLinkModel.getEdgesWithId(claim._id).then((edges) => {
+        PremiseLinkModel.getEdgesWithId(claim._key).then((edges) => {
             let promises = [];
             for (var e = 0; e < edges.length; e++) {
                 promises.push(ArgumentModel.getByKey(edges[e]._from));
@@ -59,7 +60,7 @@ function getById(req, res){
             ]});
         });
     }).catch((err) => {
-        console.log('get claim by id error: ', err);
+        console.log('get claim by id error: ', err.ArangoError);
         res.status(500);
         res.json({errors:[{title:'get claim by id error'}]});
     })
@@ -98,7 +99,7 @@ function create(req, res){
             return;
         }
 
-        Claim.create({text: text, probability: probability}).then((newClaim) => {
+        ClaimModel.create({text: text, probability: probability}).then((newClaim) => {
             let returnClaim = claimFormatter(newClaim);
             console.log('sending 200');
             res.status(200);
@@ -152,8 +153,8 @@ function remove(req, res){
 
     let errors = [];
 
-    if (!req.params.hasOwnProperty('claimid') || req.params.claimid == '') {
-        errors.push({title:'ID is required'});
+    if (!req.body.hasOwnProperty('_key') || req.body._key == '') {
+        errors.push({title:'_key is required'});
     }
 
     if (errors.length > 0) {
@@ -162,8 +163,8 @@ function remove(req, res){
         return;
     }
 
-    let id = req.params.claimid;
-    ClaimModel.remove(id).then((meta) => {
+    let _key = req.body._key;
+    ClaimModel.remove(_key).then((meta) => {
         res.status(200);
         res.json({data:meta});
     }).catch((err) => {

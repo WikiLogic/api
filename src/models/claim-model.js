@@ -28,7 +28,8 @@ function create(newClaim){
                 "text": newClaim.text,
                 "probability": newClaim.probability,
                 "creationDate": datetime,
-                "id": meta._key
+                "_id": meta._id,
+                "_key": meta._key
             });
         }).catch((err) => {
             reject(err);
@@ -74,12 +75,15 @@ function getByText(text){
     });
 }
 
-function remove(id){
+function remove(_key){
+    console.log('REMOVING CLAIM BY KEEEYYYYY', _key);
     return new Promise(function (resolve, reject) {
         var ClaimsCollection = Arango.getClaimCollection();
-        ClaimsCollection.remove(id).then((meta) => {
+        ClaimsCollection.remove(_key).then((meta) => {
+            console.log('CLAIM REMOVED!!!!!');
             resolve(meta);
         }).catch((err) => {
+            console.log('CLAIM FAILED :(((((((');
             reject(err);
         });
     });

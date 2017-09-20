@@ -87,7 +87,7 @@ var apiRouter = express.Router();
     apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), Claims.search);
     apiRouter.post('/claims', passport.authenticate('jwt', { session: false }), Claims.create);
     // apiRouter.get('/claims/random', passport.authenticate('jwt', { session: false }), Claims.getRandom);
-    apiRouter.get('/claims/:claimid', passport.authenticate('jwt', { session: false }), Claims.getById);
+    apiRouter.get('/claims/:_key', passport.authenticate('jwt', { session: false }), Claims.getById);
     apiRouter.delete('/claims', passport.authenticate('jwt', { session: false }), Claims.remove);
 
     apiRouter.post('/arguments', passport.authenticate('jwt', { session: false }), Arguments.create);
@@ -96,7 +96,7 @@ var apiRouter = express.Router();
 
 
 
-    apiRouter.get('/args/:claimid', passport.authenticate('jwt', { session: false }), function (req, res) {
+    apiRouter.get('/args/:_key', passport.authenticate('jwt', { session: false }), function (req, res) {
         Arguments.getByClaimId(req, res);
     });
 

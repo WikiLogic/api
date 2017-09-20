@@ -101,14 +101,9 @@ function remove(req, res) {
 
     let errors = [];
 
-    if (!req.body.hasOwnProperty('argument') || req.body.argument == '') {
-        console.log('FAIL: no argument in body');
-        errors.push({title:'argument is required'});
-    }
-
-    if (Array.isArray(req.body.argument)) {
-        console.log('FAIL: arg was an array');
-        errors.push({title:'argument must be an object, not an array'});
+    if (!req.body.hasOwnProperty('_key') || req.body._key == '') {
+        console.log('FAIL: no argument _key in body');
+        errors.push({title:'_key is required'});
     }
 
     if (errors.length > 0) {
@@ -117,12 +112,12 @@ function remove(req, res) {
         return;
     }
 
-    let argument = req.body.argument;
+    let _key = req.body._key;
     console.log('DELETING ARGUMENT: ', argument);
 
     //delete the premis links from this argument
     //get all the edges (premis links)
-    PremiseLinks.getEdgesWithId(argument._id).then((edges) => {
+    PremiseLinks.getEdgesWithId(_key).then((edges) => {
         console.log("EDGES TO DELETE: ", edges);
         let promises = [];
         for (var p = 0; p < edges.length; p++){
@@ -131,7 +126,8 @@ function remove(req, res) {
         return Promise.all(promises);
     }).then((meta) => {
         console.log('EDGES DELETED:', meta);
-        return ArgumentModel.remove(argument);
+        console.log('DELETING ARGUMENT FOR REAL:', _key);
+        return ArgumentModel.remove(_key);
     }).then((meta) => {
         console.log('ARGUMENT GONE!', meta);
         res.status(200);

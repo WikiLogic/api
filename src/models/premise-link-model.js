@@ -17,7 +17,8 @@ function create(argDbKey, claimDbKey, type){
                 "_to": claimDbKey,
                 "type": type,
                 "creationDate": datetime,
-                "id": meta._key
+                "_id": meta._id,
+                "_key": meta._key
             });
         }).catch((err) => {
             reject(err);
