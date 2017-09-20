@@ -51,7 +51,7 @@ function getById(id){
         }).catch((err) => {
             reject(err);
         });
-    })
+    });
 }
 
 function getByText(text){
@@ -74,8 +74,20 @@ function getByText(text){
     });
 }
 
+function remove(id){
+    return new Promise(function (resolve, reject) {
+        var ClaimsCollection = Arango.getClaimCollection();
+        ClaimsCollection.remove(id).then((meta) => {
+            resolve(meta);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 module.exports = {
     create,
     getById,
-    getByText
+    getByText,
+    remove
 };

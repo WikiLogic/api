@@ -5,7 +5,7 @@ var Utils = require('../_utils');
 var Arango = require('../_arango/_db');
 
 function create(req, res){
-    console.log("TODO: escape post data: ", JSON.stringify(req.body));
+    console.log("TODO: ARGUMENT.CREATE escape post data: ", JSON.stringify(req.body));
 
     let errors = [];
 
@@ -45,7 +45,7 @@ function create(req, res){
     ClaimModel.getById(parentClaimId).then((parentClaim) => {
         parentClaimObject = parentClaim;
         //now to fill it's arguments, we need to get a list of the arguments that are linked
-        return PremiseLinks.getEdgeWithId(parentClaim._id);
+        return PremiseLinks.getEdgesWithId(parentClaim._id);
     }).then((edges) => {
         //get all the argument's from those edges - these are the things we'll check for duplicates
         let promises = [];
@@ -55,7 +55,6 @@ function create(req, res){
         return Promise.all(promises);
     }).then((existingArguments) => {
         //now we have 'hydrated' the parent claim
-        parentClaimObject.arguments = existingArguments;
         
         //check to see if the argument we're looking to create already exists:
         for (var a = 0; a < existingArguments.length; a++) {
@@ -68,9 +67,8 @@ function create(req, res){
         }
 
         //if there is an existing argument that is the same - no need to go any further, just return the parent claim.
+        parentClaimObject.arguments = existingArguments;
         if (!dupeCheckPass) {
-            //populate the parent claim with existingArguments
-            parentClaimObject.arguments = existingArguments;
             res.status(200);
             res.send({data: {claim: parentClaimObject} });
         } else {
@@ -98,6 +96,52 @@ function create(req, res){
     });
 }
 
+function remove(req, res) {
+    console.log("TODO: ARGUMENT.REMOVE escape post data: ", JSON.stringify(req.body));
+
+    let errors = [];
+
+    if (!req.body.hasOwnProperty('argument') || req.body.argument == '') {
+        console.log('FAIL: no argument in body');
+        errors.push({title:'argument is required'});
+    }
+
+    if (Array.isArray(req.body.argument)) {
+        console.log('FAIL: arg was an array');
+        errors.push({title:'argument must be an object, not an array'});
+    }
+
+    if (errors.length > 0) {
+        res.status(400);
+        res.json({ errors: errors });
+        return;
+    }
+
+    let argument = req.body.argument;
+    console.log('DELETING ARGUMENT: ', argument);
+
+    //delete the premis links from this argument
+    //get all the edges (premis links)
+    PremiseLinks.getEdgesWithId(argument._id).then((edges) => {
+        console.log("EDGES TO DELETE: ", edges);
+        let promises = [];
+        for (var p = 0; p < edges.length; p++){
+            promises.push(PremiseLinks.remove(edges[p]));
+        }
+        return Promise.all(promises);
+    }).then((meta) => {
+        console.log('EDGES DELETED:', meta);
+        return ArgumentModel.remove(argument);
+    }).then((meta) => {
+        console.log('ARGUMENT GONE!', meta);
+        res.status(200);
+        res.json({data: meta});
+    }).catch((err) => {
+        console.log("FAIL WHALE", err);
+        reject(err);
+    });
+}
+
 function getById(argumentId) {
     //TODO: turn this into a route not just a return
     return new Promise(function (resolve, reject) {
@@ -111,5 +155,6 @@ function getById(argumentId) {
 
 module.exports = {
     getById: getById,
-    create: create
+    create: create,
+    remove: remove
 };

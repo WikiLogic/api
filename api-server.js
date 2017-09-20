@@ -88,8 +88,10 @@ var apiRouter = express.Router();
     apiRouter.post('/claims', passport.authenticate('jwt', { session: false }), Claims.create);
     // apiRouter.get('/claims/random', passport.authenticate('jwt', { session: false }), Claims.getRandom);
     apiRouter.get('/claims/:claimid', passport.authenticate('jwt', { session: false }), Claims.getById);
+    apiRouter.delete('/claims', passport.authenticate('jwt', { session: false }), Claims.remove);
 
     apiRouter.post('/arguments', passport.authenticate('jwt', { session: false }), Arguments.create);
+    apiRouter.delete('/arguments', passport.authenticate('jwt', { session: false }), Arguments.remove);
     
 
 

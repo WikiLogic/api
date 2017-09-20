@@ -18,7 +18,7 @@ function hydrateClaimArguments(claim){
 }
 
 function getById(req, res){
-    console.log("TODO: escape post data: ", JSON.stringify(req.body));
+    console.log("TODO: CLAIMS.GETBYID escape post data: ", JSON.stringify(req.body));
 
     let errors = [];
 
@@ -36,7 +36,7 @@ function getById(req, res){
 
     ClaimModel.getById(id).then((claim) => {
         //now to hydrate the claim's arguments
-        PremiseLinkModel.getEdgeWithId(claim._id).then((edges) => {
+        PremiseLinkModel.getEdgesWithId(claim._id).then((edges) => {
             let promises = [];
             for (var e = 0; e < edges.length; e++) {
                 promises.push(ArgumentModel.getByKey(edges[e]._from));
@@ -66,7 +66,7 @@ function getById(req, res){
 }
 
 function create(req, res){
-    console.log("TODO: escape post data: ", JSON.stringify(req.body));
+    console.log("TODO: CLAIMS.CREATE escape post data: ", JSON.stringify(req.body));
 
     let errors = [];
 
@@ -118,7 +118,7 @@ function create(req, res){
 }
 
 function search(req, res){
-    console.log("TODO: escape post data: ", JSON.stringify(req.body));
+    console.log("TODO: CLAIMS.SEARCH escape post data: ", JSON.stringify(req.body));
 
     let errors = [];
 
@@ -147,8 +147,35 @@ function search(req, res){
     });
 }
 
+function remove(req, res){
+    console.log("TODO: CLAIMS.REMOVE escape post data: ", JSON.stringify(req.body));
+
+    let errors = [];
+
+    if (!req.params.hasOwnProperty('claimid') || req.params.claimid == '') {
+        errors.push({title:'ID is required'});
+    }
+
+    if (errors.length > 0) {
+        res.status(400);
+        res.json({ errors: errors });
+        return;
+    }
+
+    let id = req.params.claimid;
+    ClaimModel.remove(id).then((meta) => {
+        res.status(200);
+        res.json({data:meta});
+    }).catch((err) => {
+        console.log('FAIL, remove claim error: ', err);
+        res.status(500);
+        res.json({ errors: [{title:'FAIL, remove claim error'}] });
+    });
+}
+
 module.exports = {
     search: search,
     getById: getById,
-    create: create
+    create: create,
+    remove: remove
 }

@@ -56,8 +56,20 @@ function getByKey(key){
     return getById(id);
 }
 
+function remove(argument){
+    return new Promise(function (resolve, reject) {
+        var ArgumentsCollection = Arango.getArgumentCollection();
+        ArgumentsCollection.remove(argument._key).then((meta) => {
+            resolve(meta);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 module.exports = {
     create,
     getById,
-    getByKey
+    getByKey,
+    remove
 };

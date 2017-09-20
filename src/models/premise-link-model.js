@@ -25,7 +25,7 @@ function create(argDbKey, claimDbKey, type){
     });
 }
 
-function getEdgeWithId(documentId){
+function getEdgesWithId(documentId){
     return new Promise(function (resolve, reject) {
         var PremiseCollection = Arango.getPremisLinkCollection();
         PremiseCollection.edges(documentId).then((data) => {
@@ -36,7 +36,19 @@ function getEdgeWithId(documentId){
     });
 }
 
+function remove(premisLink){
+    return new Promise(function (resolve, reject) {
+        var PremiseCollection = Arango.getPremisLinkCollection();
+        PremiseCollection.remove(premisLink._key).then((meta) => {
+            resolve(meta);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 module.exports = {
     create: create,
-    getEdgeWithId: getEdgeWithId
+    remove: remove,
+    getEdgesWithId: getEdgesWithId
 }
