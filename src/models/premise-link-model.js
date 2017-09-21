@@ -38,6 +38,7 @@ function getEdgesWithId(documentId){
 }
 
 function remove(premisLink){
+    console.log('REMOVING PREMISE LINK: ', premisLink);
     return new Promise(function (resolve, reject) {
         var PremiseCollection = Arango.getPremisLinkCollection();
         PremiseCollection.remove(premisLink._key).then((meta) => {

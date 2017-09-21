@@ -21,14 +21,12 @@ function create(newArgument){
         ArgumentsCollection.save({
             "parentClaimId": newArgument.parentClaimId,
             "probability": newArgument.probability,
-            "premisIds": newArgument.premisIds, //this may not actually be needed - details will be held in the edge collection
             "type": newArgument.type,
             "creationDate": datetime
         }).then((meta) => {
             resolve({
                 "parentClaimId": newArgument.parentClaimId,
                 "probability": newArgument.probability,
-                "premisIds": newArgument.premisIds,
                 "type": newArgument.type,
                 "creationDate": datetime,
                 "_id": meta._id,
@@ -40,10 +38,10 @@ function create(newArgument){
     });
 }
 
-function getById(id){
+function getById(_id){
     return new Promise(function (resolve, reject) {
         var ArgumentsCollection = Arango.getArgumentCollection();
-        ArgumentsCollection.document(id).then((argumentObject) => {
+        ArgumentsCollection.document(_id).then((argumentObject) => {
             resolve(argumentObject);
         }).catch((err) => {
             reject(err);
@@ -51,15 +49,15 @@ function getById(id){
     });
 }
 
-function getByKey(key){
-    let id = key.replace('arguments/', '');
-    return getById(id);
+function getByKey(_key){
+    let _id = _key.replace('arguments/', '');
+    return getById(_id);
 }
 
-function remove(_key){
+function remove(_id){
     return new Promise(function (resolve, reject) {
         var ArgumentsCollection = Arango.getArgumentCollection();
-        ArgumentsCollection.remove(_key).then((meta) => {
+        ArgumentsCollection.remove(_id).then((meta) => {
             resolve(meta);
         }).catch((err) => {
             reject(err);

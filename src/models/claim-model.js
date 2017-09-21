@@ -37,10 +37,13 @@ function create(newClaim){
     });
 }
 
-function getById(id){
+function getById(_id){
+    if (_id.indexOf('claims/') > -1) {
+        _id = _id.replace('claims/', '');
+    }
     return new Promise(function (resolve, reject) {
         var ClaimsCollection = Arango.getClaimCollection();
-        ClaimsCollection.document(id).then((claimObject) => {
+        ClaimsCollection.document(_id).then((claimObject) => {
             resolve({
                 text: claimObject.text,
                 probability: claimObject.probability,
@@ -76,14 +79,11 @@ function getByText(text){
 }
 
 function remove(_key){
-    console.log('REMOVING CLAIM BY KEEEYYYYY', _key);
     return new Promise(function (resolve, reject) {
         var ClaimsCollection = Arango.getClaimCollection();
         ClaimsCollection.remove(_key).then((meta) => {
-            console.log('CLAIM REMOVED!!!!!');
             resolve(meta);
         }).catch((err) => {
-            console.log('CLAIM FAILED :(((((((');
             reject(err);
         });
     });

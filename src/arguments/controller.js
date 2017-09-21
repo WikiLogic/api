@@ -3,6 +3,7 @@ var ArgumentModel = require('../models/argument-model.js');
 var PremiseLinks = require('../models/premise-link-model.js');
 var Utils = require('../_utils');
 var Arango = require('../_arango/_db');
+var ProbabilityCalculator = require('../probability');
 
 function create(req, res){
     console.log("TODO: ARGUMENT.CREATE escape post data: ", JSON.stringify(req.body));
@@ -67,18 +68,34 @@ function create(req, res){
         }
 
         //if there is an existing argument that is the same - no need to go any further, just return the parent claim.
-        parentClaimObject.arguments = existingArguments;
         if (!dupeCheckPass) {
+            parentClaimObject.arguments = existingArguments;
             res.status(200);
             res.send({data: {claim: parentClaimObject} });
         } else {
             //if the new argument is not a duplicate, it's time to start making it!
-            ArgumentModel.create({ parentClaimId, type, premisIds, probability }).then((newArgumentNode) => {
+            let promises = [];
+            for (var e = 0; e < edges.length; e++) {
+                promises.push(ClaimModel.getById(edges[e]._from));
+            }
+            Promise.all(promises).then((premises) => {
+                console.log('PREMISES TO GET PROBABILITY FROM', premises);
+                //get the probability for this argument 
+                let newArgProbability = ProbabilityCalculator.getArgumentProbability(premises);
+                return ArgumentModel.create({ parentClaimId, type, newArgProbability });
+
+            }).then((newArgumentNode) => {
                 //create the premise link between the argument and the parent claim
+                newArgumentNode.probability = newArgProbability;
                 parentClaimObject.arguments.push(newArgumentNode);
                 return PremiseLinks.create(newArgumentNode._id, parentClaimObject._id, type);
+                
             }).then((data) => {
                 //The new link has been created! The argument node was added in the last step so we're actually good to return now.
+                //now lets get a quick update on the claim's probability
+                let newClaimProbability = ProbabilityCalculator.getClaimProbability(parentClaimObject);
+                parentClaimObject.probability = newClaimProbability;
+                console.log('TODO: save new probability');
                 res.status(200);
                 res.send({data: {claim: parentClaimObject} });
             }).catch((err) => {
@@ -101,9 +118,8 @@ function remove(req, res) {
 
     let errors = [];
 
-    if (!req.body.hasOwnProperty('_key') || req.body._key == '') {
-        console.log('FAIL: no argument _key in body');
-        errors.push({title:'_key is required'});
+    if (!req.body.hasOwnProperty('_id') || req.body._id == '') {
+        errors.push({title:'_id is required'});
     }
 
     if (errors.length > 0) {
@@ -112,28 +128,23 @@ function remove(req, res) {
         return;
     }
 
-    let _key = req.body._key;
-    console.log('DELETING ARGUMENT: ', argument);
-
+    let _id = req.body._id;
     //delete the premis links from this argument
     //get all the edges (premis links)
-    PremiseLinks.getEdgesWithId(_key).then((edges) => {
-        console.log("EDGES TO DELETE: ", edges);
+    PremiseLinks.getEdgesWithId(_id).then((edges) => {
         let promises = [];
+        console.log('PREMISE LINKS TO REMOVE: ', edges);
         for (var p = 0; p < edges.length; p++){
             promises.push(PremiseLinks.remove(edges[p]));
         }
         return Promise.all(promises);
     }).then((meta) => {
-        console.log('EDGES DELETED:', meta);
-        console.log('DELETING ARGUMENT FOR REAL:', _key);
-        return ArgumentModel.remove(_key);
+        return ArgumentModel.remove(_id);
     }).then((meta) => {
-        console.log('ARGUMENT GONE!', meta);
         res.status(200);
         res.json({data: meta});
     }).catch((err) => {
-        console.log("FAIL WHALE", err);
+        console.log("Deleting argument failed", err);
         reject(err);
     });
 }

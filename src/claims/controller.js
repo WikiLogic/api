@@ -101,7 +101,6 @@ function create(req, res){
 
         ClaimModel.create({text: text, probability: probability}).then((newClaim) => {
             let returnClaim = claimFormatter(newClaim);
-            console.log('sending 200');
             res.status(200);
             res.json({data:{claim:newClaim}});
         }).catch((err) => {
