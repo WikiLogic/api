@@ -38,12 +38,17 @@ function create(newClaim){
 }
 
 function getById(_id){
+
     if (_id.indexOf('claims/') > -1) {
         _id = _id.replace('claims/', '');
     }
+
+    console.log('Getting claim by id: ', _id);
     return new Promise(function (resolve, reject) {
+        console.log('Getting claim by _id promise')
         var ClaimsCollection = Arango.getClaimCollection();
         ClaimsCollection.document(_id).then((claimObject) => {
+            console.log('Geting claim by id promise resolving')
             resolve({
                 text: claimObject.text,
                 probability: claimObject.probability,
@@ -53,6 +58,7 @@ function getById(_id){
                 _key: claimObject._key
             });
         }).catch((err) => {
+            console.log('Getting claim by id failing');
             reject(err);
         });
     });

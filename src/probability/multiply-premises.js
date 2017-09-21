@@ -8,8 +8,13 @@ module.exports = function multiplyPremises(premises){
     //just multiply them all together?
     var prob = 1;
     premises.forEach(function(premis){
-        prob = prob * premis.probability;
+        let thisProp = Number(premis.probability);
+        prob = prob * (thisProp / 100);
     });
+
+    prob = Math.floor(prob * 100);
+
+    console.log('ARGUMENT PROBABILITY: ', prob);
 
     return prob;
 }
