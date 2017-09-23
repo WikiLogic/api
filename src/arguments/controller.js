@@ -28,7 +28,6 @@ function create(req, res){
         return;
     }
 
-    console.log('argument check passed')
 
     let parentClaimObject = {}; //this is what will eventually be returned
     let parentClaimArguments = [];
@@ -40,12 +39,10 @@ function create(req, res){
 
     //the eventual return value will be the parent claim, so let's get that first
     ClaimModel.getById(parentClaimId).then((parentClaim) => {
-        console.log('-----1 parent claim:', parentClaim);
         parentClaimObject = parentClaim;
         //now to fill it's arguments, we need to get a list of the arguments that are linked
         return PremiseLinks.getEdgesWithId(parentClaim._id);
     }).then((edges) => {
-        console.log('-----2 edges: ', edges);
         //get all the argument's from those edges - these are the things we'll check for duplicates
         let promises = [];
         for (var e = 0; e < edges.length; e++) {
@@ -53,7 +50,6 @@ function create(req, res){
         }
         return Promise.all(promises);
     }).then((existingArguments) => {
-        console.log('-----3 existing arguments: ', existingArguments);
         //now we have 'hydrated' the parent claim
         
         //check to see if the argument we're looking to create already exists:
@@ -69,43 +65,43 @@ function create(req, res){
         //if there is an existing argument that is the same - no need to go any further, just return the parent claim.
         if (!dupeCheckPass) {
             parentClaimObject.arguments = existingArguments;
-            console.log('-----4 RETURNING EXISTING ARGUMENTS');
             res.status(200);
             res.send({data: {claim: parentClaimObject} });
         } else {
-            console.log('-----4 making new argument')
             //if the new argument is not a duplicate, it's time to start making it!
             //get the premises for the argument
             let promises = [];
             for (var p = 0; p < premisIds.length; p++) {
-                console.log('Pushing claim get by id')
                 promises.push(ClaimModel.getById(premisIds[p]));
             }
             Promise.all(promises).then((premises) => {
-                console.log('-----5 PREMISES TO GET PROBABILITY FROM', premises);
                 //get the probability for this argument 
                 let newArgProbability = ProbabilityCalculator.getArgumentProbability(premises);
                 return ArgumentModel.create({ parentClaimId, type, probability: newArgProbability });
 
             }).then((newArgumentNode) => {
-                console.log('-----6 got new argument node', newArgumentNode, parentClaimObject)
                 //create the premise link between the argument and the parent claim
                 existingArguments.push(newArgumentNode);
                 parentClaimObject.arguments = existingArguments; 
-                console.log('ehhhhhhhhh', parentClaimObject);
                 let newClaimProbability = ProbabilityCalculator.getClaimProbability(parentClaimObject.arguments);
-                console.log('0000000h', newClaimProbability);
                 parentClaimObject.probability = newClaimProbability;
-                console.log('hmmmmmmm');
+                
+                //save new probabillity that was worked out for the parent claim
+                ClaimModel.updateProbability(parentClaimObject._id, newClaimProbability).then((meta) => {
+                    
+                }).catch((err) => {
+                    console.log('claim failed to update with new probability :(', err);
+                });
+
                 return PremiseLinks.create(newArgumentNode._id, parentClaimObject._id, type);
                 
             }).then((data) => {
-                console.log('-----7 premis link to new argument node has been created')
                 //The new link has been created! The argument node was added in the last step so we're actually good to return now.
                 //now lets get a quick update on the claim's probability
-                console.log('TODO: save new probability');
                 res.status(200);
                 res.send({data: {claim: parentClaimObject} });
+
+
             }).catch((err) => {
                 console.log('FAIL creating new argument failed', err);
                 res.status(500);

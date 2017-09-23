@@ -131,7 +131,7 @@ var apiRouter = express.Router();
         });
     });
 
-app.use('/api/', apiRouter);
+app.use('/api/v1/', apiRouter);
 
 app.get('/', function (req, res) {
   res.send('API rooter tooter super scooter');

@@ -21,8 +21,7 @@ function create(newClaim){
         ClaimsCollection.save({
             "text": newClaim.text,
             "probability": newClaim.probability,
-            "creationDate": datetime,
-            "arguments": []
+            "creationDate": datetime
         }).then((meta) => {
             resolve({
                 "text": newClaim.text,
@@ -84,6 +83,17 @@ function getByText(text){
     });
 }
 
+function updateProbability(_id, newProbability){
+    return new Promise(function (resolve, reject) {
+        var ClaimsCollection = Arango.getClaimCollection();
+        ClaimsCollection.update(_id, {probability: newProbability}).then((meta) => {
+            resolve(meta);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 function remove(_key){
     return new Promise(function (resolve, reject) {
         var ClaimsCollection = Arango.getClaimCollection();
@@ -99,5 +109,6 @@ module.exports = {
     create,
     getById,
     getByText,
+    updateProbability,
     remove
 };
