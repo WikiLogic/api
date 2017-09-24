@@ -6,29 +6,21 @@ Database = require('arangojs').Database;
 db = new Database(process.env.ARANGO_URL || 'http://arango:8529');
 var usersCollection;
 
-ready = false;
-var database_name = "wl_dev";
+var DB_NAME = "wl_dev";
 
 function initDbConnection(){
     return new Promise(function (resolve, reject) {
         db.listDatabases()
         .then((names) => {
-            if (names.indexOf(database_name) > -1){
-                db.useDatabase(database_name);
+            if (names.indexOf(DB_NAME) > -1){
+                db.useDatabase(DB_NAME);
                 initDbCollections();
-                db.get().then(()=> {
-                    ready = true;
-                    resolve(database_name);
-                }).catch((err) => {
-                    console.log("db init error", err);
-                    reject(err);
-                });
+                resolve(DB_NAME);
             } else {
-                db.createDatabase(database_name).then(() => {
-                    db.useDatabase(database_name);
+                db.createDatabase(DB_NAME).then(() => {
+                    db.useDatabase(DB_NAME);
                     initDbCollections();
-                    ready = true;
-                    resolve(database_name);
+                    resolve(DB_NAME);
                 },(err) => {
                     reject(error)
                 });
@@ -43,8 +35,11 @@ function initDbConnection(){
 function initDbCollections(){
     usersCollection = db.collection('users');
     usersCollection.create();
+    
     claimsCollection = db.collection('claims');
     claimsCollection.create();
+    claimsCollection.createFulltextIndex('text');
+
     argumentsCollection = db.collection('arguments');
     argumentsCollection.create();
 
@@ -53,27 +48,23 @@ function initDbCollections(){
 }
 
 function getUserCollection(){
-    if (!ready) { initDbConnection(); }
     return db.collection('users');
 }
 
 function getClaimCollection(){
-    if (!ready) { initDbConnection(); }
     return db.collection('claims');
 }
 
 function getArgumentCollection(){
-    if (!ready) { initDbConnection(); }
     return db.collection('arguments');
 }
 
 function getPremisLinkCollection(){
-    if (!ready) { initDbConnection(); }
     return db.edgeCollection('premisLinks');
 }
 
 function getAllUsers(){
-    return db.database(database_name).then((wlDb) => {
+    return db.database(DB_NAME).then((wlDb) => {
         return wlDb.query(`FOR doc IN users RETURN doc`);
     }).then((cursor) => {
         return cursor.all();
@@ -83,7 +74,7 @@ function getAllUsers(){
 }
 
 function getUserByUsername(username){
-    return db.database(database_name).then((wlDb) => {
+    return db.database(DB_NAME).then((wlDb) => {
         return wlDb.query(`
             FOR doc IN users 
             FILTER doc.name == "${username}" 
@@ -106,9 +97,6 @@ function listAllCollections(){
 }
 
 function getHealth(){
-    if (!ready) { 
-        initDbConnection();
-    }
 
     return new Promise(function (resolve, reject) {
         db.listCollections().then((data) => {

@@ -118,7 +118,7 @@ function create(req, res){
 }
 
 function search(req, res){
-    console.log("TODO: CLAIMS.SEARCH escape post data: ", JSON.stringify(req.body));
+    console.log("TODO: CLAIMS.SEARCH escape post data: ", JSON.stringify(req.query));
 
     let errors = [];
 
@@ -135,6 +135,7 @@ function search(req, res){
     var searchTerm = req.query.s;
 
     ClaimModel.getByText(searchTerm).then((data) => {
+        console.log("GOT DATA:", data);
         let resultsArray = [];
         for (var c = 0; c < data.length; c++) {
             resultsArray.push(claimFormatter(data[c]));

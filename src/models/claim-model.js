@@ -64,14 +64,16 @@ function getById(_id){
 }
 
 function getByText(text){
+    //Needs to be a kind of fuzzy text search - super basic for now
     return new Promise(function (resolve, reject) {
+        console.log('GETTING CLAIMS:', text);
         Arango.db.query(`
-            FOR doc IN claims 
-                FILTER doc.text == "${text}"
+            FOR doc IN FULLTEXT(claims, "text", "${text}")
                 RETURN doc
             `).then((cursor) => {
-
+                console.log("CURSOR: ", cursor);
                 cursor.all().then((data) => {
+                    console.log("RETURNED DATA:", data);
                     resolve(data);
                 }).catch((err) => {
                     reject(err);

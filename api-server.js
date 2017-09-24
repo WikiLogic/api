@@ -12,6 +12,7 @@ var passport = require("passport"); // authentication!
 var app = express(); // define our app using express
 
 var arango = require('./src/_arango/_db');
+arango.init();
 
 var jwtService = require('./src/authentication/jwtService.js');
 var loginRoute = require('./src/authentication/login.js');
@@ -84,7 +85,7 @@ var apiRouter = express.Router();
         });
     });
 
-    apiRouter.get('/claims', passport.authenticate('jwt', { session: false }), Claims.search);
+    apiRouter.get('/claims/search', passport.authenticate('jwt', { session: false }), Claims.search);
     apiRouter.post('/claims', passport.authenticate('jwt', { session: false }), Claims.create);
     // apiRouter.get('/claims/random', passport.authenticate('jwt', { session: false }), Claims.getRandom);
     apiRouter.get('/claims/:_key', passport.authenticate('jwt', { session: false }), Claims.getById);
