@@ -14,10 +14,13 @@ function claimFormatter(claim){
     return returnClaim;
 }
 
-function hydrateClaimArguments(claim){
-
-}
-
+/*
+ CLAIM    (db call claim by id)                        DONE
+  link    (db call premise links with claim id)        DONE
+ARGUMENT  (db call arguments by id from premise links) DONE
+  link    (db call premise links by argument id)
+ CLAIM    (db call claim by id from premise links)
+*/
 function getById(req, res){
     console.log("TODO: CLAIMS.GETBYID escape post data: ", JSON.stringify(req.body));
 
@@ -34,32 +37,88 @@ function getById(req, res){
     }
 
     let _key = req.params._key;
+    let returnClaim = {};
 
     ClaimModel.getById(_key).then((claim) => {
-        //now to hydrate the claim's arguments
-        PremiseLinkModel.getEdgesWithId(claim._id).then((edges) => {
-            let promises = [];
-            for (var e = 0; e < edges.length; e++) {
-                promises.push(ArgumentModel.getByKey(edges[e]._from));
+        console.log("1 GOT CLAIM");
+        returnClaim = claim;
+        //now to get the links's to the claims arguments
+        return PremiseLinkModel.getEdgesWithId(claim._id);
+    }).then((edges) => {
+        console.log("2 GOT CLAIM EDGES: ", edges.length);
+        if (edges.length == 0) {
+            return Promise.reject(false);
+        }
+
+        //now to get the arguments those links point to
+        let argumentPromises = [];
+        for (var e = 0; e < edges.length; e++) {
+            argumentPromises.push(ArgumentModel.getByKey(edges[e]._from));
+        }
+
+        return Promise.all(argumentPromises);
+
+    }).then((argumentObjects) => {
+        console.log("3 GOT CLAIM ARGUMENTS FROM EDGES");
+        returnClaim.arguments = argumentObjects;
+
+        //now to get the links 'down' from each of those arguments
+        let linkPromises = [];
+        for (var a = 0; a < argumentObjects.length; a++) {
+            linkPromises.push(PremiseLinkModel.getEdgesWithId(argumentObjects._id));
+        }
+        
+        return Promise.all(linkPromises);
+
+    }).then((links) => {
+        console.log("4 GOT PREMISE EDGES FROM CLAIM ARGUMENTS");
+        //now run through each argument and put in a note for what premises it should have
+        for (var a = 0; a < returnClaim.arguments.length; a++) {
+            //now we're looking at returnClaim.arguments[a] and all it has is metadata, no premises yet
+            returnClaim.arguments[a].premises = [];
+            //check any of the links for this argument id
+            for (var l = 0; l < links.length; l++) {
+                if (links[l]._to == returnClaim.arguments[a]._id) {
+                    returnClaim.arguments[a].premises.push({
+                        _id: links[l]._from
+                    });
+                }
             }
-            Promise.all(promises).then((results) => {
-                claim.arguments = results;
-                res.status(200);
-                res.json({data: { claim: claim }});
-            }).catch((err) => {
-                console.log('getting claim by id - failed to get arguments linked to the claim', err);
-                res.status(500);
-                res.json({errors:[
-                    {title: 'getting claim by id - failed to get arguments linked to the claim'}
-                ]});
-            });
-        }).catch((err) => {
-            res.status(500);
-            res.json({errors:[
-                {title: 'getting claim by id - failed to get links to claim arguments'}
-            ]});
-        });
+        }
+
+        //at this point we have a claim with it's arguments but those arguments only have the ids of the premises that make them up
+
+        //now to get the claims to populate those argument premises
+        let premisePromises = [];
+        for (var p = 0; p < links.length; p++) {
+            premisePromises.push(ClaimModel.getById(links[p]._key));
+        }
+        
+        return Promise.all(premisePromises); 
+
+    }).then((premiseObjects) => {
+        console.log("5 GOT PREMISES FROM CLAIM ARGUMENT EDGES");
+
+        //now run through each argument and fill it in
+        for (var a = 0; a < returnClaim.arguments.length; a++) {
+            //in an argument, but we need to look at each of it's premises to pull them out the premiseObjects
+            for (var p = 0; p < returnClaim.arguments[a].premises.length; p++) {
+                //returnClaim.arguments[a].premises[p] only has a _id property. use that to find the right one from the given premiseObjects
+                for (var po = 0; po < premiseObjects.length; po++) {
+                    if(returnClaim.arguments[a].premises[p]._id == premiseObjects[po]._id) {
+                        returnClaim.arguments[a].premises[p] = premiseObjects[po];
+                    }
+                }
+            }
+        }
+
+        res.status(200);
+        res.json({data: { claim: returnClaim }});
     }).catch((err) => {
+        if (!err) {
+            res.status(200);
+            res.json({data: { claim: returnClaim }});
+        }
         console.log('get claim by id error: ', err.ArangoError);
         res.status(500);
         res.json({errors:[{title:'get claim by id error'}]});
@@ -67,7 +126,7 @@ function getById(req, res){
 }
 
 function create(req, res){
-    console.log("TODO: CLAIMS.CREATE escape post data: ", JSON.stringify(req.body));
+    //console.log("TODO: CLAIMS.CREATE escape post data: ", JSON.stringify(req.body));
 
     let errors = [];
 
@@ -118,7 +177,7 @@ function create(req, res){
 }
 
 function search(req, res){
-    console.log("TODO: CLAIMS.SEARCH escape post data: ", JSON.stringify(req.query));
+    //console.log("TODO: CLAIMS.SEARCH escape post data: ", JSON.stringify(req.query));
 
     let errors = [];
 
@@ -135,7 +194,6 @@ function search(req, res){
     var searchTerm = req.query.s;
 
     ClaimModel.search(searchTerm).then((data) => {
-        console.log("GOT DATA:", data);
         let resultsArray = [];
         for (var c = 0; c < data.length; c++) {
             resultsArray.push(claimFormatter(data[c]));
@@ -149,7 +207,7 @@ function search(req, res){
 }
 
 function remove(req, res){
-    console.log("TODO: CLAIMS.REMOVE escape post data: ", JSON.stringify(req.body));
+    //console.log("TODO: CLAIMS.REMOVE escape post data: ", JSON.stringify(req.body));
 
     let errors = [];
 

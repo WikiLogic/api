@@ -6,7 +6,7 @@ var Arango = require('../_arango/_db');
 var ProbabilityCalculator = require('../probability');
 
 function create(req, res){
-    console.log("TODO: ARGUMENT.CREATE escape post data: ", JSON.stringify(req.body));
+    //console.log("TODO: ARGUMENT.CREATE escape post data: ", JSON.stringify(req.body));
 
     let errors = [];
 
@@ -119,7 +119,7 @@ function create(req, res){
 }
 
 function remove(req, res) {
-    console.log("TODO: ARGUMENT.REMOVE escape post data: ", JSON.stringify(req.body));
+    //console.log("TODO: ARGUMENT.REMOVE escape post data: ", JSON.stringify(req.body));
 
     let errors = [];
 
@@ -138,7 +138,6 @@ function remove(req, res) {
     //get all the edges (premis links)
     PremiseLinks.getEdgesWithId(_id).then((edges) => {
         let promises = [];
-        console.log('PREMISE LINKS TO REMOVE: ', edges);
         for (var p = 0; p < edges.length; p++){
             promises.push(PremiseLinks.remove(edges[p]));
         }

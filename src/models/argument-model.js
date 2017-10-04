@@ -18,7 +18,6 @@ function create(newArgument){
     return new Promise(function (resolve, reject) {
         var ArgumentsCollection = Arango.getArgumentCollection();
         var datetime = Utils.getCreateDateForDb();
-        console.log('creating new argument: ', newArgument);
         ArgumentsCollection.save({
             "parentClaimId": newArgument.parentClaimId,
             "probability": newArgument.probability,
