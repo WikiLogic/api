@@ -18,8 +18,8 @@ function create(req, res){
         errors.push({title:'type is required'});
     }
     
-    if (!req.body.hasOwnProperty('premisIds') || req.body.premisIds == '') {
-        errors.push({title:'premisIds is required'});
+    if (!req.body.hasOwnProperty('premiseIds') || req.body.premiseIds == '') {
+        errors.push({title:'premiseIds is required'});
     }
 
     if (errors.length > 0) {
@@ -33,7 +33,7 @@ function create(req, res){
     let parentClaimArguments = [];
     var parentClaimId = req.body.parentClaimId;
     var type = req.body.type;
-    var premisIds = req.body.premisIds;
+    var premiseIds = req.body.premiseIds;
     var probability = 0.5;
     let dupeCheckPass = true;
 
@@ -56,7 +56,7 @@ function create(req, res){
         for (var a = 0; a < existingArguments.length; a++) {
             if (existingArguments[a].type == type) {
                 //check all the premise ids in this argument
-                if (Utils.doArraysMatch(existingArguments[a].premisIds, premisIds)) {
+                if (Utils.doArraysMatch(existingArguments[a].premiseIds, premiseIds)) {
                     dupeCheckPass = false;
                 }
             }
@@ -71,8 +71,8 @@ function create(req, res){
             //if the new argument is not a duplicate, it's time to start making it!
             //get the premises for the argument
             let promises = [];
-            for (var p = 0; p < premisIds.length; p++) {
-                promises.push(ClaimModel.getById(premisIds[p]));
+            for (var p = 0; p < premiseIds.length; p++) {
+                promises.push(ClaimModel.getById(premiseIds[p]));
             }
             Promise.all(promises).then((premises) => {
                 //get the probability for this argument 

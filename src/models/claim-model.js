@@ -42,9 +42,7 @@ function getById(_id){
         _id = _id.replace('claims/', '');
     }
 
-    console.log('Getting claim by id: ', _id);
     return new Promise(function (resolve, reject) {
-        console.log('Getting claim by _id promise')
         var ClaimsCollection = Arango.getClaimCollection();
         ClaimsCollection.document(_id).then((claimObject) => {
             console.log('Geting claim by id promise resolving')
@@ -63,12 +61,33 @@ function getById(_id){
     });
 }
 
+function search(term){
+    //Needs to be a kind of fuzzy text search - super basic for now
+    return new Promise(function (resolve, reject) {
+        Arango.db.query(`
+            FOR doc IN FULLTEXT(claims, "text", "${term}")
+                RETURN doc
+            `).then((cursor) => {
+                console.log("CURSOR: ", cursor);
+                cursor.all().then((data) => {
+                    console.log("RETURNED DATA:", data);
+                    resolve(data);
+                }).catch((err) => {
+                    reject(err);
+                });
+
+            }).catch((err) => {
+                reject(err);
+            });
+    });
+}
+
 function getByText(text){
     //Needs to be a kind of fuzzy text search - super basic for now
     return new Promise(function (resolve, reject) {
-        console.log('GETTING CLAIMS:', text);
         Arango.db.query(`
-            FOR doc IN FULLTEXT(claims, "text", "${text}")
+            FOR doc IN claims
+                FILTER doc.text == "${text}"
                 RETURN doc
             `).then((cursor) => {
                 console.log("CURSOR: ", cursor);
@@ -111,6 +130,7 @@ module.exports = {
     create,
     getById,
     getByText,
+    search,
     updateProbability,
     remove
 };

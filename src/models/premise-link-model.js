@@ -3,7 +3,6 @@ var Utils = require('../_utils');
 
 //create a premise link between argId and claimId of type, then reutrn it
 function create(argDbKey, claimDbKey, type){
-    console.log('creating new premise link: ', argDbKey, claimDbKey, type);
     return new Promise(function (resolve, reject) {
         var PremiseCollection = Arango.getPremisLinkCollection();
         var datetime = Utils.getCreateDateForDb();
@@ -28,7 +27,7 @@ function create(argDbKey, claimDbKey, type){
     });
 }
 
-function getEdgesWithId(documentId){
+function getEdgesWithId(documentId){ // needs the id in the format: collection/key
     return new Promise(function (resolve, reject) {
         var PremiseCollection = Arango.getPremisLinkCollection();
         PremiseCollection.edges(documentId).then((data) => {

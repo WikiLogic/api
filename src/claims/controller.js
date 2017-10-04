@@ -37,7 +37,7 @@ function getById(req, res){
 
     ClaimModel.getById(_key).then((claim) => {
         //now to hydrate the claim's arguments
-        PremiseLinkModel.getEdgesWithId(claim._key).then((edges) => {
+        PremiseLinkModel.getEdgesWithId(claim._id).then((edges) => {
             let promises = [];
             for (var e = 0; e < edges.length; e++) {
                 promises.push(ArgumentModel.getByKey(edges[e]._from));
@@ -134,7 +134,7 @@ function search(req, res){
 
     var searchTerm = req.query.s;
 
-    ClaimModel.getByText(searchTerm).then((data) => {
+    ClaimModel.search(searchTerm).then((data) => {
         console.log("GOT DATA:", data);
         let resultsArray = [];
         for (var c = 0; c < data.length; c++) {
