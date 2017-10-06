@@ -15,11 +15,11 @@ function claimFormatter(claim){
 }
 
 /*
- CLAIM    (db call claim by id)                        DONE
-  link    (db call premise links with claim id)        DONE
-ARGUMENT  (db call arguments by id from premise links) DONE
-  link    (db call premise links by argument id)
- CLAIM    (db call claim by id from premise links)
+   CLAIM     (db call claim by id)                        DONE
+  argLinks   (db call premise links with claim id)        DONE
+  ARGUMENT   (db call arguments by id from premise links) DONE
+premiseLinks (db call premise links by argument id)
+   CLAIM     (db call claim by id from premise links)
 */
 function getById(req, res){
     console.log("TODO: CLAIMS.GETBYID escape post data: ", JSON.stringify(req.body));
@@ -59,28 +59,32 @@ function getById(req, res){
         return Promise.all(argumentPromises);
 
     }).then((argumentObjects) => {
-        console.log("3 GOT CLAIM ARGUMENTS FROM EDGES");
+        console.log("3 GOT CLAIM ARGUMENTS FROM EDGES", argumentObjects);
         returnClaim.arguments = argumentObjects;
 
         //now to get the links 'down' from each of those arguments
         let linkPromises = [];
         for (var a = 0; a < argumentObjects.length; a++) {
-            linkPromises.push(PremiseLinkModel.getEdgesWithId(argumentObjects._id));
+            linkPromises.push(PremiseLinkModel.getEdgesWithId(argumentObjects[a]._id));
         }
         
         return Promise.all(linkPromises);
 
     }).then((links) => {
-        console.log("4 GOT PREMISE EDGES FROM CLAIM ARGUMENTS");
+        //comes back as an array of arrays, each array is an array for a specific argument
+        //TODO: find out if duplicates will happen here and should they be removed
+        let mergedLinkArray = [].concat.apply([], links);
+
+        console.log("4 GOT PREMISE EDGES FROM CLAIM ARGUMENTS", mergedLinkArray);
         //now run through each argument and put in a note for what premises it should have
         for (var a = 0; a < returnClaim.arguments.length; a++) {
             //now we're looking at returnClaim.arguments[a] and all it has is metadata, no premises yet
             returnClaim.arguments[a].premises = [];
             //check any of the links for this argument id
-            for (var l = 0; l < links.length; l++) {
-                if (links[l]._to == returnClaim.arguments[a]._id) {
+            for (var l = 0; l < mergedLinkArray.length; l++) {
+                if (mergedLinkArray[l]._to == returnClaim.arguments[a]._id) {
                     returnClaim.arguments[a].premises.push({
-                        _id: links[l]._from
+                        _id: mergedLinkArray[l]._from
                     });
                 }
             }
@@ -90,8 +94,8 @@ function getById(req, res){
 
         //now to get the claims to populate those argument premises
         let premisePromises = [];
-        for (var p = 0; p < links.length; p++) {
-            premisePromises.push(ClaimModel.getById(links[p]._key));
+        for (var p = 0; p < mergedLinkArray.length; p++) {
+            premisePromises.push(ClaimModel.getById(mergedLinkArray[p]._key));
         }
         
         return Promise.all(premisePromises); 
