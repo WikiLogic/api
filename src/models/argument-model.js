@@ -19,13 +19,11 @@ function create(newArgument){
         var ArgumentsCollection = Arango.getArgumentCollection();
         var datetime = Utils.getCreateDateForDb();
         ArgumentsCollection.save({
-            "parentClaimId": newArgument.parentClaimId,
             "probability": newArgument.probability,
             "type": newArgument.type,
             "creationDate": datetime
         }).then((meta) => {
             resolve({
-                "parentClaimId": newArgument.parentClaimId,
                 "probability": newArgument.probability,
                 "type": newArgument.type,
                 "creationDate": datetime,

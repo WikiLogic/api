@@ -20,11 +20,38 @@ function doArraysMatch(array1, array2) {
     return false;
 }
 
+function doArgumentsMatch(argumentObject1, argumentObject2){
+    //type & array of premises with an _id attribute
+    if (argumentObject1.type != argumentObject2.type) {
+        return false;
+    }
+
+    if (argumentObject1.premises.length != argumentObject2.premises.length) {
+        return false;
+    }
+
+    let requiredMatchCount = argumentObject1.premises.length;
+
+    for (var p1 = 0; p1 < argumentObject1.premises.length; p1++) {
+        for (var p2 = 0; p2 < argumentObject2.premises.length; p2++) {
+            if (argumentObject1.premises[p1]._id == argumentObject2.premises[p1]._id) {
+                requiredMatchCount --;
+            }
+        }
+    }
+    if (requiredMatchCount > 0) {
+        return false;
+    }
+
+    return true;
+}
+
 function getCreateDateForDb(){
     return new Date().toISOString().replace(/T/, ' ').substr(0, 10);
 }
 
 module.exports = {
     doArraysMatch,
+    doArgumentsMatch,
     getCreateDateForDb
 }

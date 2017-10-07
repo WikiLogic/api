@@ -2,19 +2,19 @@ var Arango = require('../_arango/_db');
 var Utils = require('../_utils');
 
 //create a premise link between argId and claimId of type, then reutrn it
-function create(argDbKey, claimDbKey, type){
+function create(fromKey, toKey, type){
     return new Promise(function (resolve, reject) {
         var PremiseCollection = Arango.getPremisLinkCollection();
         var datetime = Utils.getCreateDateForDb();
         PremiseCollection.save({
-            "_from": argDbKey,
-            "_to": claimDbKey,
+            "_from": fromKey,
+            "_to": toKey,
             "type": type,
             "creationDate": datetime
         }).then((meta) => {
             resolve({
-                "_from": argDbKey,
-                "_to": claimDbKey,
+                "_from": fromKey,
+                "_to": toKey,
                 "type": type,
                 "creationDate": datetime,
                 "_id": meta._id,
