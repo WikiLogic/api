@@ -74,7 +74,7 @@ function create(req, res){
         let promises = [];
         for (var a = 0; a < parentArgEdges.length; a++) {
             //go get the actual argument object
-            promises.push(ArgumentModel.getByKey(parentArgEdges[e]._from));
+            promises.push(ArgumentModel.getByKey(parentArgEdges[a]._from));
         }
 
         return Promise.all(promises);
@@ -85,13 +85,12 @@ function create(req, res){
             return Promise.resolve([]);
         }
         //now we have all the existing argument objects for the parent claim - but only with meta data for now...
-        returnParentClaimObject.arguments = [];
+        returnParentClaimObject.arguments = existingArguments;
         let linkPromises = [];
         for (let a = 0; a < existingArguments.length; a++){
-            //so fill up the returnParentClaimObject
-            returnParentClaimObject.arguments.push(existingArguments[a]);
             //and get the links that point to these arguments
-            linkPromises.push(PremiseLinkModel.getEdgesWithId(existingArguments[a]._id));
+            console.log('3.1 GETTING LINKS THAT POINT TO PARENT CLAIM ARGS', existingArguments[a]._id);
+            linkPromises.push(PremiseLinks.getEdgesWithId(existingArguments[a]._id));
         }
         
         return Promise.all(linkPromises);
