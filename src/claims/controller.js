@@ -22,7 +22,7 @@ premiseLinks (db call premise links by argument id)
    CLAIM     (db call claim by id from premise links)
 */
 function getById(req, res){
-    console.log("TODO: CLAIMS.GETBYID escape post data: ", JSON.stringify(req.body));
+    // console.log("TODO: CLAIMS.GETBYID escape post data: ", JSON.stringify(req.body));
 
     let errors = [];
 
@@ -40,12 +40,10 @@ function getById(req, res){
     let returnClaim = {};
 
     ClaimModel.getById(_key).then((claim) => {
-        console.log("1 GOT CLAIM");
         returnClaim = claim;
         //now to get the links's to the claims arguments
         return PremiseLinkModel.getEdgesWithId(claim._id);
     }).then((edges) => {
-        console.log("2 GOT CLAIM EDGES: ", edges.length);
         if (edges.length == 0) {
             return Promise.reject(false);
         }
@@ -59,7 +57,6 @@ function getById(req, res){
         return Promise.all(argumentPromises);
 
     }).then((argumentObjects) => {
-        console.log("3 GOT CLAIM ARGUMENTS FROM EDGES", argumentObjects);
         returnClaim.arguments = argumentObjects;
 
         //now to get the links 'down' from each of those arguments
@@ -74,8 +71,6 @@ function getById(req, res){
         //comes back as an array of arrays, each array is an array for a specific argument
         //TODO: find out if duplicates will happen here and should they be removed
         let mergedLinkArray = [].concat.apply([], links);
-
-        console.log("4 GOT PREMISE EDGES FROM CLAIM ARGUMENTS", mergedLinkArray);
         //now run through each argument and put in a note for what premises it should have
         for (var a = 0; a < returnClaim.arguments.length; a++) {
             //now we're looking at returnClaim.arguments[a] and all it has is metadata, no premises yet
@@ -95,13 +90,12 @@ function getById(req, res){
         //now to get the claims to populate those argument premises
         let premisePromises = [];
         for (var p = 0; p < mergedLinkArray.length; p++) {
-            premisePromises.push(ClaimModel.getById(mergedLinkArray[p]._key));
+            premisePromises.push(ClaimModel.getById(mergedLinkArray[p]._from));
         }
         
         return Promise.all(premisePromises); 
 
     }).then((premiseObjects) => {
-        console.log("5 GOT PREMISES FROM CLAIM ARGUMENT EDGES");
 
         //now run through each argument and fill it in
         for (var a = 0; a < returnClaim.arguments.length; a++) {

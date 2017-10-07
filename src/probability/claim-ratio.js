@@ -9,7 +9,6 @@ module.exports = function getTheRatioBetweenOpposesAndSupports(args){
     if (args.length === 0) { return 0; }
     var supportProb = 0; var supportCount = 0;
     var opposeProb = 0; var opposeCount = 0;
-    console.log('working out claim probability: ', args);
     args.forEach(function(arg){
         let argProb = Number(arg.probability) / 100;
         if (arg.type === "AGAINST") {
@@ -39,6 +38,5 @@ module.exports = function getTheRatioBetweenOpposesAndSupports(args){
     var result = supportProb / divider;
     result = Math.floor(result * 100);
 
-    console.log('CLAIM PROB:', result);
     return result;
 }

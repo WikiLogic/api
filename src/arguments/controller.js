@@ -14,7 +14,7 @@ premiseLinks (db call premise links by argument id)
 */
 
 function create(req, res){
-    console.log("TODO: ARGUMENT.CREATE escape post data: ", JSON.stringify(req.body));
+    // console.log("TODO: ARGUMENT.CREATE escape post data: ", JSON.stringify(req.body));
 
     let errors = [];
 
@@ -51,8 +51,6 @@ function create(req, res){
         })
     }
 
-    console.log('0 BEGIN: ', newArgument);
-
     var type = req.body.type;
     var premiseIds = req.body.premiseIds;
     var probability = 0.5;
@@ -60,13 +58,11 @@ function create(req, res){
 
     //the eventual return value will be the parent claim, so let's get that first
     ClaimModel.getById(parentClaimId).then((parentClaim) => {
-        console.log('1 GOT PARENT CLAIM', parentClaim);
         returnParentClaimObject = parentClaim;
 
         //now to fill it's arguments, we need to get a list of the arguments that point to our parent claim
         return PremiseLinks.getEdgesWithId(parentClaim._id);
     }).then((parentArgEdges) => {
-        console.log('2 GOT PARENT CLAIM ARG EDGES', parentArgEdges);
         if (parentArgEdges.length == 0) {
             return Promise.resolve([]);
         }
@@ -80,7 +76,6 @@ function create(req, res){
         return Promise.all(promises);
 
     }).then((existingArguments) => {
-        console.log('3 GOT PARENT CLAIM ARGS:', existingArguments);
         if (existingArguments.length == 0) {
             return Promise.resolve([]);
         }
@@ -89,14 +84,12 @@ function create(req, res){
         let linkPromises = [];
         for (let a = 0; a < existingArguments.length; a++){
             //and get the links that point to these arguments
-            console.log('3.1 GETTING LINKS THAT POINT TO PARENT CLAIM ARGS', existingArguments[a]._id);
             linkPromises.push(PremiseLinks.getEdgesWithId(existingArguments[a]._id));
         }
         
         return Promise.all(linkPromises);
 
     }).then((edges) => {
-        console.log('4 GOT PARENT CLAIM ARG PREMISE EDGES', edges);
         if (edges.length == 0) {
             return Promise.resolve([]);
         }
@@ -124,27 +117,20 @@ function create(req, res){
         }
         return Promise.all(promises);
     }).then((premiseObjects) => {
-        console.log('5 GOT PARENT CLAIM ARG PREMISES: ', premiseObjects, returnParentClaimObject);
         //now we can go through the arguments and their premises to fill in all the data
         if (premiseObjects.length > 0 && returnParentClaimObject.hasOwnProperty('arguments')) {
             for (var a = 0; a < returnParentClaimObject.arguments.length; a++) {
-                console.log("00")
                 //now go through the arguemtn premises (they only have their ids at the moment)
                 for (var pid = 0; pid < returnParentClaimObject.arguments[a].premises.length; pid++) { //pid for premise id
-                    console.log("01")
                     //now we're trying to fill returnParentClaimObject.arguments[a].premises[pid] with real data
                     for (let po = 0; po < premiseObjects.length; po++) { //po for premise object
-                        console.log('02')
                         if (premiseObjects[po]._id == returnParentClaimObject.arguments[a].premises[pid]._id) {
-                            console.log('03');
                             returnParentClaimObject.arguments[a].premises[pid] = premiseObjects[po];
                         }
                     }
                 }
             }
         }
-
-        console.log('5.01 HI');
 
         //now we should have the parent claim, it's arguments, and each argument's premise objects filled in
         //time to check if the new claim we're trying to add is a duplicate
@@ -154,7 +140,6 @@ function create(req, res){
         if (returnParentClaimObject.hasOwnProperty('arguments')) {
             for (var a = 0; a < returnParentClaimObject.arguments.length; a++) {
                 if (Utils.doArgumentsMatch(returnParentClaimObject.arguments[a], newArgument)) {
-                    console.log("NOOOOOOO");
                     res.status(200);
                     res.send({
                         data: { claim: returnParentClaimObject },
@@ -168,21 +153,17 @@ function create(req, res){
         //if we make it this far - the new argument should be good to add! Time to really begin!
         //1. get all the premises that will make up the new argument
         let promises = [];
-        console.log("5.0 NEW ARG TIME", newArgument);
         for (let p = 0; p < newArgument.premises.length; p++) {
-            console.log("5.1 SETTING UP GET NEW ARG PREMISES", newArgument.premises[p]._id);
             promises.push(ClaimModel.getById(newArgument.premises[p]._id));
         }
         return Promise.all(promises);
     }).then((newArgumentPreises) => {
-        console.log('6 GOT NEW ARGUMENT PREMISES', newArgumentPreises);
         newArgument.premises = newArgumentPreises;
         //get the probability for this argument 
         newArgument.probability = ProbabilityCalculator.getArgumentProbability(newArgument.premises);
         //nearly there, the new argument just needs to be added to the db now where it will get it's id
         return ArgumentModel.create(newArgument);
     }).then((newArgumentNode) => {
-        console.log('7 GOT NEW ARGUMENT OBJECT', newArgumentNode);
         newArgumentNode.premises = newArgument.premises;
         newArgument = newArgumentNode;
         
@@ -197,7 +178,6 @@ function create(req, res){
         return PremiseLinks.create(newArgumentNode._id, returnParentClaimObject._id, newArgumentNode.type);
 
     }).then((newEdge) => {
-        console.log('8 GOT NEW LINK FROM NEW ARG TO PARENT CLAIM', newEdge);
         //penultimate step, create the premise links between the premises and the new argument node
         
         let promises = [];
@@ -206,7 +186,6 @@ function create(req, res){
         }
         return Promise.all(promises);
     }).then((newUsedInEdges) => {
-        console.log('9 USED IN LINKS CREATED', newUsedInEdges);
         
         //final step get the new probability for this claim
         let newClaimProbability = ProbabilityCalculator.getClaimProbability(returnParentClaimObject.arguments);
@@ -216,7 +195,6 @@ function create(req, res){
         return ClaimModel.updateProbability(returnParentClaimObject._id, newClaimProbability);
 
     }).then((updatedClaimMeta) => {
-        console.log('10 GOT UPDATED CLAIM META', updatedClaimMeta);
             
         //The new link has been created! The argument node was added in the last step so we're actually good to return now.
         //now lets get a quick update on the claim's probability

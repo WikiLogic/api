@@ -14,7 +14,5 @@ module.exports = function multiplyPremises(premises){
 
     prob = Math.floor(prob * 100);
 
-    console.log('ARGUMENT PROBABILITY: ', prob);
-
     return prob;
 }

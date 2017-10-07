@@ -30,7 +30,6 @@ function create(fromKey, toKey, type){
 function getEdgesWithId(documentId){ // needs the id in the format: collection/key
     return new Promise(function (resolve, reject) {
         var PremiseCollection = Arango.getPremisLinkCollection();
-        console.log('-- modal -- GETTING EDGE', documentId);
         PremiseCollection.edges(documentId).then((data) => {
             resolve(data);
         }).catch((err) => {
