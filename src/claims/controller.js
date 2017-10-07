@@ -42,7 +42,7 @@ function getById(req, res){
     ClaimModel.getById(_key).then((claim) => {
         returnClaim = claim;
         //now to get the links's to the claims arguments
-        return PremiseLinkModel.getEdgesWithId(claim._id);
+        return PremiseLinkModel.getUsedInEdgesPointingTo(claim._id);
     }).then((edges) => {
         if (edges.length == 0) {
             return Promise.reject(false);
@@ -59,10 +59,10 @@ function getById(req, res){
     }).then((argumentObjects) => {
         returnClaim.arguments = argumentObjects;
 
-        //now to get the links 'down' from each of those arguments
+        //now to get the premise links pointing to these argument objects
         let linkPromises = [];
         for (var a = 0; a < argumentObjects.length; a++) {
-            linkPromises.push(PremiseLinkModel.getEdgesWithId(argumentObjects[a]._id));
+            linkPromises.push(PremiseLinkModel.getPremiseEdgesPointingTo(argumentObjects[a]._id));
         }
         
         return Promise.all(linkPromises);
@@ -116,10 +116,11 @@ function getById(req, res){
         if (!err) {
             res.status(200);
             res.json({data: { claim: returnClaim }});
+        } else {
+            console.log('get claim by id error: ', err);
+            res.status(500);
+            res.json({errors:[{title:'get claim by id error'}]});
         }
-        console.log('get claim by id error: ', err.ArangoError);
-        res.status(500);
-        res.json({errors:[{title:'get claim by id error'}]});
     })
 }
 

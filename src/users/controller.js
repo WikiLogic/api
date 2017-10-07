@@ -92,7 +92,7 @@ function updateUser(userObject){
     UsersCollection.update(userObject).then((meta) => {
         console.log('Document saved:', meta._rev);
     }).catch((err) => {
-        console.error('Failed to save document:', err)
+        console.log('Failed to save document:', err)
     });
 }
 

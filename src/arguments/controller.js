@@ -61,8 +61,10 @@ function create(req, res){
         returnParentClaimObject = parentClaim;
 
         //now to fill it's arguments, we need to get a list of the arguments that point to our parent claim
-        return PremiseLinks.getEdgesWithId(parentClaim._id);
+        console.log('-GO GET USED IN EDGES', parentClaim);
+        return PremiseLinks.getUsedInEdgesPointingTo(parentClaim._id);
     }).then((parentArgEdges) => {
+        console.log("GOT USED IN EDGES", parentArgEdges);
         if (parentArgEdges.length == 0) {
             return Promise.resolve([]);
         }
@@ -84,12 +86,13 @@ function create(req, res){
         let linkPromises = [];
         for (let a = 0; a < existingArguments.length; a++){
             //and get the links that point to these arguments
-            linkPromises.push(PremiseLinks.getEdgesWithId(existingArguments[a]._id));
+            linkPromises.push(PremiseLinks.getPremiseEdgesPointingTo(existingArguments[a]._id));
         }
         
         return Promise.all(linkPromises);
 
     }).then((edges) => {
+        console.log('GOT PREMISE EDGES', edges);
         if (edges.length == 0) {
             return Promise.resolve([]);
         }
@@ -166,7 +169,6 @@ function create(req, res){
     }).then((newArgumentNode) => {
         newArgumentNode.premises = newArgument.premises;
         newArgument = newArgumentNode;
-        
         //now we have th ecompleted argument object! Add it to the return claim
         if (returnParentClaimObject.hasOwnProperty('arguments')) {
             returnParentClaimObject.arguments.push(newArgumentNode);
@@ -175,14 +177,14 @@ function create(req, res){
         }
 
         //pen-penultimate step, create the link between the new argument node and the parent claim object
-        return PremiseLinks.create(newArgumentNode._id, returnParentClaimObject._id, newArgumentNode.type);
+        return PremiseLinks.createArgumentEdge(newArgumentNode._id, returnParentClaimObject._id, newArgumentNode.type);
 
     }).then((newEdge) => {
         //penultimate step, create the premise links between the premises and the new argument node
         
         let promises = [];
         for (var p = 0; p < newArgument.premises.length; p++) {
-            promises.push(PremiseLinks.create(newArgument.premises[p]._id, newArgument._id, 'USED_IN'));
+            promises.push(PremiseLinks.createUsedInEdge(newArgument.premises[p]._id, newArgument._id));
         }
         return Promise.all(promises);
     }).then((newUsedInEdges) => {
