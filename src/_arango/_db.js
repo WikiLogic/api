@@ -96,8 +96,17 @@ function listAllCollections(){
     });
 }
 
-function getHealth(){
+function getCollectionCount(collection){
+    return new Promise((resolve, reject) => {
+        db.query(`RETURN LENGTH(${collection})`).then((data) => {
+            resolve(data);
+        }).catch((err) => {
+            reject(err);
+        })
+    });
+}
 
+function getHealth(){
     return new Promise(function (resolve, reject) {
         db.listCollections().then((data) => {
             resolve({
@@ -121,5 +130,6 @@ module.exports = {
     listAllCollections: listAllCollections,
     getHealth: getHealth,
     getAllUsers: getAllUsers,
-    getUserByUsername: getUserByUsername
+    getUserByUsername: getUserByUsername,
+    getCollectionCount: getCollectionCount
 }

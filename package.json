@@ -19,8 +19,7 @@
     "start": "nodemon api-server.js --inspect"
   },
   "dependencies": {
-    "express": "^4.14.0",
-    "neo4j-driver": "^1.1.0-M03"
+    "express": "^4.14.0"
   },
   "devDependencies": {
     "arangojs": "^5.7.0",
@@ -31,7 +30,6 @@
     "jsonwebtoken": "^7.4.1",
     "lodash": "^4.17.4",
     "morgan": "^1.8.2",
-    "neo4j": "^2.0.0-RC2",
     "passport": "^0.3.2",
     "passport-jwt": "^2.2.1"
   },

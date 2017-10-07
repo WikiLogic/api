@@ -45,7 +45,6 @@ function getById(_id){
     return new Promise(function (resolve, reject) {
         var ClaimsCollection = Arango.getClaimCollection();
         ClaimsCollection.document(_id).then((claimObject) => {
-            console.log('Geting claim by id promise resolving')
             resolve({
                 text: claimObject.text,
                 probability: claimObject.probability,
@@ -68,9 +67,7 @@ function search(term){
             FOR doc IN FULLTEXT(claims, "text", "${term}")
                 RETURN doc
             `).then((cursor) => {
-                console.log("CURSOR: ", cursor);
                 cursor.all().then((data) => {
-                    console.log("RETURNED DATA:", data);
                     resolve(data);
                 }).catch((err) => {
                     reject(err);
@@ -90,9 +87,7 @@ function getByText(text){
                 FILTER doc.text == "${text}"
                 RETURN doc
             `).then((cursor) => {
-                console.log("CURSOR: ", cursor);
                 cursor.all().then((data) => {
-                    console.log("RETURNED DATA:", data);
                     resolve(data);
                 }).catch((err) => {
                     reject(err);
@@ -126,11 +121,23 @@ function remove(_key){
     });
 }
 
+function status(){
+    return new Promise(function (resolve, reject) {
+        var ClaimsCollection = Arango.getClaimCollection();
+        ClaimsCollection.figures().then((data) => {
+            resolve(data);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 module.exports = {
     create,
     getById,
     getByText,
     search,
     updateProbability,
-    remove
+    remove,
+    status
 };

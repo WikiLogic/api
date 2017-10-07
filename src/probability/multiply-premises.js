@@ -7,14 +7,11 @@ module.exports = function multiplyPremises(premises){
 
     //just multiply them all together?
     var prob = 1;
-    premises.forEach(function(premis){
-        let thisProp = Number(premis.probability);
+    premises.forEach(function(premise){
+        let thisProp = Number(premise.probability);
         prob = prob * (thisProp / 100);
     });
 
     prob = Math.floor(prob * 100);
-
-    console.log('ARGUMENT PROBABILITY: ', prob);
-
     return prob;
 }

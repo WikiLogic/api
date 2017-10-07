@@ -18,15 +18,12 @@ function create(newArgument){
     return new Promise(function (resolve, reject) {
         var ArgumentsCollection = Arango.getArgumentCollection();
         var datetime = Utils.getCreateDateForDb();
-        console.log('creating new argument: ', newArgument);
         ArgumentsCollection.save({
-            "parentClaimId": newArgument.parentClaimId,
             "probability": newArgument.probability,
             "type": newArgument.type,
             "creationDate": datetime
         }).then((meta) => {
             resolve({
-                "parentClaimId": newArgument.parentClaimId,
                 "probability": newArgument.probability,
                 "type": newArgument.type,
                 "creationDate": datetime,
@@ -66,9 +63,21 @@ function remove(_id){
     });
 }
 
+function status(){
+    return new Promise(function (resolve, reject) {
+        var ArgumentsCollection = Arango.getArgumentCollection();
+        ArgumentsCollection.figures().then((data) => {
+            resolve(data);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 module.exports = {
     create,
     getById,
     getByKey,
-    remove
+    remove,
+    status
 };

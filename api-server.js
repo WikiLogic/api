@@ -42,12 +42,13 @@ app.set('trust proxy', function (ip) {
 });
 
 
-var neo = require('./src/_neo/_db.js');
+// var neo = require('./src/_neo/_db.js');
 
 var Users = require('./src/users/controller.js');
 var Claims = require('./src/claims/controller.js');
 var Arguments = require('./src/arguments/controller.js');
-var Explanations = require('./src/explanations/controller.js');
+var Health = require('./src/health/controller.js');
+// var Explanations = require('./src/explanations/controller.js');
 
 
 //================================= API Routes
@@ -61,6 +62,9 @@ var apiRouter = express.Router();
     apiRouter.get('/', function(req, res){
         res.send('WL API');
     });
+
+    //--development
+    apiRouter.get('/test', Health.check);
     
     apiRouter.get('/user', passport.authenticate('jwt', { session: false }), function(req, res){
         res.set(200);
@@ -114,23 +118,13 @@ var apiRouter = express.Router();
         Arguments.create(req, res);
     });
 
-    apiRouter.post('/create/explanation', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-        next();
-    }, function (req, res) {
-        Explanations.create(req, res);
-    });
+    // apiRouter.post('/create/explanation', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    //     next();
+    // }, function (req, res) {
+    //     Explanations.create(req, res);
+    // });
 
-    //--development
-    apiRouter.get('/test', function(req, res){
-        let neoHealth = neo.getHealth();
-        let arangoHealth = arango.getHealth();
-
-        Promise.all([neoHealth, arangoHealth]).then(values => { 
-            res.json({data: values});
-        }).catch((err) => {
-            res.json({err: err});
-        });
-    });
+    
 
 app.use('/api/v1/', apiRouter);
 
