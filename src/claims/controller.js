@@ -40,12 +40,15 @@ function getById(req, res){
     let returnClaim = {};
 
     ClaimModel.getById(_key).then((claim) => {
+        console.log("-1");
         returnClaim = claim;
         //now to get the links's to the claims arguments
         return PremiseLinkModel.getUsedInEdgesPointingTo(claim._id);
     }).then((edges) => {
+        console.log("--2", edges);
         if (edges.length == 0) {
-            return Promise.reject(false);
+            returnClaim.arguments = [];
+            return Promise.resolve('Claim has no arguments');
         }
 
         //now to get the arguments those links point to
@@ -57,6 +60,10 @@ function getById(req, res){
         return Promise.all(argumentPromises);
 
     }).then((argumentObjects) => {
+        console.log("---3", argumentObjects);
+        if (argumentObjects == 'Claim has no arguments') {
+            return Promise.resolve('Claim has no arguments');
+        }
         returnClaim.arguments = argumentObjects;
 
         //now to get the premise links pointing to these argument objects
@@ -68,6 +75,10 @@ function getById(req, res){
         return Promise.all(linkPromises);
 
     }).then((links) => {
+        console.log("----4", links);
+        if (links == 'Claim has no arguments') {
+            return Promise.resolve('Claim has no arguments');
+        }
         //comes back as an array of arrays, each array is an array for a specific argument
         //TODO: find out if duplicates will happen here and should they be removed
         let mergedLinkArray = [].concat.apply([], links);
@@ -96,20 +107,22 @@ function getById(req, res){
         return Promise.all(premisePromises); 
 
     }).then((premiseObjects) => {
-
-        //now run through each argument and fill it in
-        for (var a = 0; a < returnClaim.arguments.length; a++) {
-            //in an argument, but we need to look at each of it's premises to pull them out the premiseObjects
-            for (var p = 0; p < returnClaim.arguments[a].premises.length; p++) {
-                //returnClaim.arguments[a].premises[p] only has a _id property. use that to find the right one from the given premiseObjects
-                for (var po = 0; po < premiseObjects.length; po++) {
-                    if(returnClaim.arguments[a].premises[p]._id == premiseObjects[po]._id) {
-                        returnClaim.arguments[a].premises[p] = premiseObjects[po];
+        console.log("-----5", premiseObjects);
+        if (premiseObjects != 'Claim has no arguments') {   
+            //now run through each argument and fill it in
+            for (var a = 0; a < returnClaim.arguments.length; a++) {
+                //in an argument, but we need to look at each of it's premises to pull them out the premiseObjects
+                for (var p = 0; p < returnClaim.arguments[a].premises.length; p++) {
+                    //returnClaim.arguments[a].premises[p] only has a _id property. use that to find the right one from the given premiseObjects
+                    for (var po = 0; po < premiseObjects.length; po++) {
+                        if(returnClaim.arguments[a].premises[p]._id == premiseObjects[po]._id) {
+                            returnClaim.arguments[a].premises[p] = premiseObjects[po];
+                        }
                     }
                 }
             }
         }
-
+            
         res.status(200);
         res.json({data: { claim: returnClaim }});
     }).catch((err) => {

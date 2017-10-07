@@ -94,6 +94,7 @@ function createArgumentEdge(fromKey, toKey, type) {
     });
 }
 
+//will get all edges _to or _from the given id
 function getEdgesWithId(documentId){ // needs the id in the format: collection/key
     return new Promise(function (resolve, reject) {
         var PremiseCollection = Arango.getPremisLinkCollection();
@@ -176,6 +177,8 @@ function status(){
 
 module.exports = {
     create,
+    createUsedInEdge,
+    createArgumentEdge,
     remove,
     getEdgesWithId,
     getUsedInEdgesPointingTo,
