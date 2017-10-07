@@ -62,7 +62,7 @@ module.exports = function create(req, res){
         returnParentClaimObject = parentClaim;
 
         //now to fill it's arguments, we need to get a list of the arguments that point to our parent claim
-        return PremiseLinks.getPremiseEdgesPointingTo(parentClaim._id);
+        return PremiseLinks.getPremiseEdges('_to', parentClaim._id);
     }).then((parentArgEdges) => {
         if (parentArgEdges.length == 0) {
             return Promise.resolve('Parent claim has no args');
@@ -87,7 +87,7 @@ module.exports = function create(req, res){
         let linkPromises = [];
         for (let a = 0; a < existingArguments.length; a++){
             //and get the links that point to these arguments
-            linkPromises.push(PremiseLinks.getUsedInEdgesPointingTo(existingArguments[a]._id));
+            linkPromises.push(PremiseLinks.getUsedInEdges('_to', existingArguments[a]._id));
         }
         
         return Promise.all(linkPromises);

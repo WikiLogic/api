@@ -40,12 +40,10 @@ function getById(req, res){
     let returnClaim = {};
 
     ClaimModel.getById(_key).then((claim) => {
-        console.log("-1", claim);
         returnClaim = claim;
         //now to get the links's to the claims arguments
-        return PremiseLinkModel.getPremiseEdgesPointingTo(claim._id);
+        return PremiseLinkModel.getPremiseEdges('_to', claim._id);
     }).then((edges) => {
-        console.log("--2", edges);
         if (edges.length == 0) {
             returnClaim.arguments = [];
             return Promise.resolve('Claim has no arguments');
@@ -60,7 +58,6 @@ function getById(req, res){
         return Promise.all(argumentPromises);
 
     }).then((argumentObjects) => {
-        console.log("---3", argumentObjects);
         if (argumentObjects == 'Claim has no arguments') {
             return Promise.resolve('Claim has no arguments');
         }
@@ -69,13 +66,12 @@ function getById(req, res){
         //now to get the premise links pointing to these argument objects
         let linkPromises = [];
         for (var a = 0; a < argumentObjects.length; a++) {
-            linkPromises.push(PremiseLinkModel.getUsedInEdgesPointingTo(argumentObjects[a]._id));
+            linkPromises.push(PremiseLinkModel.getUsedInEdges('_to', argumentObjects[a]._id));
         }
         
         return Promise.all(linkPromises);
 
     }).then((links) => {
-        console.log("----4", links);
         if (links == 'Claim has no arguments') {
             return Promise.resolve('Claim has no arguments');
         }
@@ -107,7 +103,6 @@ function getById(req, res){
         return Promise.all(premisePromises); 
 
     }).then((premiseObjects) => {
-        console.log("-----5", premiseObjects);
         if (premiseObjects != 'Claim has no arguments') {   
             //now run through each argument and fill it in
             for (var a = 0; a < returnClaim.arguments.length; a++) {
@@ -157,7 +152,7 @@ function create(req, res){
     }
 
     var text = req.body.text;
-    var probability = req.body.probability;
+    var probability = Number(req.body.probability);
 
     ClaimModel.getByText(text).then((data) => {
         if (data.length > 0) {
@@ -235,6 +230,27 @@ function remove(req, res){
 
     let _key = req.body._key;
     ClaimModel.remove(_key).then((meta) => {
+        //get all the supporting / opposing arguments for this claim.
+        //we only need to remove the links as the arguments might be used by other equivolent claims
+        return PremiseLinkModel.getPremiseEdges('_to', _key);
+    }).then((premiseEdgesToRemove) => {
+        let promises = [];
+        for (var p = 0; p < premiseEdgesToRemove.length; p++){
+            promises.push(PremiseLinks.remove(premiseEdgesToRemove[p]));
+        }
+        return Promise.all(promises);
+    }).then((meta) => {
+        //Now get all the arguments that this claim is used in
+        //we'll remove the links and also the arguments if they only had this claim in them
+        return PremiseLinkModel.getUsedInEdges('_from', _key);
+    }).then((usedInEdgesToRemove) => {
+        //now get the arguments at the other end of those edges
+        let promises = [];
+        for (var p = 0; p < usedInEdgesToRemove.length; p++){
+            promises.push(PremiseLinks.remove(usedInEdgesToRemove[p]));
+        }
+        return Promise.all(promises);
+    }).then((meta) => {
         res.status(200);
         res.json({data:meta});
     }).catch((err) => {
