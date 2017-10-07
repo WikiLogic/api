@@ -96,7 +96,19 @@ function listAllCollections(){
     });
 }
 
+function getCollectionCount(collection){
+    return db.database(DB_NAME).then((wlDb) => {
+        return wlDb.query(`RETURN LENGTH(${collection})`);
+    }).then((cursor) => {
+        console.log('Collection count cursor', cursor);
+        return cursor.all();
+    }).catch((err) => {
+        console.log('get by username errr', err);
+    })
+}
+
 function getHealth(){
+
 
     return new Promise(function (resolve, reject) {
         db.listCollections().then((data) => {
@@ -121,5 +133,6 @@ module.exports = {
     listAllCollections: listAllCollections,
     getHealth: getHealth,
     getAllUsers: getAllUsers,
-    getUserByUsername: getUserByUsername
+    getUserByUsername: getUserByUsername,
+    getCollectionCount: getCollectionCount
 }
