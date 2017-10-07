@@ -12,6 +12,7 @@ function create(fromKey, toKey, type){
             "type": type,
             "creationDate": datetime
         }).then((meta) => {
+            console.log(' - - - - - - - - - - create', meta);
             resolve({
                 "_from": fromKey,
                 "_to": toKey,
@@ -44,6 +45,7 @@ function createUsedInEdge(fromKey, toKey) {
             "type": "USED_IN",
             "creationDate": datetime
         }).then((meta) => {
+            console.log(' - - - - - - - - - - createUsedInEdge', meta);
             resolve({
                 "_from": fromKey,
                 "_to": toKey,
@@ -53,7 +55,6 @@ function createUsedInEdge(fromKey, toKey) {
                 "_key": meta._key
             });
         }).catch((err) => {
-            console.log('FAIL: premise link creation fail');
             reject(err);
         });
     });
@@ -79,6 +80,7 @@ function createArgumentEdge(fromKey, toKey, type) {
             "type": type,
             "creationDate": datetime
         }).then((meta) => {
+            console.log(' - - - - - - - - - - createArgumentEdge', meta);
             resolve({
                 "_from": fromKey,
                 "_to": toKey,
@@ -88,7 +90,6 @@ function createArgumentEdge(fromKey, toKey, type) {
                 "_key": meta._key
             });
         }).catch((err) => {
-            console.log('FAIL: premise link creation fail');
             reject(err);
         });
     });
@@ -99,6 +100,7 @@ function getEdgesWithId(documentId){ // needs the id in the format: collection/k
     return new Promise(function (resolve, reject) {
         var PremiseCollection = Arango.getPremisLinkCollection();
         PremiseCollection.edges(documentId).then((data) => {
+            console.log(' - - - - - - - - - - x x x x getEdgesWithId', data);
             resolve(data);
         }).catch((err) => {
             reject(err);
@@ -108,7 +110,7 @@ function getEdgesWithId(documentId){ // needs the id in the format: collection/k
 
 //arguments are used in claims, so id should include "claims/"
 function getUsedInEdgesPointingTo(id){
-    if (id.indexOf('claims/') == -1) {
+    if (id.indexOf('arguments/') == -1) {
         console.log('WARNING getUsedInEdgesPointingTo will only return edges that point to claims. You\'re looking for edges pointing to:', id);
     }
     return new Promise(function (resolve, reject) {
@@ -117,12 +119,10 @@ function getUsedInEdgesPointingTo(id){
             FILTER doc.type == "USED_IN" && doc._to == "${id}" 
             RETURN doc
         `).then((cursor) => {
-            cursor.all().then((data) => {
-                resolve(data);
-            }).catch((err) => {
-                reject(err);
-            });
-
+            return cursor.all()
+        }).then((data) => {
+            console.log(' - - - - - - - - - - getUsedInEdgesPointingTo', data);
+            resolve(data);
         }).catch((err) => {
             reject(err);
         });
@@ -131,7 +131,7 @@ function getUsedInEdgesPointingTo(id){
 
 //claims have premise edges pointing to arguments, so id should include "arguments/"
 function getPremiseEdgesPointingTo(id){
-    if (id.indexOf('arguments/')) {
+    if (id.indexOf('claims/')) {
         console.log('WARNING getPremiseEdgesPointingTo will only return edges that point to an argument. You\'re looking for edged pointing to:', id);
     }
     return new Promise(function (resolve, reject) {
@@ -142,6 +142,7 @@ function getPremiseEdgesPointingTo(id){
             RETURN doc
         `).then((cursor) => {
             cursor.all().then((data) => {
+                console.log(' - - - - - - - - - - getPremiseEdgesPointingTo', data);
                 resolve(data);
             }).catch((err) => {
                 reject(err);
@@ -182,5 +183,6 @@ module.exports = {
     remove,
     getEdgesWithId,
     getUsedInEdgesPointingTo,
+    getPremiseEdgesPointingTo,
     status
 }

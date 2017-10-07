@@ -40,10 +40,10 @@ function getById(req, res){
     let returnClaim = {};
 
     ClaimModel.getById(_key).then((claim) => {
-        console.log("-1");
+        console.log("-1", claim);
         returnClaim = claim;
         //now to get the links's to the claims arguments
-        return PremiseLinkModel.getUsedInEdgesPointingTo(claim._id);
+        return PremiseLinkModel.getPremiseEdgesPointingTo(claim._id);
     }).then((edges) => {
         console.log("--2", edges);
         if (edges.length == 0) {
@@ -69,7 +69,7 @@ function getById(req, res){
         //now to get the premise links pointing to these argument objects
         let linkPromises = [];
         for (var a = 0; a < argumentObjects.length; a++) {
-            linkPromises.push(PremiseLinkModel.getPremiseEdgesPointingTo(argumentObjects[a]._id));
+            linkPromises.push(PremiseLinkModel.getUsedInEdgesPointingTo(argumentObjects[a]._id));
         }
         
         return Promise.all(linkPromises);
