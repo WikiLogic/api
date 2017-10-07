@@ -62,6 +62,9 @@ var apiRouter = express.Router();
     apiRouter.get('/', function(req, res){
         res.send('WL API');
     });
+
+    //--development
+    apiRouter.get('/test', Health.check);
     
     apiRouter.get('/user', passport.authenticate('jwt', { session: false }), function(req, res){
         res.set(200);
@@ -121,8 +124,7 @@ var apiRouter = express.Router();
     //     Explanations.create(req, res);
     // });
 
-    //--development
-    apiRouter.get('/test', Health.checkc);
+    
 
 app.use('/api/v1/', apiRouter);
 

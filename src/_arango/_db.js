@@ -97,19 +97,16 @@ function listAllCollections(){
 }
 
 function getCollectionCount(collection){
-    return db.database(DB_NAME).then((wlDb) => {
-        return wlDb.query(`RETURN LENGTH(${collection})`);
-    }).then((cursor) => {
-        console.log('Collection count cursor', cursor);
-        return cursor.all();
-    }).catch((err) => {
-        console.log('get by username errr', err);
-    })
+    return new Promise((resolve, reject) => {
+        db.query(`RETURN LENGTH(${collection})`).then((data) => {
+            resolve(data);
+        }).catch((err) => {
+            reject(err);
+        })
+    });
 }
 
 function getHealth(){
-
-
     return new Promise(function (resolve, reject) {
         db.listCollections().then((data) => {
             resolve({

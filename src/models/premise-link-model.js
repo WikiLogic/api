@@ -49,8 +49,20 @@ function remove(premisLink){
     });
 }
 
+function status(){
+    return new Promise(function (resolve, reject) {
+        var PremiseCollection = Arango.getPremisLinkCollection();
+        PremiseCollection.figures().then((data) => {
+            resolve(data);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 module.exports = {
-    create: create,
-    remove: remove,
-    getEdgesWithId: getEdgesWithId
+    create,
+    remove,
+    getEdgesWithId,
+    status
 }

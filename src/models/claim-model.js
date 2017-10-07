@@ -121,11 +121,23 @@ function remove(_key){
     });
 }
 
+function status(){
+    return new Promise(function (resolve, reject) {
+        var ClaimsCollection = Arango.getClaimCollection();
+        ClaimsCollection.figures().then((data) => {
+            resolve(data);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 module.exports = {
     create,
     getById,
     getByText,
     search,
     updateProbability,
-    remove
+    remove,
+    status
 };
