@@ -12,7 +12,7 @@ var passport = require("passport"); // authentication!
 var app = express(); // define our app using express
 
 var arango = require('./src/_arango/_db');
-arango.init();
+setTimeout(arango.init, 3000);
 
 var jwtService = require('./src/authentication/jwtService.js');
 var loginRoute = require('./src/authentication/login.js');
