@@ -11,6 +11,10 @@ var passport = require("passport"); // authentication!
 
 var app = express(); // define our app using express
 
+process.on('uncaughtException', (err) => {
+  console.error('whoops! there was an error');
+});
+
 var arango = require('./src/_arango/_db');
 arango.init();
 
