@@ -6,7 +6,7 @@ var MultiplyPremises = require('./multiply-premises.js');
  */
 function getClaimProbability(args){
     if (!Array.isArray(args)) {
-        console.error('GET CLAIM PROBABILITY: claim needs an array of arguments for this to work', args);
+        console.log('GET CLAIM PROBABILITY: claim needs an array of arguments for this to work', args);
         return null;
     }
 
@@ -20,7 +20,7 @@ function getClaimProbability(args){
  */
 function getArgumentProbability(premises){
     if (!Array.isArray(premises)) {
-        console.error('GET ARGUMENT PROBABILITY: argument needs an array of premises for this to work', premises);
+        console.log('GET ARGUMENT PROBABILITY: argument needs an array of premises for this to work', premises);
         return null;
     }
 

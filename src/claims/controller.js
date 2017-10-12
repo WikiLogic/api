@@ -42,10 +42,11 @@ function getById(req, res){
     ClaimModel.getById(_key).then((claim) => {
         returnClaim = claim;
         //now to get the links's to the claims arguments
-        return PremiseLinkModel.getEdgesWithId(claim._id);
+        return PremiseLinkModel.getPremiseEdges('_to', claim._id);
     }).then((edges) => {
         if (edges.length == 0) {
-            return Promise.reject(false);
+            returnClaim.arguments = [];
+            return Promise.resolve('Claim has no arguments');
         }
 
         //now to get the arguments those links point to
@@ -57,17 +58,23 @@ function getById(req, res){
         return Promise.all(argumentPromises);
 
     }).then((argumentObjects) => {
+        if (argumentObjects == 'Claim has no arguments') {
+            return Promise.resolve('Claim has no arguments');
+        }
         returnClaim.arguments = argumentObjects;
 
-        //now to get the links 'down' from each of those arguments
+        //now to get the premise links pointing to these argument objects
         let linkPromises = [];
         for (var a = 0; a < argumentObjects.length; a++) {
-            linkPromises.push(PremiseLinkModel.getEdgesWithId(argumentObjects[a]._id));
+            linkPromises.push(PremiseLinkModel.getUsedInEdges('_to', argumentObjects[a]._id));
         }
         
         return Promise.all(linkPromises);
 
     }).then((links) => {
+        if (links == 'Claim has no arguments') {
+            return Promise.resolve('Claim has no arguments');
+        }
         //comes back as an array of arrays, each array is an array for a specific argument
         //TODO: find out if duplicates will happen here and should they be removed
         let mergedLinkArray = [].concat.apply([], links);
@@ -96,30 +103,32 @@ function getById(req, res){
         return Promise.all(premisePromises); 
 
     }).then((premiseObjects) => {
-
-        //now run through each argument and fill it in
-        for (var a = 0; a < returnClaim.arguments.length; a++) {
-            //in an argument, but we need to look at each of it's premises to pull them out the premiseObjects
-            for (var p = 0; p < returnClaim.arguments[a].premises.length; p++) {
-                //returnClaim.arguments[a].premises[p] only has a _id property. use that to find the right one from the given premiseObjects
-                for (var po = 0; po < premiseObjects.length; po++) {
-                    if(returnClaim.arguments[a].premises[p]._id == premiseObjects[po]._id) {
-                        returnClaim.arguments[a].premises[p] = premiseObjects[po];
+        if (premiseObjects != 'Claim has no arguments') {   
+            //now run through each argument and fill it in
+            for (var a = 0; a < returnClaim.arguments.length; a++) {
+                //in an argument, but we need to look at each of it's premises to pull them out the premiseObjects
+                for (var p = 0; p < returnClaim.arguments[a].premises.length; p++) {
+                    //returnClaim.arguments[a].premises[p] only has a _id property. use that to find the right one from the given premiseObjects
+                    for (var po = 0; po < premiseObjects.length; po++) {
+                        if(returnClaim.arguments[a].premises[p]._id == premiseObjects[po]._id) {
+                            returnClaim.arguments[a].premises[p] = premiseObjects[po];
+                        }
                     }
                 }
             }
         }
-
+            
         res.status(200);
         res.json({data: { claim: returnClaim }});
     }).catch((err) => {
         if (!err) {
             res.status(200);
             res.json({data: { claim: returnClaim }});
+        } else {
+            console.log('get claim by id error: ', err);
+            res.status(500);
+            res.json({errors:[{title:'get claim by id error'}]});
         }
-        console.log('get claim by id error: ', err.ArangoError);
-        res.status(500);
-        res.json({errors:[{title:'get claim by id error'}]});
     })
 }
 
@@ -143,7 +152,7 @@ function create(req, res){
     }
 
     var text = req.body.text;
-    var probability = req.body.probability;
+    var probability = Number(req.body.probability);
 
     ClaimModel.getByText(text).then((data) => {
         if (data.length > 0) {
@@ -221,6 +230,27 @@ function remove(req, res){
 
     let _key = req.body._key;
     ClaimModel.remove(_key).then((meta) => {
+        //get all the supporting / opposing arguments for this claim.
+        //we only need to remove the links as the arguments might be used by other equivolent claims
+        return PremiseLinkModel.getPremiseEdges('_to', _key);
+    }).then((premiseEdgesToRemove) => {
+        let promises = [];
+        for (var p = 0; p < premiseEdgesToRemove.length; p++){
+            promises.push(PremiseLinks.remove(premiseEdgesToRemove[p]));
+        }
+        return Promise.all(promises);
+    }).then((meta) => {
+        //Now get all the arguments that this claim is used in
+        //we'll remove the links and also the arguments if they only had this claim in them
+        return PremiseLinkModel.getUsedInEdges('_from', _key);
+    }).then((usedInEdgesToRemove) => {
+        //now get the arguments at the other end of those edges
+        let promises = [];
+        for (var p = 0; p < usedInEdgesToRemove.length; p++){
+            promises.push(PremiseLinks.remove(usedInEdgesToRemove[p]));
+        }
+        return Promise.all(promises);
+    }).then((meta) => {
         res.status(200);
         res.json({data:meta});
     }).catch((err) => {

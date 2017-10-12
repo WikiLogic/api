@@ -7,8 +7,10 @@
  */
 module.exports = function getTheRatioBetweenOpposesAndSupports(args){
     if (args.length === 0) { return 0; }
+    
     var supportProb = 0; var supportCount = 0;
     var opposeProb = 0; var opposeCount = 0;
+
     args.forEach(function(arg){
         let argProb = Number(arg.probability) / 100;
         if (arg.type === "AGAINST") {
@@ -22,8 +24,22 @@ module.exports = function getTheRatioBetweenOpposesAndSupports(args){
     });
 
     //get an average for each type
-    opposeProb = opposeProb / opposeCount;
-    supportProb = supportProb / supportCount;
+    if (opposeCount > 0) {
+        opposeProb = opposeProb / opposeCount;
+    }
+
+    if (supportCount > 0) {
+        supportProb = supportProb / supportCount;
+    }
+
+    if (opposeCount == 0) {
+        return Math.floor(supportProb * 100);
+    }
+
+    if (supportCount == 0) {
+        return Math.floor(opposeProb * 100);
+    }
+    
 
     /* eg - support: 0.2, oppose: 0.1        <-- the average values from just above
                     /   \          \
@@ -37,6 +53,5 @@ module.exports = function getTheRatioBetweenOpposesAndSupports(args){
     var divider = supportProb + opposeProb;
     var result = supportProb / divider;
     result = Math.floor(result * 100);
-
     return result;
 }

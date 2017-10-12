@@ -63,9 +63,21 @@ function remove(_id){
     });
 }
 
+function status(){
+    return new Promise(function (resolve, reject) {
+        var ArgumentsCollection = Arango.getArgumentCollection();
+        ArgumentsCollection.figures().then((data) => {
+            resolve(data);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 module.exports = {
     create,
     getById,
     getByKey,
-    remove
+    remove,
+    status
 };
