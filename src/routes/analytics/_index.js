@@ -1,8 +1,8 @@
-var ClaimModel = require('../models/claim-model');
-var PremiseLinkModel = require('../models/premise-link-model.js');
-var ArgumentModel = require('../models/argument-model.js');
+var ClaimModel = require('../../models/claim-model');
+var PremiseLinkModel = require('../../models/premise-link-model.js');
+var ArgumentModel = require('../../models/argument-model.js');
 
-function check(req, res) {
+function status(req, res) {
 
     Promise.all([
         ClaimModel.status(),
@@ -23,5 +23,5 @@ function check(req, res) {
 }
 
 module.exports = {
-    check: check
+    status: status
 }

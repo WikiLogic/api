@@ -1,4 +1,4 @@
-var Users = require('../users/controller.js');
+var Users = require('../controllers/users/_index.js');
 var bcrypt = require('bcryptjs');
 // var passport = require("passport"); // authentication!
 var jwt = require('jsonwebtoken');

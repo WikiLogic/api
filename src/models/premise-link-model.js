@@ -1,4 +1,4 @@
-var Arango = require('../_arango/_db');
+var Arango = require('../_arango/_db.js');
 var Utils = require('../_utils');
 
 //create a premise link between argId and claimId of type, then reutrn it

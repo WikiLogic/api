@@ -1,4 +1,4 @@
-var Arango = require('../_arango/_db');
+var Arango = require('../../_arango/_db');
 var UserModel = {
     username: "username",
     email: "email",

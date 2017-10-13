@@ -1,6 +1,6 @@
 "use strict";
 var Utils = require('../_utils');
-var Arango = require('../_arango/_db');
+var Arango = require('../_arango/_db.js');
 var ClaimModel = {
     "id": "33",
     "text": "text text",

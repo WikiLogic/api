@@ -29,8 +29,6 @@ var arango = require('./src/_arango/_db');
     }
 
 var jwtService = require('./src/authentication/jwtService.js');
-var loginRoute = require('./src/authentication/login.js');
-var signupRoute = require('./src/authentication/signup.js');
 
 passport.use(jwtService.passportStrategy);
 app.use(passport.initialize());
@@ -56,92 +54,35 @@ app.set('trust proxy', function (ip) {
 });
 
 
-// var neo = require('./src/_neo/_db.js');
-
-var Users = require('./src/users/controller.js');
-var Claims = require('./src/claims/controller.js');
-var Arguments = require('./src/arguments/controller.js');
-var Health = require('./src/health/controller.js');
-// var Explanations = require('./src/explanations/controller.js');
-
-
 //================================= API Routes
 
 var apiRouter = express.Router();
+var routes = require('./src/routes/_index.js');
 
-    apiRouter.post("/login", loginRoute.post);
-    apiRouter.post("/signup", signupRoute.post);
-    
-    //--reading
+    //--reading - turn this into a JSON object with docs, eg schemas & routes
     apiRouter.get('/', function(req, res){
         res.send('WL API');
     });
 
     //--development
-    apiRouter.get('/test', Health.check);
+    apiRouter.get('/test', routes.analytics.status);
+
+    apiRouter.post('/login', routes.users.login);
+    apiRouter.post('/signup', routes.users.signup);
+    apiRouter.delete('/user', passport.authenticate('jwt', { session: false }), routes.users.remove);
+    apiRouter.get('/user', passport.authenticate('jwt', { session: false }), routes.users.profile);
     
-    apiRouter.get('/user', passport.authenticate('jwt', { session: false }), function(req, res){
-        res.set(200);
-        res.json({
-            data: {
-                user: {
-                    username: req.user.username,
-                    email: req.user.email,
-                    signUpDate: req.user.signUpDate
-                }
-            }
-        });
-    });
-    apiRouter.delete("/user", passport.authenticate('jwt', { session: false }), function(req, res) {
-        Users.deleteUser(req.user._key).then((meta) => {
-            req.logout();
-            res.set(200);
-            res.json({message: 'User was deleted'});
-        }).catch((err) => {
-            res.set(500);
-            res.json({errors: [{title:'There was a problem when deleting this user'}]});
-        });
-    });
+    apiRouter.get('/claims/search', passport.authenticate('jwt', { session: false }), routes.claims.search);
+    apiRouter.post('/claims', passport.authenticate('jwt', { session: false }), routes.claims.create);
+    apiRouter.get('/claims/:_key', passport.authenticate('jwt', { session: false }), routes.claims.get);
+    apiRouter.delete('/claims', passport.authenticate('jwt', { session: false }), routes.claims.remove);
 
-    apiRouter.get('/claims/search', passport.authenticate('jwt', { session: false }), Claims.search);
-    apiRouter.post('/claims', passport.authenticate('jwt', { session: false }), Claims.create);
-    // apiRouter.get('/claims/random', passport.authenticate('jwt', { session: false }), Claims.getRandom);
-    apiRouter.get('/claims/:_key', passport.authenticate('jwt', { session: false }), Claims.getById);
-    apiRouter.delete('/claims', passport.authenticate('jwt', { session: false }), Claims.remove);
-
-    apiRouter.post('/arguments', passport.authenticate('jwt', { session: false }), Arguments.create);
-    apiRouter.delete('/arguments', passport.authenticate('jwt', { session: false }), Arguments.remove);
+    apiRouter.post('/arguments', passport.authenticate('jwt', { session: false }), routes.arguments.create);
+    apiRouter.delete('/arguments', passport.authenticate('jwt', { session: false }), routes.arguments.remove);
     
-
-
-
-    apiRouter.get('/args/:_key', passport.authenticate('jwt', { session: false }), function (req, res) {
-        Arguments.getByClaimId(req, res);
-    });
-
-    //--writing
-    // apiRouter.post('/create/claim', passport.authenticate('jwt', { session: false }), function(req, res, next){
-    //     next();
-    // }, function(req, res){
-    //     Claims.create(req, res);
-    // });
-
-    apiRouter.post('/create/argument', passport.authenticate('jwt', { session: false }), function(req, res, next){
-        next();
-    }, function(req, res){
-        Arguments.create(req, res);
-    });
-
-    // apiRouter.post('/create/explanation', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    //     next();
-    // }, function (req, res) {
-    //     Explanations.create(req, res);
-    // });
-
-    
-
 app.use('/api/v1/', apiRouter);
 
+//list the versions and their routes?
 app.get('/', function (req, res) {
   res.send('API rooter tooter super scooter');
 });

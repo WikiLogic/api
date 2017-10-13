@@ -1,9 +1,9 @@
-var guestlist = require('../../guestlist.js');
-var Users = require('../users/controller.js');
+var guestlist = require('../../../guestlist.js');
+var Users = require('../../controllers/users/_index.js');
 var bcrypt = require('bcryptjs');
-var jwtService = require('./jwtService.js');
+var jwtService = require('../../authentication/jwtService.js');
 
-function post(req, res) {
+module.exports = function signUp(req, res) {
     let errors = [];
 
     if (!req.body.hasOwnProperty('username') || req.body.username == '') {
@@ -79,8 +79,4 @@ function post(req, res) {
         res.json({message: "Duplicate credentials"});
     });
     
-}
-
-module.exports = {
-    post
-}
+};

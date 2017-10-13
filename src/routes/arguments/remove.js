@@ -1,9 +1,9 @@
-var ClaimModel = require('../models/claim-model.js');
-var ArgumentModel = require('../models/argument-model.js');
-var PremiseLinks = require('../models/premise-link-model.js');
-var Utils = require('../_utils');
-var Arango = require('../_arango/_db');
-var ProbabilityCalculator = require('../probability');
+var ClaimModel = require('../../models/claim-model.js');
+var ArgumentModel = require('../../models/argument-model.js');
+var PremiseLinks = require('../../models/premise-link-model.js');
+var Utils = require('../../_utils');
+var Arango = require('../../_arango/_db');
+var ProbabilityCalculator = require('../../probability');
 
 module.exports = function remove(req, res) {
     //console.log("TODO: ARGUMENT.REMOVE escape post data: ", JSON.stringify(req.body));

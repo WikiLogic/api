@@ -1,8 +1,8 @@
-var Users = require('../users/controller.js');
+var Users = require('../../controllers/users/_index.js');
 var bcrypt = require('bcryptjs');
-var jwtService = require('./jwtService.js');
+var jwtService = require('../../authentication/jwtService.js');
 
-function post(req, res){
+module.exports = function login(req, res){
     
     let errors = [];
 
@@ -59,7 +59,3 @@ function post(req, res){
         res.status(400).json({message:"err"});
     });
 };
-
-module.exports = {
-    post
-}
