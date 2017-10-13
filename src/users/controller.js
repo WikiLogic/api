@@ -21,8 +21,6 @@ function createUser(email, username, hash){
                 "signUpDate": datetime,
                 "id": meta._key
             });
-        },(err) => {
-            reject(err);
         }).catch((err) => {
             reject(err);
         });
@@ -72,6 +70,7 @@ function checkIfUnique(newUserObject){
                 });
 
             }).catch((err) => {
+                console.log('Check unique - get users error: ', err);
                 reject(err);
             });
     });

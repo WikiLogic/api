@@ -4,47 +4,46 @@
  */
 Database = require('arangojs').Database;
 db = new Database(process.env.ARANGO_URL || 'http://arango:8529');
-var usersCollection;
 
-var DB_NAME = "wl_dev";
+var DB_NAME = process.env.ARANGO_DB_NAME || "wl_dev";
 
 function initDbConnection(){
     return new Promise(function (resolve, reject) {
         db.listDatabases()
         .then((names) => {
+            //the db exists, use it.
             if (names.indexOf(DB_NAME) > -1){
                 db.useDatabase(DB_NAME);
-                initDbCollections();
                 resolve(DB_NAME);
             } else {
+                //no db found of the given name, create one and add the collections
                 db.createDatabase(DB_NAME).then(() => {
                     db.useDatabase(DB_NAME);
-                    initDbCollections();
-                    resolve(DB_NAME);
+                    initDbCollections().then((meta) => {
+                        resolve(DB_NAME);
+                    }).catch((err) => {
+                        reject(err);
+                    });
                 },(err) => {
                     reject(error)
                 });
             }
         }).catch((err) => {
-            console.log("db error", err);
             reject(error);
         });
     });
 }
 
 function initDbCollections(){
-    usersCollection = db.collection('users');
+    var usersCollection = db.collection('users');
+    var claimsCollection = db.collection('claims');
+    var argumentsCollection = db.collection('arguments');
+    var premisLinkCollection = db.edgeCollection('premisLinks');
     usersCollection.create();
-    
-    claimsCollection = db.collection('claims');
+    argumentsCollection.create();
+    premisLinkCollection.create();
     claimsCollection.create();
     claimsCollection.createFulltextIndex('text');
-
-    argumentsCollection = db.collection('arguments');
-    argumentsCollection.create();
-
-    premisLinkCollection = db.edgeCollection('premisLinks');
-    premisLinkCollection.create();
 }
 
 function getUserCollection(){

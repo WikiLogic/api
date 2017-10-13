@@ -12,11 +12,21 @@ var passport = require("passport"); // authentication!
 var app = express(); // define our app using express
 
 process.on('uncaughtException', (err) => {
-  console.error('whoops! there was an error');
+  console.error('whoops! there was an error', err);
 });
 
 var arango = require('./src/_arango/_db');
-setTimeout(arango.init, 3000);
+
+    console.log('initting');
+    try {
+        arango.init().then((data) => {
+            console.log('db initted', data);
+        }).catch((err) => {
+            console.log("db init err: ", err);
+        });
+    } catch (err) {
+        console.log('db init error', err);
+    }
 
 var jwtService = require('./src/authentication/jwtService.js');
 var loginRoute = require('./src/authentication/login.js');
