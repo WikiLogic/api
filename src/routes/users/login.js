@@ -42,6 +42,7 @@ module.exports = function login(req, res){
             // from now on we'll identify the user by the id and the id is the only personalized value that goes into our token
             var payload = {id: user._key};
             var token = jwtService.jwtSign(payload, jwtService.jwtOptions.secretOrKey);
+            res.status(200);
             res.json({ 
                 data: {
                     token: token,
@@ -56,6 +57,7 @@ module.exports = function login(req, res){
         }
 
     }).catch((err) => {
+        console.log("LOGIN Get User error: ", err);
         res.status(400).json({message:"err"});
     });
 };
