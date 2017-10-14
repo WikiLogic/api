@@ -72,9 +72,9 @@ var routes = require('./src/routes/_index.js');
     apiRouter.delete('/user', passport.authenticate('jwt', { session: false }), routes.users.remove);
     apiRouter.get('/user', passport.authenticate('jwt', { session: false }), routes.users.profile);
     
-    apiRouter.get('/claims/search', passport.authenticate('jwt', { session: false }), routes.claims.search);
+    apiRouter.get('/claims/search', routes.claims.search);
+    apiRouter.get('/claims/:_key', routes.claims.get);
     apiRouter.post('/claims', passport.authenticate('jwt', { session: false }), routes.claims.create);
-    apiRouter.get('/claims/:_key', passport.authenticate('jwt', { session: false }), routes.claims.get);
     apiRouter.delete('/claims', passport.authenticate('jwt', { session: false }), routes.claims.remove);
 
     apiRouter.post('/arguments', passport.authenticate('jwt', { session: false }), routes.arguments.create);
