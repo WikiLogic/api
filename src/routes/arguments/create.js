@@ -4,6 +4,7 @@ var PremiseLinks = require('../../models/premise-link-model.js');
 var Utils = require('../../_utils');
 var Arango = require('../../_arango/_db');
 var ProbabilityCalculator = require('../../probability');
+var validator = require('validator');
 
 /*
    CLAIM     (db call claim by id)                        DONE
@@ -20,15 +21,20 @@ module.exports = function create(req, res){
 
     if (!req.body.hasOwnProperty('parentClaimId') || req.body.parentClaimId == '') {
         errors.push({title:'parentClaimId is required'});
+    } else if (!validator.isAlphanumeric(req.body.parentClaimId)) {
+        errors.push({title:'Valid parentClaimId is required'});
     }
     
     if (!req.body.hasOwnProperty('type') || req.body.type == '') {
         errors.push({title:'type is required'});
+    } else if (validator.isIn(['FOR','AGAINST'])) {
+        errors.push({title:'Valid type is required'});
     }
     
     if (!req.body.hasOwnProperty('premiseIds') || req.body.premiseIds == '') {
         errors.push({title:'premiseIds is required'});
     }
+    //TODO: check how the premise ids are coming through. Might need to clean them up
 
     if (errors.length > 0) {
         res.status(400);

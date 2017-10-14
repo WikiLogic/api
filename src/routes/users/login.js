@@ -1,6 +1,7 @@
 var Users = require('../../controllers/users/_index.js');
 var bcrypt = require('bcryptjs');
 var jwtService = require('../../authentication/jwtService.js');
+var validator = require('validator');
 
 module.exports = function login(req, res){
     
@@ -8,6 +9,8 @@ module.exports = function login(req, res){
 
     if (!req.body.hasOwnProperty('username') || req.body.username == '') {
         errors.push({title:'Username is required'});
+    } else if (!validator.isAlphanumeric(req.body.username)) {
+        errors.push({title:'Username can only have alphanumeric characters'});
     }
 
     if (!req.body.hasOwnProperty('password') || req.body.password == '') {

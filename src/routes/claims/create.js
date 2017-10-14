@@ -1,4 +1,6 @@
 var ClaimModel = require('../../models/claim-model');
+var validator = require('validator');
+
 function claimFormatter(claim){
     let returnClaim = {
         text: claim.text,
@@ -17,10 +19,15 @@ module.exports = function create(req, res){
 
     if (!req.body.hasOwnProperty('text') || req.body.text == '') {
         errors.push({title:'Text is required'});
+    } else if (!validator.isAlphanumeric(req.body.username)) {
+        errors.push({title:'Claim can only have alphanumeric characters'});
     }
 
     if (!req.body.hasOwnProperty('probability') || req.body.probability == '') {
         errors.push({title:'Probability is required'});
+    } else if (!validator.isInt(req.body.probability, {min: 0, max: 100})) {
+        //if this fails, just set it to 50
+        req.body.probability = 50;
     }
 
     if (errors.length > 0) {
@@ -29,7 +36,7 @@ module.exports = function create(req, res){
         return;
     }
 
-    var text = req.body.text;
+    var text = validator.escape(req.body.text);
     var probability = Number(req.body.probability);
 
     ClaimModel.getByText(text).then((data) => {

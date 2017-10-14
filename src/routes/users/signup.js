@@ -2,16 +2,21 @@ var guestlist = require('../../../guestlist.js');
 var Users = require('../../controllers/users/_index.js');
 var bcrypt = require('bcryptjs');
 var jwtService = require('../../authentication/jwtService.js');
+var validator = require('validator');
 
 module.exports = function signUp(req, res) {
     let errors = [];
 
     if (!req.body.hasOwnProperty('username') || req.body.username == '') {
         errors.push({title:'Username is required'});
+    } else if (!validator.isAlphanumeric(req.body.username)) {
+        errors.push({title:'Username can only have alphanumeric characters'});
     }
 
     if (!req.body.hasOwnProperty('email') || req.body.email == '') {
         errors.push({title:'Email is required'});
+    } else if (!validator.isEmail(req.body.email)) {
+        errors.push({title:'Valid email is required'});
     }
 
     if (!req.body.hasOwnProperty('password') || req.body.password == '') {
@@ -24,8 +29,8 @@ module.exports = function signUp(req, res) {
         return;
     }
 
-    var email = req.body.email;
-    var username = req.body.username;
+    var email = validator.escape(req.body.email);
+    var username = validator.blacklist(req.body.username, /[-\/\\^$*+?.()|[\]{}]/g);
     var password = req.body.password;
     
     //check if email is in whitelist
