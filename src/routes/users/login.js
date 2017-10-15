@@ -9,7 +9,7 @@ module.exports = function login(req, res){
 
     if (!req.body.hasOwnProperty('username') || req.body.username == '') {
         errors.push({title:'Username is required'});
-    } else if (!validator.isAlphanumeric(req.body.username)) {
+    } else if (!validator.isAlphanumeric(req.body.username + '')) {
         errors.push({title:'Username can only have alphanumeric characters'});
     }
 
@@ -23,11 +23,11 @@ module.exports = function login(req, res){
         return;
     }
     
-    var username = req.body.username;
+    var username = validator.escape(req.body.username);
     var password = req.body.password;
 
     Users.getUserByUsername(username).then((data) => {
-        let user = data[0];
+        let user = data[0]; 
         if (data.length == 0) {
             res.status(400);
             res.json({ 
@@ -38,7 +38,7 @@ module.exports = function login(req, res){
                     }
                 ]
             });
-            reutrn;
+            return;
         }
 
         if(bcrypt.compareSync(req.body.password, user.hash)) {

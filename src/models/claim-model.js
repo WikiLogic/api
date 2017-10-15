@@ -1,6 +1,7 @@
 "use strict";
 var Utils = require('../_utils');
 var Arango = require('../_arango/_db.js');
+var aql = require('arangojs').aql;
 var ClaimModel = {
     "id": "33",
     "text": "text text",
@@ -63,10 +64,11 @@ function getById(_id){
 function search(term){
     //Needs to be a kind of fuzzy text search - super basic for now
     return new Promise(function (resolve, reject) {
-        Arango.db.query(`
-            FOR doc IN FULLTEXT(claims, "text", "${term}")
-                RETURN doc
-            `).then((cursor) => {
+        const claimCollection = Arango.getClaimCollection();
+        const query = aql`
+            FOR doc IN FULLTEXT(${claimCollection}, "text", ${term})
+            RETURN doc`;
+        Arango.db.query(query).then((cursor) => {
                 cursor.all().then((data) => {
                     resolve(data);
                 }).catch((err) => {
@@ -82,11 +84,11 @@ function search(term){
 function getByText(text){
     //Needs to be a kind of fuzzy text search - super basic for now
     return new Promise(function (resolve, reject) {
-        Arango.db.query(`
-            FOR doc IN claims
-                FILTER doc.text == "${text}"
-                RETURN doc
-            `).then((cursor) => {
+        const claimCollection = Arango.getClaimCollection();
+        const query = aql`FOR doc IN ${claimCollection}
+                FILTER doc.text == ${text}
+                RETURN doc`;
+        Arango.db.query(query).then((cursor) => {
                 cursor.all().then((data) => {
                     resolve(data);
                 }).catch((err) => {

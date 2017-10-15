@@ -1,5 +1,6 @@
 var Arango = require('../_arango/_db.js');
 var Utils = require('../_utils');
+var aql = require('arangojs').aql;
 
 //create a premise link between argId and claimId of type, then reutrn it
 function create(fromKey, toKey, type){
@@ -119,11 +120,11 @@ function getUsedInEdges(edgeEnd, nodeId){
     }
 
     return new Promise(function (resolve, reject) {
-        Arango.db.query(`
-            FOR doc IN premisLinks
-            FILTER doc.type == "USED_IN" && doc.${edgeEnd} == "${nodeId}" 
-            RETURN doc
-        `).then((cursor) => {
+        const premiseLinksCollection = Arango.getPremisLinkCollection();
+        const query = aql`FOR doc IN ${premiseLinksCollection}
+            FILTER doc.type == "USED_IN" && doc.${edgeEnd} == ${nodeId}
+            RETURN doc`;
+        Arango.db.query(query).then((cursor) => {
             return cursor.all()
         }).then((data) => {
             resolve(data);
@@ -148,11 +149,11 @@ function getPremiseEdges(edgeEnd, nodeId){
     }
 
     return new Promise(function (resolve, reject) {
-        Arango.db.query(`
-            FOR doc IN premisLinks
-            FILTER (doc.type == "FOR" || doc.type == "AGAINST") && doc.${edgeEnd} == "${nodeId}" 
-            RETURN doc
-        `).then((cursor) => {
+        const premiseLinksCollection = Arango.getPremisLinkCollection();
+        const query = aql`FOR doc IN ${premiseLinksCollection}
+            FILTER (doc.type == "FOR" || doc.type == "AGAINST") && doc.${edgeEnd} == ${nodeId}
+            RETURN doc`;
+        Arango.db.query(query).then((cursor) => {
             cursor.all().then((data) => {
                 resolve(data);
             }).catch((err) => {

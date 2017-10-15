@@ -21,13 +21,13 @@ module.exports = function create(req, res){
 
     if (!req.body.hasOwnProperty('parentClaimId') || req.body.parentClaimId == '') {
         errors.push({title:'parentClaimId is required'});
-    } else if (!validator.isAlphanumeric(req.body.parentClaimId)) {
+    } else if (!validator.isAlphanumeric(req.body.parentClaimId + '')) {
         errors.push({title:'Valid parentClaimId is required'});
     }
     
     if (!req.body.hasOwnProperty('type') || req.body.type == '') {
         errors.push({title:'type is required'});
-    } else if (validator.isIn(['FOR','AGAINST'])) {
+    } else if (validator.isIn(req.body.type, ['FOR','AGAINST'])) {
         errors.push({title:'Valid type is required'});
     }
     

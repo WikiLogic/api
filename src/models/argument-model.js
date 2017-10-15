@@ -1,6 +1,7 @@
 "use strict";
 var Utils = require('../_utils');
 var Arango = require('../_arango/_db.js');
+var aql = require('arangojs').aql;
 var ArgumentModel = {
     "id": "33",
     "premiseIds": ['1','2'],

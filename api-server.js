@@ -15,19 +15,6 @@ process.on('uncaughtException', (err) => {
   console.error('whoops! there was an error', err);
 });
 
-var arango = require('./src/_arango/_db');
-
-    console.log('initting');
-    try {
-        arango.init().then((data) => {
-            console.log('db initted', data);
-        }).catch((err) => {
-            console.log("db init err: ", err);
-        });
-    } catch (err) {
-        console.log('db init error', err);
-    }
-
 var jwtService = require('./src/authentication/jwtService.js');
 
 passport.use(jwtService.passportStrategy);

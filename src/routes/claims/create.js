@@ -19,7 +19,7 @@ module.exports = function create(req, res){
 
     if (!req.body.hasOwnProperty('text') || req.body.text == '') {
         errors.push({title:'Text is required'});
-    } else if (!validator.isAlphanumeric(req.body.username)) {
+    } else if (!validator.isAlphanumeric(req.body.username + '')) {
         errors.push({title:'Claim can only have alphanumeric characters'});
     }
 

@@ -9,7 +9,7 @@ module.exports = function signUp(req, res) {
 
     if (!req.body.hasOwnProperty('username') || req.body.username == '') {
         errors.push({title:'Username is required'});
-    } else if (!validator.isAlphanumeric(req.body.username)) {
+    } else if (!validator.isAlphanumeric(req.body.username + '')) {
         errors.push({title:'Username can only have alphanumeric characters'});
     }
 
@@ -30,7 +30,7 @@ module.exports = function signUp(req, res) {
     }
 
     var email = validator.escape(req.body.email);
-    var username = validator.blacklist(req.body.username, /[-\/\\^$*+?.()|[\]{}]/g);
+    var username = validator.escape(req.body.username);
     var password = req.body.password;
     
     //check if email is in whitelist

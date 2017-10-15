@@ -7,8 +7,8 @@ module.exports = function remove(req, res){
 
     let errors = [];
 
-    if (!req.body.hasOwnProperty('_key') || req.body._key == '') {
-        errors.push({title:'_key is required'});
+    if (!req.body.hasOwnProperty('_id') || req.body._id == '') {
+        errors.push({title:'_id is required'});
     }
 
     if (errors.length > 0) {
@@ -17,11 +17,11 @@ module.exports = function remove(req, res){
         return;
     }
 
-    let _key = req.body._key;
-    ClaimModel.remove(_key).then((meta) => {
+    let _id = req.body._id;
+    ClaimModel.remove(_id).then((meta) => {
         //get all the supporting / opposing arguments for this claim.
         //we only need to remove the links as the arguments might be used by other equivolent claims
-        return PremiseLinkModel.getPremiseEdges('_to', _key);
+        return PremiseLinkModel.getPremiseEdges('_to', _id);
     }).then((premiseEdgesToRemove) => {
         let promises = [];
         for (var p = 0; p < premiseEdgesToRemove.length; p++){
@@ -31,7 +31,7 @@ module.exports = function remove(req, res){
     }).then((meta) => {
         //Now get all the arguments that this claim is used in
         //we'll remove the links and also the arguments if they only had this claim in them
-        return PremiseLinkModel.getUsedInEdges('_from', _key);
+        return PremiseLinkModel.getUsedInEdges('_from', _id);
     }).then((usedInEdgesToRemove) => {
         //now get the arguments at the other end of those edges
         let promises = [];
