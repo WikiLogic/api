@@ -6,7 +6,7 @@ Database = require('arangojs').Database;
 
 const host = process.env.ARANGODB_HOST || "arango";
 const port = process.env.ARANGODB_PORT || "8529";
-const database = process.env.ARANGODB_DB;
+const database = process.env.ARANGODB_DB || "wl_dev";
 const username = process.env.ARANGODB_USERNAME;
 const password = process.env.ARANGODB_PASSWORD;
 console.log("Using database", database);
@@ -16,24 +16,34 @@ const db = new Database({
   databaseName: database
 });
 
-function createCollections(){
-    console.log('1');
+function setup(){
     var usersCollection = db.collection('users');
-    console.log('2');
     var claimsCollection = db.collection('claims');
-    console.log('3');
     var argumentsCollection = db.collection('arguments');
-    console.log('4');
     var premisLinkCollection = db.edgeCollection('premisLinks');
-    console.log('5');
-    return Prmoise.all(
+    return Promise.all([
         usersCollection.create(),
         argumentsCollection.create(),
         premisLinkCollection.create(),
         claimsCollection.create(),
         claimsCollection.createFulltextIndex('text')
-    );
+    ]);
 }
+
+db.listCollections().then((data) => {
+    // if (data.length < 5) {
+        setup().then((data) => {
+            console.log('collection set up complete', data);
+        }).catch((err) => {
+            //TODO: fix this
+            console.log('collection set up error (probably just dup collection names as they already exist. Not to worry, on the todo to fix';
+        });
+    // }
+}).catch((err) => {
+    console.log('list collections error: ', err);
+});
+//does the db have a text index?
+
 
 function getUserCollection(){
     return db.collection('users');
@@ -54,7 +64,7 @@ function getPremisLinkCollection(){
 
 module.exports = {
     db:db,
-    createCollections: createCollections,
+    setup: setup,
     getUserCollection: getUserCollection,
     getClaimCollection: getClaimCollection,
     getArgumentCollection: getArgumentCollection,
