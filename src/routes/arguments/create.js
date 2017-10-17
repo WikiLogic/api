@@ -4,7 +4,6 @@ var PremiseLinks = require('../../models/premise-link-model.js');
 var Utils = require('../../_utils');
 var Arango = require('../../_arango/_db');
 var ProbabilityCalculator = require('../../probability');
-var validator = require('validator');
 
 /*
    CLAIM     (db call claim by id)                        DONE
@@ -15,33 +14,24 @@ premiseLinks (db call premise links by argument id)
 */
 
 module.exports = function create(req, res){
-    // console.log("TODO: ARGUMENT.CREATE escape post data: ", JSON.stringify(req.body));
-
     let errors = [];
 
     if (!req.body.hasOwnProperty('parentClaimId') || req.body.parentClaimId == '') {
         errors.push({title:'parentClaimId is required'});
-    } else if (!validator.isAlphanumeric(req.body.parentClaimId + '')) {
+    } else if (!(/claims\//).test(req.body.parentClaimId)) {
         errors.push({title:'Valid parentClaimId is required'});
     }
     
     if (!req.body.hasOwnProperty('type') || req.body.type == '') {
         errors.push({title:'type is required'});
-    } else if (validator.isIn(req.body.type, ['FOR','AGAINST'])) {
+    } else if (!(/(FOR|AGAINST)/).test(req.body.type)) {
         errors.push({title:'Valid type is required'});
     }
     
     if (!req.body.hasOwnProperty('premiseIds') || req.body.premiseIds == '') {
         errors.push({title:'premiseIds is required'});
     }
-    //TODO: check how the premise ids are coming through. Might need to clean them up
-
-    if (errors.length > 0) {
-        res.status(400);
-        res.json({ errors: errors });
-        return;
-    }
-
+    
 
     let returnParentClaimObject = {}; //this is what will eventually be returned
     let parentClaimArguments = [];
@@ -52,9 +42,19 @@ module.exports = function create(req, res){
     }
 
     for (var p = 0; p < req.body.premiseIds.length; p++) {
+        if (!(/claims\//).test(req.body.premiseIds[p])) {
+            errors.push({title:'Valid premiseIds are required'});
+        }
         newArgument.premises.push({
             _id: req.body.premiseIds[p]
         })
+    }
+
+    if (errors.length > 0) {
+        console.log("ERRORS:", errors);
+        res.status(400);
+        res.json({ errors: errors });
+        return;
     }
 
     var type = req.body.type;

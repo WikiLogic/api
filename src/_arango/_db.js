@@ -36,7 +36,7 @@ db.listCollections().then((data) => {
             console.log('collection set up complete', data);
         }).catch((err) => {
             //TODO: fix this
-            console.log('collection set up error (probably just dup collection names as they already exist. Not to worry, on the todo to fix';
+            console.log('collection set up error (probably just dup collection names as they already exist. Not to worry, on the todo to fix)');
         });
     // }
 }).catch((err) => {
