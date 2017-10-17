@@ -1,4 +1,5 @@
-var Arango = require('../_arango/_db');
+var Arango = require('../../_arango/_db');
+var aql = require('arangojs').aql;
 var UserModel = {
     username: "username",
     email: "email",
@@ -21,8 +22,6 @@ function createUser(email, username, hash){
                 "signUpDate": datetime,
                 "id": meta._key
             });
-        },(err) => {
-            reject(err);
         }).catch((err) => {
             reject(err);
         });
@@ -30,34 +29,30 @@ function createUser(email, username, hash){
 }
 
 function getUserByUsername(username){
-
     return new Promise(function (resolve, reject) {
-        Arango.db.query(`
-            FOR doc IN users 
-                FILTER doc.username == "${username}"
-                RETURN doc
-            `).then((cursor) => {
-
-                cursor.all().then((data) => {
-                    resolve(data);
-                }).catch((err) => {
-                    reject(err);
-                });
-
-            }).catch((err) => {
-                reject(err);
-            });
+        const userCollection = Arango.getUserCollection();
+        const query = aql`FOR doc IN ${userCollection} 
+                FILTER doc.username == ${username}
+                RETURN doc`;
+        Arango.db.query(query)
+        .then((cursor) => {
+            resolve(cursor.all());
+        }).catch((err) => {
+            console.log('get by username errr', err);
+            reject(err);
+        });
     });
+
 }
 
 //used to check if a signup can happen
 function checkIfUnique(newUserObject){
     return new Promise(function (resolve, reject) {
-        Arango.db.query(`
-            FOR doc IN users 
-                FILTER doc.username == "${newUserObject.username}" || doc.email == "${newUserObject.email}"
-                RETURN doc
-            `).then((cursor) => {
+        const userCollection = Arango.getUserCollection();
+        const query = aql`FOR doc IN ${userCollection} 
+                FILTER doc.username == ${newUserObject.username} || doc.email == ${newUserObject.email}
+                RETURN doc`;
+        Arango.db.query(query).then((cursor) => {
 
                 cursor.all().then((data) => {
 
@@ -72,6 +67,7 @@ function checkIfUnique(newUserObject){
                 });
 
             }).catch((err) => {
+                console.log('Check unique - get users error: ', err);
                 reject(err);
             });
     });

@@ -1,13 +1,16 @@
-var Users = require('../users/controller.js');
+var Users = require('../../controllers/users/_index.js');
 var bcrypt = require('bcryptjs');
-var jwtService = require('./jwtService.js');
+var jwtService = require('../../authentication/jwtService.js');
+var validator = require('validator');
 
-function post(req, res){
+module.exports = function login(req, res){
     
     let errors = [];
 
     if (!req.body.hasOwnProperty('username') || req.body.username == '') {
         errors.push({title:'Username is required'});
+    } else if (!validator.isAlphanumeric(req.body.username + '')) {
+        errors.push({title:'Username can only have alphanumeric characters'});
     }
 
     if (!req.body.hasOwnProperty('password') || req.body.password == '') {
@@ -20,11 +23,11 @@ function post(req, res){
         return;
     }
     
-    var username = req.body.username;
+    var username = validator.escape(req.body.username);
     var password = req.body.password;
 
     Users.getUserByUsername(username).then((data) => {
-        let user = data[0];
+        let user = data[0]; 
         if (data.length == 0) {
             res.status(400);
             res.json({ 
@@ -35,13 +38,14 @@ function post(req, res){
                     }
                 ]
             });
-            reutrn;
+            return;
         }
 
         if(bcrypt.compareSync(req.body.password, user.hash)) {
             // from now on we'll identify the user by the id and the id is the only personalized value that goes into our token
             var payload = {id: user._key};
             var token = jwtService.jwtSign(payload, jwtService.jwtOptions.secretOrKey);
+            res.status(200);
             res.json({ 
                 data: {
                     token: token,
@@ -56,10 +60,7 @@ function post(req, res){
         }
 
     }).catch((err) => {
+        console.log("LOGIN Get User error: ", err);
         res.status(400).json({message:"err"});
     });
 };
-
-module.exports = {
-    post
-}

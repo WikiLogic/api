@@ -10,7 +10,7 @@ COPY ./node_modules /var/www/api/node_modules
 # RUN npm install COPYing node_modules to cut down on docker build time
 RUN npm install nodemon -g
 
-COPY ./guestlist.js guestlist.js
+COPY ./guestlist.js /var/www/api/guestlist.js
 
 # Define default command.
 CMD ["nodemon", "api-server.js", "-L"]
