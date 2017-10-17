@@ -3,8 +3,6 @@ var PremiseLinkModel = require('../../models/premise-link-model.js');
 var ArgumentModel = require('../../models/argument-model.js');
 
 module.exports = function getById(req, res){
-    console.log("TODO: CLAIMS.GETBYID escape param data: ", JSON.stringify(req.params));
-
     let errors = [];
 
     if (!req.params.hasOwnProperty('_key') || req.params._key == '') {
@@ -21,12 +19,10 @@ module.exports = function getById(req, res){
     let returnClaim = {};
 
     ClaimModel.getById('claims/' + _key).then((claim) => {
-        console.log('1 got claim', claim);
         returnClaim = claim;
         //now to get the links's to the claims arguments
         return PremiseLinkModel.getPremiseEdges('_to', claim._id);
     }).then((edges) => {
-        console.log('2 got edges', edges);
         if (edges.length == 0) {
             returnClaim.arguments = [];
             return Promise.resolve('Claim has no arguments');
@@ -41,7 +37,6 @@ module.exports = function getById(req, res){
         return Promise.all(argumentPromises);
 
     }).then((argumentObjects) => {
-        console.log("3 got argument objects", argumentObjects);
         if (argumentObjects == 'Claim has no arguments') {
             return Promise.resolve('Claim has no arguments');
         }
@@ -56,7 +51,6 @@ module.exports = function getById(req, res){
         return Promise.all(linkPromises);
 
     }).then((links) => {
-        console.log('4 links: ', links);
         if (links == 'Claim has no arguments') {
             return Promise.resolve('Claim has no arguments');
         }
@@ -88,7 +82,6 @@ module.exports = function getById(req, res){
         return Promise.all(premisePromises); 
 
     }).then((premiseObjects) => {
-        console.log('5 premiseObjects', premiseObjects);
         if (premiseObjects != 'Claim has no arguments') {   
             //now run through each argument and fill it in
             for (var a = 0; a < returnClaim.arguments.length; a++) {
@@ -107,7 +100,6 @@ module.exports = function getById(req, res){
         res.status(200);
         res.json({data: { claim: returnClaim }});
     }).catch((err) => {
-        console.log('6 err', err);
         if (!err) {
             res.status(200);
             res.json({data: { claim: returnClaim }});
