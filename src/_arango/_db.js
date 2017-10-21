@@ -11,12 +11,10 @@ const username = process.env.ARANGODB_USERNAME;
 const password = process.env.ARANGODB_PASSWORD;
 console.log("Using database", database);
 
-const db = new Database({
-  url: `http://${username}:${password}@${host}:${port}`,
-  databaseName: database
-});
+const db = new Database(`http://${username}:${password}@${host}:${port}`);
 
-function setup(){
+db.createDatabase(database).then((meta) => {
+    console.log('I hope that worked - lets try and make some collections now');
     var usersCollection = db.collection('users');
     var claimsCollection = db.collection('claims');
     var argumentsCollection = db.collection('arguments');
@@ -28,21 +26,11 @@ function setup(){
         claimsCollection.create(),
         claimsCollection.createFulltextIndex('text')
     ]);
-}
-
-db.listCollections().then((data) => {
-    // if (data.length < 5) {
-        setup().then((data) => {
-            console.log('collection set up complete', data);
-        }).catch((err) => {
-            //TODO: fix this
-            console.log('collection set up error (probably just dup collection names as they already exist. Not to worry, on the todo to fix)');
-        });
-    // }
+}).then((meta) => {
+    console.log('fingers crossed the collections now exist!');
 }).catch((err) => {
-    console.log('list collections error: ', err);
+    console.log('I hope it already existed');
 });
-//does the db have a text index?
 
 
 function getUserCollection(){
@@ -64,7 +52,6 @@ function getPremisLinkCollection(){
 
 module.exports = {
     db:db,
-    setup: setup,
     getUserCollection: getUserCollection,
     getClaimCollection: getClaimCollection,
     getArgumentCollection: getArgumentCollection,
