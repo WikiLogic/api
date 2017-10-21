@@ -3,24 +3,24 @@
 # Pull base image - we're running it on Ubuntu!
 FROM node
 
+# set the working directory within the container
 WORKDIR /var/www/api/
-#copy the package.json & install
-COPY ./package.json .
-COPY ./package-lock.json .
+
+#copy the package.json files
+COPY /var/www/wikilogic/api/package.json package.json
+COPY /var/www/wikilogic/api/package-lock.json package-lock.json
 # COPY ./node_modules /var/www/api/node_modules
+
+# install
 RUN npm install
-RUN npm install pm2 -g
 RUN npm install nodemon -g
-
-#copy the api code into that directory
-COPY ./api-server.js .
-COPY ./src ./src
-
-COPY ./guestlist.js .
 
 # Define default command. Using pm2 to run the API in production http://pm2.keymetrics.io/
 # CMD ["pm2-docker", "api-server.js"]
-CMD ["nodemon", "api-server.js", "-L"]
+CMD ["nodemon", "api-server.js"]
+
+# Share the code with the host system so that updates can be faster
+VOLUME ["/var/www/api/api-server.js", "/var/www/api/src"]
 
 # Expose ports.
 EXPOSE 3030

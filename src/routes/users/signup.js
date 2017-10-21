@@ -1,4 +1,4 @@
-var guestlist = require('../../../guestlist.js');
+var guestlist = require('../../guestlist.js');
 var Users = require('../../controllers/users/_index.js');
 var bcrypt = require('bcryptjs');
 var jwtService = require('../../authentication/jwtService.js');
