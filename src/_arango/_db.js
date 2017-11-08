@@ -9,12 +9,10 @@ const port = process.env.ARANGODB_PORT || "8529";
 const database = process.env.ARANGODB_DB || "wl_dev";
 const username = process.env.ARANGODB_USERNAME;
 const password = process.env.ARANGODB_PASSWORD;
-console.log("Using database", database);
-
 const db = new Database(`http://${username}:${password}@${host}:${port}`);
 
 db.createDatabase(database).then((meta) => {
-    console.log('I hope that worked - lets try and make some collections now');
+    console.log('I hope that worked - lets try and make some collections now', meta);
     var usersCollection = db.collection('users');
     var claimsCollection = db.collection('claims');
     var argumentsCollection = db.collection('arguments');
@@ -29,7 +27,11 @@ db.createDatabase(database).then((meta) => {
 }).then((meta) => {
     console.log('fingers crossed the collections now exist!');
 }).catch((err) => {
-    console.log('I hope it already existed');
+    if (err.message == 'duplicate name') {
+        console.log('The database already exists! Woo!');
+    } else {
+        console.log('oh oh. Don\'t know what this error is: ', err);
+    }
 });
 
 
