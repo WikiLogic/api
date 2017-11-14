@@ -52,7 +52,8 @@ var routes = require('./src/routes/_index.js');
     });
 
     //--development
-    apiRouter.get('/test', routes.analytics.status);
+    apiRouter.get('/setup', routes.admin.setup);
+    apiRouter.get('/test', routes.admin.status);
 
     apiRouter.post('/login', routes.users.login);
     apiRouter.post('/signup', routes.users.signup);

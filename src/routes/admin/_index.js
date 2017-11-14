@@ -1,6 +1,18 @@
 var ClaimModel = require('../../models/claim-model');
 var PremiseLinkModel = require('../../models/premise-link-model.js');
 var ArgumentModel = require('../../models/argument-model.js');
+var Arango = require('../../_arango/_db.js');
+
+function setup(req, res) {
+    Arango.setup().then((meta) => {
+        res.json(meta);
+    }).catch((err) => {
+        //error was alreayd logged.
+        res.json({
+            error: err
+        });
+    });
+}
 
 function status(req, res) {
 
@@ -23,5 +35,6 @@ function status(req, res) {
 }
 
 module.exports = {
+    setup: setup,
     status: status
 }
