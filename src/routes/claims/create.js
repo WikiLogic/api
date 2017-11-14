@@ -23,9 +23,7 @@ module.exports = function create(req, res){
         errors.push({title:'Claim can only have alphanumeric characters'});
     }
 
-    if (!req.body.hasOwnProperty('probability') || req.body.probability == '') {
-        errors.push({title:'Probability is required'});
-    } else if (!validator.isInt(req.body.probability + '', {min: 0, max: 100})) {
+    if (!validator.isInt(req.body.probability + '', {min: 0, max: 100})) {
         //if this fails, just set it to 50
         req.body.probability = 50;
     }
