@@ -10,6 +10,7 @@ const database = process.env.ARANGODB_DB || "wl_dev";
 const username = process.env.ARANGODB_USERNAME;
 const password = process.env.ARANGODB_PASSWORD;
 const db = new ArangoDatabase(`http://${username}:${password}@${host}:${port}`);
+const dbConfirmed = false;
 
 function setUpDatabase(){
 
@@ -28,6 +29,7 @@ function setUpDatabase(){
             if (!meta) { return false; }
 
             console.log('New database created: ', meta);
+            db.useDatabase(database);
             var usersCollection = db.collection('users');
             var claimsCollection = db.collection('claims');
             var argumentsCollection = db.collection('arguments');
@@ -42,13 +44,13 @@ function setUpDatabase(){
         }).then((meta) => {
             if (!meta) { return false; }
             console.log('Collections added to new database: ', meta);
+            dbConfirmed = true;
             resolve(meta);
         }).catch((err) => {
             
             switch (err.message) {
                 case 'Service Unavailable':
                     console.log('Service Unavailable - guessing the database container hasn\'t started yet');
-                    dbMIA = true;
                     break;
                 case 'duplicate name':
                     console.log('The database already exists but we\'re not using it... setting useDatabase again');
@@ -74,6 +76,10 @@ function setUpDatabase(){
             });
         });
     });
+
+    if (!dbConfirmed) {
+        setTimeout(setUpDatabase, 1000);
+    }
 }
 
 function getUserCollection(){
@@ -94,6 +100,7 @@ function getPremisLinkCollection(){
 
 
 setUpDatabase();
+
 
 module.exports = {
     db:db,
