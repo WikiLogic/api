@@ -11,7 +11,7 @@ const database = process.env.ARANGODB_DB || "wl_dev";
 const username = process.env.ARANGODB_USERNAME;
 const password = process.env.ARANGODB_PASSWORD;
 const db = new ArangoDatabase(`http://${username}:${password}@${host}:${port}`);
-const dbConfirmed = false;
+let dbConfirmed = false;
 
 function setUpDatabase(){
     console.log("Setting up database with credentials: ", username, password);
