@@ -1,8 +1,14 @@
-var guestlist = require('../../guestlist.js');
 var Users = require('../../controllers/users/_index.js');
 var bcrypt = require('bcryptjs');
 var jwtService = require('../../authentication/jwtService.js');
 var validator = require('validator');
+var guestlist;
+try {
+    guestlist = require('../../guestlist.js');
+} catch (err) {
+    console.log('To log in you\'re going to need to whitelist yourself with a guestlist.js file');
+    guestlist = require('../../guestlist-example.js');
+}
 
 module.exports = function signUp(req, res) {
     let errors = [];
