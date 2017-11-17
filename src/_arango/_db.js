@@ -1,6 +1,7 @@
 /**
  * This file connects to the DB
  * Collection objects are created here and exposed to the model controllers to ineract with
+ * TODO: move all business db interactions into here.
  */
 ArangoDatabase = require('arangojs').Database;
 
@@ -10,9 +11,10 @@ const database = process.env.ARANGODB_DB || "wl_dev";
 const username = process.env.ARANGODB_USERNAME;
 const password = process.env.ARANGODB_PASSWORD;
 const db = new ArangoDatabase(`http://${username}:${password}@${host}:${port}`);
+const dbConfirmed = false;
 
 function setUpDatabase(){
-
+    console.log("Setting up database with credentials: ", username, password);
     return new Promise(function (resolve, reject) {
         db.listDatabases().then((listOfDatabases) => {
             //returns an array of strings with the names of each db.
@@ -28,6 +30,7 @@ function setUpDatabase(){
             if (!meta) { return false; }
 
             console.log('New database created: ', meta);
+            db.useDatabase(database);
             var usersCollection = db.collection('users');
             var claimsCollection = db.collection('claims');
             var argumentsCollection = db.collection('arguments');
@@ -42,13 +45,16 @@ function setUpDatabase(){
         }).then((meta) => {
             if (!meta) { return false; }
             console.log('Collections added to new database: ', meta);
+            dbConfirmed = true;
             resolve(meta);
         }).catch((err) => {
             
             switch (err.message) {
+                case 'Unauthorized':
+                    console.log('Whoopsie - looks like the database credentials in your docker-compose file didn\'t work');
+                    break;
                 case 'Service Unavailable':
                     console.log('Service Unavailable - guessing the database container hasn\'t started yet');
-                    dbMIA = true;
                     break;
                 case 'duplicate name':
                     console.log('The database already exists but we\'re not using it... setting useDatabase again');
@@ -61,7 +67,7 @@ function setUpDatabase(){
 
                     switch (err.code) {
                         case 'ECONNREFUSED':
-                            console.log('I believe the database is still setting itself up');
+                            console.log('This usually means the database container isn\'t ready yet');
                             break;
                         default:
                             console.log('oh oh. Don\'t know what this error is: ', err.message);
@@ -74,6 +80,10 @@ function setUpDatabase(){
             });
         });
     });
+
+    if (!dbConfirmed) {
+        setTimeout(setUpDatabase, 1000);
+    }
 }
 
 function getUserCollection(){
@@ -94,6 +104,7 @@ function getPremisLinkCollection(){
 
 
 setUpDatabase();
+
 
 module.exports = {
     db:db,

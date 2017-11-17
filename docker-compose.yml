@@ -1,0 +1,30 @@
+# for developing the API locally
+version: '3'
+services:
+  arango:
+    image: arangodb/arangodb:3.2.2
+    ports:
+    - "8529:8529"
+    environment:
+    - ARANGO_NO_AUTH=1
+    volumes:
+    - ./arangodb/data:/var/lib/arangodb
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile-dev
+    volumes:
+    - ./api/api-server.js:/var/www/api/api-server.js
+    - ./api/src:/var/www/api/src
+    links:
+    - arango
+    depends_on:
+    - arango
+    environment:
+    - ARANGODB_HOST=arango
+    - ARANGODB_PORT=8529
+    - ARANGODB_USERNAME=root
+    - ARANGODB_PASSWORD=wlarango
+    - ARANGODB_DB=wl_db
+    ports:
+    - "3030:3030"
