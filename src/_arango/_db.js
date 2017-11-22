@@ -11,7 +11,6 @@ const database = process.env.ARANGODB_DB || "wl_dev";
 const username = process.env.ARANGODB_USERNAME;
 const password = process.env.ARANGODB_PASSWORD;
 const db = new ArangoDatabase(`http://${username}:${password}@${host}:${port}`);
-let dbConfirmed = false;
 
 function setUpDatabase(){
     console.log("Setting up database with credentials: ", username, password);
@@ -45,16 +44,16 @@ function setUpDatabase(){
         }).then((meta) => {
             if (!meta) { return false; }
             console.log('Collections added to new database: ', meta);
-            dbConfirmed = true;
             resolve(meta);
         }).catch((err) => {
             
             switch (err.message) {
                 case 'Unauthorized':
-                    console.log('Whoopsie - looks like the database credentials in your docker-compose file didn\'t work');
+                    console.log('Unauthorized - check the database credentials in your docker-compose file, the arango service and the api service should both have the same');
                     break;
                 case 'Service Unavailable':
-                    console.log('Service Unavailable - guessing the database container hasn\'t started yet');
+                    console.log('Service Unavailable - guessing the database container hasn\'t started yet. Will try again in a second!');
+                    setTimeout(setUpDatabase, 1000);
                     break;
                 case 'duplicate name':
                     console.log('The database already exists but we\'re not using it... setting useDatabase again');
@@ -62,6 +61,10 @@ function setUpDatabase(){
                     break;
                 case 'operation only allowed in system database':
                     console.log('Hmmmmmmmmm something to do with the system db');
+                    break;
+                case 'collection not found':
+                    console.log('Seems the db was only half sort of set up - trying again!');
+                    setTimeout(setUpDatabase, 100);
                     break;
                 default:
 
@@ -80,10 +83,6 @@ function setUpDatabase(){
             });
         });
     });
-
-    if (!dbConfirmed) {
-        setTimeout(setUpDatabase, 1000);
-    }
 }
 
 function getUserCollection(){
