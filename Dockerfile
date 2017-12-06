@@ -7,12 +7,11 @@ FROM node
 WORKDIR /var/www/api/
 
 #copy the package.json files
-# COPY /var/www/wikilogic/api/package.json package.json
-# COPY /var/www/wikilogic/api/package-lock.json package-lock.json
 COPY ./package.json package.json
 COPY ./package-lock.json package-lock.json
 
-# install nodemon to run node
+#Install the things!
+RUN npm install
 RUN npm install nodemon -g
 
 # Define default command. Using pm2 to run the API in production http://pm2.keymetrics.io/
