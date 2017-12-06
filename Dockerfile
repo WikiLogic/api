@@ -7,8 +7,10 @@ FROM node
 WORKDIR /var/www/api/
 
 #copy the package.json files
-COPY /var/www/wikilogic/api/package.json package.json
-COPY /var/www/wikilogic/api/package-lock.json package-lock.json
+# COPY /var/www/wikilogic/api/package.json package.json
+# COPY /var/www/wikilogic/api/package-lock.json package-lock.json
+COPY ./package.json package.json
+COPY ./package-lock.json package-lock.json
 
 # install nodemon to run node
 RUN npm install nodemon -g
