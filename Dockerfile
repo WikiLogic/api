@@ -9,10 +9,8 @@ WORKDIR /var/www/api/
 #copy the package.json files
 COPY /var/www/wikilogic/api/package.json package.json
 COPY /var/www/wikilogic/api/package-lock.json package-lock.json
-# COPY ./node_modules /var/www/api/node_modules
 
-# install
-RUN npm install
+# install nodemon to run node
 RUN npm install nodemon -g
 
 # Define default command. Using pm2 to run the API in production http://pm2.keymetrics.io/
