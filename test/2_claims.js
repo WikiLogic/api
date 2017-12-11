@@ -24,7 +24,6 @@ describe('Testing basic Claims', function() {
   }
   let testClaim = {};
   let similarTestClaim = {};
-  
 
   //be sure to be logged in
   it('Log in with the test user', function(done) {
@@ -160,6 +159,20 @@ describe('Testing basic Claims', function() {
   //search for the claim we just created
   it('Partial text search for the claim we just created should return the claim', function(done){
     api.get(`/claims/search?s=${srcTestClaim.searchText}`)
+    .set('Accept', 'application/json')
+    .set('Authorization', JWT)
+    .expect(200)
+    .then((response) => {
+      
+      assert(response.body.data.results.length > 0, 'The search should return at least one thing');
+      
+      done();
+    })
+  });
+
+  //getting claims without any parameters should still return claims (the most recentc)
+  it('Full text search for the claim we just created should return the claim', function(done){
+    api.get(`/claims`)
     .set('Accept', 'application/json')
     .set('Authorization', JWT)
     .expect(200)

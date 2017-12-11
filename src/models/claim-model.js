@@ -15,6 +15,8 @@ var ClaimModel = {
  *  - the claim that was just created (with no arguments, as it will not have nay yet)
  */
 
+ //TODO consolidate the format of these - only the aql really needs to change I think
+
 function create(newClaim){
     return new Promise(function (resolve, reject) {
         var ClaimsCollection = Arango.getClaimCollection();
@@ -81,6 +83,28 @@ function search(term){
     });
 }
 
+function getRecent(){
+    return new Promise(function (resolve, reject) {
+        //order by creationDate, limit to 10?
+        const claimCollection = Arango.getClaimCollection();
+        const query = aql`
+            FOR claim IN ${claimCollection}
+                SORT claim.creationDate ASC
+                LIMIT 0, 10
+            RETURN claim`;
+        Arango.db.query(query).then((cursor) => {
+            cursor.all().then((data) => {
+                resolve(data);
+            }).catch((err) => {
+                reject(err);
+            });
+
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 function getByText(text){
     //Needs to be a kind of fuzzy text search - super basic for now
     return new Promise(function (resolve, reject) {
@@ -139,6 +163,7 @@ module.exports = {
     getById,
     getByText,
     search,
+    getRecent,
     updateProbability,
     remove,
     status
