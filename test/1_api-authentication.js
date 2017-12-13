@@ -20,7 +20,7 @@ describe('Authentication & setting up test user for the other tests', function()
 
   // log in with no username - returns credential error
   it('Login request with empty username & password should return 400 Bad Request error', function(done) {
-    api.post('/login')
+    api.post('/user/login')
     .send({ username: '', password: '' })
     .set('Accept', 'application/json')
     .expect('Content-Type', /json/)
@@ -29,7 +29,7 @@ describe('Authentication & setting up test user for the other tests', function()
 
   //test user doesn't exist yet
   it('Login for a username that doesn\'t exist yet should return 400 Bad client request', function(done) {
-    api.post('/login')
+    api.post('/user/login')
     .send({ username: 'test', password: 'test' })
     .set('Accept', 'application/json')
     .expect(400, done);
@@ -37,7 +37,7 @@ describe('Authentication & setting up test user for the other tests', function()
 
   // sign up test user, no password - sign up fail, need password
   it('Signup request with empty email & password should return 400 Bad Request error', function(done) {
-    api.post('/signup')
+    api.post('/user/signup')
     .send({ username: 'test', email: '', password: '' })
     .set('Accept', 'application/json')
     .expect(400, done);
@@ -45,7 +45,7 @@ describe('Authentication & setting up test user for the other tests', function()
 
   // sign up test user, with password - signs you up! Return user object & token
   it('Signup request should return 200 and the relevant data', function(done) {
-    api.post('/signup')
+    api.post('/user/signup')
     .send({ username: 'test', email: 'test@test.com', password: 'test' })
     .set('Accept', 'application/json')
     .expect(200)
@@ -82,7 +82,7 @@ describe('Authentication & setting up test user for the other tests', function()
 
   // sign up with test username - sign up error, username already exists (possibly do this with controversial words...?)
   it('Signup request with an existing username should return 400 Bad Request error', function(done) {
-    api.post('/signup')
+    api.post('/user/signup')
     .send({ username: 'test', email: 'test2@test.com', password: 'test' })
     .set('Accept', 'application/json')
     .expect(400, done);
@@ -108,7 +108,7 @@ describe('Authentication & setting up test user for the other tests', function()
 
   // test user login, correct username, wrong password - credential error
   it('Login request with wrong password should return 401 Unauthorized', function(done) {
-    api.post('/login')
+    api.post('/user/login')
     .send({ username: 'test', password: 'wrong' })
     .set('Accept', 'application/json')
     .expect('Content-Type', /json/)
@@ -117,7 +117,7 @@ describe('Authentication & setting up test user for the other tests', function()
 
   // test user login correct username, correct password - logged in!
   it('Login request should return 200 and the relevant data', function(done) {
-    api.post('/login')
+    api.post('/user/login')
     .send({ username: 'test', password: 'test' })
     .set('Accept', 'application/json')
     .expect('Content-Type', /json/)

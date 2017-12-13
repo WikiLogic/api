@@ -11,7 +11,7 @@ describe('Removing test user', function() {
   let JWT = '';
   //log in and delete the test user
   it('The log in credentials you set in api-credentials.json should log us in (the account should already exist)', function(done) {
-    api.post('/login')
+    api.post('/user/login')
     .send({ username: 'test', password: 'test' })
     .set('Accept', 'application/json').expect('Content-Type', /json/).expect(200)
     .then(response => {

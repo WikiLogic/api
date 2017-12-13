@@ -55,8 +55,8 @@ var routes = require('./src/routes/_index.js');
     apiRouter.get('/setup', routes.admin.setup);
     apiRouter.get('/test', routes.admin.status);
 
-    apiRouter.post('/login', routes.users.login);
-    apiRouter.post('/signup', routes.users.signup);
+    apiRouter.post('/user/login', routes.users.login);
+    apiRouter.post('/user/signup', routes.users.signup);
     apiRouter.delete('/user', passport.authenticate('jwt', { session: false }), routes.users.remove);
     apiRouter.get('/user', passport.authenticate('jwt', { session: false }), routes.users.profile);
     

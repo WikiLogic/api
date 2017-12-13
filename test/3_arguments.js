@@ -46,7 +46,7 @@ describe('Testing basic Arguments', function() {
   
   //be sure to be logged in
   it('Log in with the test user', function(done) {
-    api.post('/login')
+    api.post('/user/login')
     .send({ username: 'test', password: 'test' })
     .set('Accept', 'application/json').expect('Content-Type', /json/).expect(200)
     .then(response => {
