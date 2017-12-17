@@ -15,9 +15,9 @@ module.exports = function signUp(req, res) {
 
     if (!req.body.hasOwnProperty('username') || req.body.username == '') {
         errors.push({title:'Username is required'});
-    } else if (!validator.isAlphanumeric(req.body.username + '')) {
+    } /*else if (!validator.isAlphanumeric(req.body.username + '')) {
         errors.push({title:'Username can only have alphanumeric characters'});
-    }
+    }*/
 
     if (!req.body.hasOwnProperty('email') || req.body.email == '') {
         errors.push({title:'Email is required'});
