@@ -10,6 +10,7 @@ module.exports = function login(req, res){
     if (!req.body.hasOwnProperty('username') || req.body.username == '') {
         errors.push({title:'Username is required'});
     } else if (!validator.isAlphanumeric(req.body.username + '')) {
+        //TODO: make this accept anything - but sill clear it from attacks
         errors.push({title:'Username can only have alphanumeric characters'});
     }
 
@@ -56,7 +57,7 @@ module.exports = function login(req, res){
                 }
             });
         } else {
-            res.status(400).json({message:"passwords did not match"});
+            res.status(400).json({errors: [{ title: 'Passwords did not match' }]});
         }
 
     }).catch((err) => {
