@@ -70,7 +70,8 @@ function setUpDatabase(){
 
                     switch (err.code) {
                         case 'ECONNREFUSED':
-                            console.log('This usually means the database container isn\'t ready yet');
+                            console.log('This usually means the database container isn\'t ready yet - will try again in a sec!');
+                            setTimeout(setUpDatabase, 1000);
                             break;
                         default:
                             console.log('oh oh. Don\'t know what this error is: ', err.message);

@@ -12,7 +12,7 @@ COPY ./package-lock.json package-lock.json
 
 #Install the things!
 RUN npm install
-RUN npm install nodemon -g
+RUN npm install nodemon -g --verbose
 
 # Define default command. Using pm2 to run the API in production http://pm2.keymetrics.io/
 # CMD ["pm2-docker", "api-server.js"]
