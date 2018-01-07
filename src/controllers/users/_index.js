@@ -53,23 +53,23 @@ function checkIfUnique(newUserObject){
                 FILTER doc.username == ${newUserObject.username} || doc.email == ${newUserObject.email}
                 RETURN doc`;
         Arango.db.query(query).then((cursor) => {
-
-                cursor.all().then((data) => {
-
-                    if (data.length > 0) {
-                        resolve(false);
-                    } else {
-                        resolve(true);   
-                    }
-
-                }).catch((err) => {
-                    reject(err);
-                });
+        
+            cursor.all().then((data) => {
+                console.log('Chrek unique - GOT DATA');
+                if (data.length > 0) {
+                    resolve(false);
+                } else {
+                    resolve(true);   
+                }
 
             }).catch((err) => {
-                console.log('Check unique - get users error: ', err);
                 reject(err);
             });
+
+        }).catch((err) => {
+            console.log('Check unique - get users error: ', err);
+            reject(err);
+        });
     });
 }
 

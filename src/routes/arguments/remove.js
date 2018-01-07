@@ -15,7 +15,7 @@ module.exports = function remove(req, res) {
     }
 
     if (errors.length > 0) {
-        res.status(400);
+        res.status(200);
         res.json({ errors: errors });
         return;
     }

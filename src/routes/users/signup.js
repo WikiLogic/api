@@ -30,7 +30,7 @@ module.exports = function signUp(req, res) {
     }
 
     if (errors.length > 0) {
-        res.status(400);
+        res.status(200);
         res.json({ errors: errors });
         return;
     }
@@ -48,10 +48,10 @@ module.exports = function signUp(req, res) {
     }
     
     if (!whitelisted) {
-        res.json({message: "We're not open to public sign ups yet,please contact us to sign up"});
+        res.json({message: "We're not open to public sign ups yet, please contact us to sign up"});
         return;
     }
-
+    console.log(' - 1 new user sign up', username, email);
     //check if username has been taken
     Users.checkIfUnique({
         username:username, 
@@ -59,8 +59,12 @@ module.exports = function signUp(req, res) {
     }).then((isUnique) => {
         
         if (!isUnique) {
-            res.status(400);
-            res.json({message: "Duplicate credentials"});
+            res.status(200);
+            res.json({
+                errors: [
+                    { title: "Duplicate credentials" }
+                ]
+            });
             return;
         }
 
@@ -76,6 +80,7 @@ module.exports = function signUp(req, res) {
                     token: token,
                     user: {
                         username: newUser.username,
+                        email: newUser.email,
                         signUpDate: newUser.signUpDate
                     }
                 }
@@ -86,8 +91,8 @@ module.exports = function signUp(req, res) {
         });
 
     }).catch((err) => {
-        res.status(400);
-        res.json({message: "Duplicate credentials"});
+        res.status(200);
+        res.json({errors: [{title: "Duplicate credentials"}] });
     });
     
 };

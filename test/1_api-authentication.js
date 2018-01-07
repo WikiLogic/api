@@ -15,24 +15,60 @@ describe('/test', function() {
   });
 });
 
+describe('Removing test user', function() {
+  let JWT = '';
+  //log in and delete the test user
+  it('The log in credentials you set in api-credentials.json should log us in (the account should already exist)', function(done) {
+    api.post('/user/login')
+    .send({ username: 'test', password: 'test' })
+    .set('Accept', 'application/json')
+    .then(response => {
+      done();
+    });
+  });
+
+  it('Delete user with authentication should return 200 and log you out', function(done) {
+    api.del('/user')
+    .set('Authorization', JWT)
+    .set('Accept', 'application/json')
+    .send({ username: 'test', email: 'test@test.com', password: 'test' })
+    .then(response => {
+      done();
+    });
+  });
+});
+
 describe('Authentication & setting up test user for the other tests', function() {
   let JWT = '';
 
   // log in with no username - returns credential error
-  it('Login request with empty username & password should return 400 Bad Request error', function(done) {
+  it('Login request with empty username & password should return errors', function(done) {
     api.post('/user/login')
     .send({ username: '', password: '' })
     .set('Accept', 'application/json')
     .expect('Content-Type', /json/)
-    .expect(400, done);
+    .expect(200)
+    .then(responce => {
+      assert(responce.body.errors.length > 0, 'There should be more than one error');
+      done();
+    }).catch((err) => {
+      console.log("test promise error?", err);
+    });
   });
 
   //test user doesn't exist yet
-  it('Login for a username that doesn\'t exist yet should return 400 Bad client request', function(done) {
+  it('Login for a username that doesn\'t exist yet should return errors', function(done) {
     api.post('/user/login')
     .send({ username: 'test', password: 'test' })
     .set('Accept', 'application/json')
-    .expect(400, done);
+    .expect(200)
+    .then(responce => {
+      //res should have errors, one of which should say that the username is required
+      assert(responce.body.errors.length > 0, '');
+      done();
+    }).catch((err) => {
+      console.log("test promise error?", err);
+    });
   });
 
   // sign up test user, no password - sign up fail, need password
@@ -40,7 +76,14 @@ describe('Authentication & setting up test user for the other tests', function()
     api.post('/user/signup')
     .send({ username: 'test', email: '', password: '' })
     .set('Accept', 'application/json')
-    .expect(400, done);
+    .expect(200)
+    .then(responce => {
+      //res should have errors, one of which should say that the username is required
+      assert(responce.body.errors.length > 0, '');
+      done();
+    }).catch((err) => {
+      console.log("test promise error?", err);
+    });
   });
 
   // sign up test user, with password - signs you up! Return user object & token
@@ -50,7 +93,6 @@ describe('Authentication & setting up test user for the other tests', function()
     .set('Accept', 'application/json')
     .expect(200)
     .then(response => {
-
       assert(response.body.data.user.username == 'test', 'The new user should have the username we signed up with');
       var datetime = new Date().toISOString().replace(/T/, ' ').substr(0, 10);
       assert(response.body.data.user.signUpDate == datetime, 'The new user\'s sign up date should be today');
@@ -85,15 +127,29 @@ describe('Authentication & setting up test user for the other tests', function()
     api.post('/user/signup')
     .send({ username: 'test', email: 'test2@test.com', password: 'test' })
     .set('Accept', 'application/json')
-    .expect(400, done);
+    .expect(200)
+    .then(responce => {
+      //res should have errors, one of which should say that the username is required
+      assert(responce.body.errors.length > 0, '');
+      done();
+    }).catch((err) => {
+      console.log("test promise error?", err);
+    });
   });
   
   // sign up with test email - sign up error, email already exists
   it('Signup request with an existing email should return 400 Bad Request error', function(done) {
-    api.post('/signup')
+    api.post('/user/signup')
     .send({ username: 'test2', email: 'test@test.com', password: 'test' })
     .set('Accept', 'application/json')
-    .expect(400, done);
+    .expect(200)
+    .then(responce => {
+      //res should have errors, one of which should say that the username is required
+      assert(responce.body.errors.length > 0, '');
+      done();
+    }).catch((err) => {
+      console.log("test promise error?", err);
+    });
   });
 
   // retrieve password... ??? test needs to recieve email somehow
@@ -112,7 +168,14 @@ describe('Authentication & setting up test user for the other tests', function()
     .send({ username: 'test', password: 'wrong' })
     .set('Accept', 'application/json')
     .expect('Content-Type', /json/)
-    .expect(400, done);
+    .expect(200)
+    .then(responce => {
+      //res should have errors, one of which should say that the username is required
+      assert(responce.body.errors.length > 0, '');
+      done();
+    }).catch((err) => {
+      console.log("test promise error?", err);
+    });
   });
 
   // test user login correct username, correct password - logged in!
@@ -145,7 +208,7 @@ describe('Authentication & setting up test user for the other tests', function()
 
   //------------------Finally, leave the test user in for the rest of the tests to use - we'll have to clear him out at the end
   it('Signup request should return 200 and the relevant data', function(done) {
-    api.post('/signup')
+    api.post('/user/signup')
     .send({ username: 'test', email: 'test@test.com', password: 'test' })
     .set('Accept', 'application/json')
     .expect(200)

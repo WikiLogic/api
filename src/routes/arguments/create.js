@@ -52,7 +52,7 @@ module.exports = function create(req, res){
 
     if (errors.length > 0) {
         console.log("ERRORS:", errors);
-        res.status(400);
+        res.status(200);
         res.json({ errors: errors });
         return;
     }

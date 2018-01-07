@@ -19,7 +19,7 @@ module.exports = function login(req, res){
     }
 
     if (errors.length > 0) {
-        res.status(400);
+        res.status(200);
         res.json({ errors: errors });
         return;
     }
@@ -30,7 +30,7 @@ module.exports = function login(req, res){
     Users.getUserByUsername(username).then((data) => {
         let user = data[0]; 
         if (data.length == 0) {
-            res.status(400);
+            res.status(200);
             res.json({ 
                 errors: [
                     {
@@ -52,16 +52,17 @@ module.exports = function login(req, res){
                     token: token,
                     user: {
                         username: user.username,
+                        email: user.email,
                         signUpDate: user.signUpDate
                     }
                 }
             });
         } else {
-            res.status(400).json({errors: [{ title: 'Passwords did not match' }]});
+            res.status(200).json({errors: [{ title: 'Passwords did not match' }]});
         }
 
     }).catch((err) => {
         console.log("LOGIN Get User error: ", err);
-        res.status(400).json({message:"err"});
+        res.status(200).json({errors: [{ title: "err"}] });
     });
 };
