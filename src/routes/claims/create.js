@@ -13,12 +13,12 @@ function claimFormatter(claim){
     return returnClaim;
 }
 module.exports = function create(req, res){
-    //console.log("TODO: CLAIMS.CREATE escape post data: ", JSON.stringify(req.body));
+    console.log("WHY THIS NO GET TEXT?????: ", JSON.stringify(req.body));
 
     let errors = [];
 
     if (!req.body.hasOwnProperty('text') || req.body.text == '') {
-        errors.push({title:'Text is required'});
+        errors.push({title:'Text is requireds'});
     } else if (!validator.isAlphanumeric(req.body.username + '')) {
         errors.push({title:'Claim can only have alphanumeric characters'});
     }
