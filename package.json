@@ -15,7 +15,7 @@
   "scripts": {
     "start": "nodemon api-server.js --inspect",
     "test":
-      "ARANGODB_DB=t ARANGODB_USERNAME=t ARANGODB_PASSWORD=t npm start node api-server.js && mocha",
+      "ARANGODB_DB=t ARANGODB_USERNAME=t ARANGODB_PASSWORD=t node api-server.js && mocha",
     "single": "mocha singles/get-claim-with-argument.js"
   },
   "dependencies": {

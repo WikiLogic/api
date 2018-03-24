@@ -1,5 +1,7 @@
 # Wikilogic API
 
+[![Build Status](https://travis-ci.org/WikiLogic/api.svg?branch=master)](https://travis-ci.org/WikiLogic/api)
+
 This is an express app to serve the Wikilogic API. You're in one of sevoral repos used to organise the Wikilogic project.
 
 ## Get it running
