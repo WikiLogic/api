@@ -1,17 +1,13 @@
 language: node_js
 node_js:
-  - "8"
+  - "node"
 
 sudo: required
 services:
   - docker
 
 script:
-  - docker pull arangodb/arangodb
   # set docker variables for arango
-  - docker run -d -e "ARANGO_NO_AUTH=1" -e "ARANGODB_DB=test" arangodb
+  - docker run -d -e "ARANGODB_USERNAME=t" -e "ARANGODB_PASSWORD=t" -e "ARANGODB_DB=t" arangodb
   # set node env variables
-  - ARANGODB_DB=test npm start
-
-after_script:
-  - npm test
+  - ARANGODB_DB=t ARANGODB_USERNAME=t ARANGODB_PASSWORD=t npm test
