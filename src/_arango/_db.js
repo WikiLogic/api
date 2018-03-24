@@ -15,14 +15,18 @@ var setupCount = 0;
 
 function setUpDatabase() {
   setupCount++;
-  console.log("Setting up database with credentials: ", username, password);
+  console.log(
+    "Setting up database with credentials: ",
+    username,
+    password,
+    " - attempt: ",
+    setupCount
+  );
+  if (setupCount > 5) {
+    throw new Error("Too many DB set up attempts, something's not right");
+  }
+
   return new Promise(function(resolve, reject) {
-    if (setupCount > 5) {
-      reject({
-        err: "Too many DB set up runs. Something's not right",
-        database: database
-      });
-    }
     db
       .listDatabases()
       .then(listOfDatabases => {
