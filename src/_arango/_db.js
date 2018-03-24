@@ -11,10 +11,18 @@ const database = process.env.ARANGODB_DB || "wl_dev";
 const username = process.env.ARANGODB_USERNAME;
 const password = process.env.ARANGODB_PASSWORD;
 const db = new ArangoDatabase(`http://${username}:${password}@${host}:${port}`);
+var setupCount = 0;
 
 function setUpDatabase() {
+  setupCount++;
   console.log("Setting up database with credentials: ", username, password);
   return new Promise(function(resolve, reject) {
+    if (setupCount > 5) {
+      reject({
+        err: "Too many DB set up runs. Something's not right",
+        database: database
+      });
+    }
     db
       .listDatabases()
       .then(listOfDatabases => {
