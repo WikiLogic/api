@@ -9,7 +9,7 @@ services:
 script:
   - docker pull arangodb/arangodb
   # set docker variables for arango
-  - docker run -e "ARANGO_NO_AUTH=1" -e "ARANGODB_DB=test" arangodb
+  - docker run -d -e "ARANGO_NO_AUTH=1" -e "ARANGODB_DB=test" arangodb
   # set node env variables
   - ARANGODB_DB=test npm start
 

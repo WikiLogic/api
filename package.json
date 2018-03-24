@@ -14,7 +14,7 @@
   },
   "scripts": {
     "start": "nodemon api-server.js --inspect",
-    "test": "mocha",
+    "test": "node api-server.js && mocha",
     "single": "mocha singles/get-claim-with-argument.js"
   },
   "dependencies": {
