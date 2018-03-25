@@ -1,4 +1,5 @@
-# This is a compose file intended for testing the API in Travic CIversion: '3'
+# This is a compose file intended for testing the API in Travic CI
+version: '3'
 services:
   api:
     build: .
@@ -10,12 +11,15 @@ services:
     - ARANGODB_DB=t
     ports:
     - "3030:3030"
+    links:
+    - arango
   arango:
     image: arangodb/arangodb:3.2.2
     ports:
     - "8529:8529"
     environment:
-    # - ARANGO_ROOT_PASSWORD=t
+    - ARANGO_ROOT_PASSWORD=t
+    - ARANGO_NO_AUTH=1
     - ARANGODB_USERNAME=t
     - ARANGODB_PASSWORD=t
     - ARANGODB_DB=t
