@@ -72,18 +72,18 @@ function setUpDatabase() {
         switch (err.message) {
           case "Unauthorized":
             console.log(
-              "Unauthorized - check the database credentials in your docker-compose file, the arango service and the api service should both have the same"
+              "Unauthorized: check the database credentials in your docker-compose file, the arango service and the api service should both have the same"
             );
             break;
           case "Service Unavailable":
             console.log(
-              "Service Unavailable - guessing the database container hasn't started yet. Will try again in a second!"
+              "Service Unavailable: guessing the database container hasn't started yet. Will try again in a second!"
             );
             setTimeout(setUpDatabase, 1000);
             break;
           case "duplicate name":
             console.log(
-              "The database already exists but we're not using it... setting useDatabase again"
+              "Duplicate name: The database already exists but we're not using it... setting useDatabase again"
             );
             db.useDatabase(database);
             break;
@@ -92,7 +92,7 @@ function setUpDatabase() {
             break;
           case "collection not found":
             console.log(
-              "Seems the db was only half sort of set up - trying again!"
+              "Collection not found: Seems the db was only half sort of set up - trying again!"
             );
             setTimeout(setUpDatabase, 100);
             break;
@@ -100,13 +100,13 @@ function setUpDatabase() {
             switch (err.code) {
               case "ECONNREFUSED":
                 console.log(
-                  "This usually means the database container isn't ready yet - will try again in a sec!"
+                  "ECONNREFUSED: API's DB connection was refused. This usually means the database container isn't ready yet - will try again in a sec!"
                 );
                 setTimeout(setUpDatabase, 1000);
                 break;
               case "ENOTFOUND":
                 console.log(
-                  "Express app cannot connect to the address given for the DB. ENOTFOUND. Did you expose the port? is the DB running?"
+                  "ENOTFOUND: API can't connect to the DB address, it's not there. Did you expose the port? is the DB running?"
                 );
                 break;
               default:
@@ -141,7 +141,13 @@ function getPremisLinkCollection() {
   return db.edgeCollection("premisLinks");
 }
 
-setUpDatabase();
+setUpDatabase()
+  .then(meta => {
+    console.log("databse set up!: ", meta);
+  })
+  .catch(err => {
+    console.log("db set up error :o", err);
+  });
 
 module.exports = {
   db: db,

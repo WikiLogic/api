@@ -9,5 +9,7 @@ services:
 script:
   # set docker variables for arango
   - docker run -d -e "ARANGODB_USERNAME=t" -e "ARANGODB_PASSWORD=t" -e "ARANGODB_DB=t" -p 8529:8529 arangodb
+  - docker ps
+  - netstat -tulpn
   # set node env variables
   - ARANGODB_DB=t ARANGODB_USERNAME=t ARANGODB_PASSWORD=t ARANGODB_HOST=localhost:8529 npm test
