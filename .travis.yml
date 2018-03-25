@@ -8,11 +8,13 @@ services:
 
 script:
   # set docker variables for arango
-  - docker run -d -e "ARANGODB_USERNAME=t" -e "ARANGODB_PASSWORD=t" -e "ARANGODB_DB=t" -p 8529:8529 --name arangodb-instance arangodb
+  - docker-compose up -d
+  #- docker run -d -e "ARANGODB_USERNAME=t" -e "ARANGODB_PASSWORD=t" -e "ARANGODB_DB=t" -p 8529:8529 --name arangodb-instance arangodb
   - docker ps
   - netstat -tulpn
   - docker inspect --format '{{ .NetworkSettings.IPAddress }}' arangodb-instance
   - curl --dump - http://localhost:8529/_api/endpoint
   - curl --dump - tcp://localhost:8529/_api/endpoint
   # set node env variables
-  - ARANGODB_DB=t ARANGODB_USERNAME=t ARANGODB_PASSWORD=t ARANGODB_HOST=0.0.0.0:8529 npm test
+  # - ARANGODB_DB=t ARANGODB_USERNAME=t ARANGODB_PASSWORD=t ARANGODB_HOST=0.0.0.0:8529 npm test
+  - npm test
