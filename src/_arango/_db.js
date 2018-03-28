@@ -30,10 +30,12 @@ async function setUpCollections() {
   await usersCollection.create();
   let claimsCollection = db.collection("claims");
   await claimsCollection.create();
+  await claimsCollection.createFulltextIndex("text");
   let argumentsCollection = db.collection("arguments");
   await argumentsCollection.create();
   let premisLinkCollection = db.edgeCollection("premisLinks");
   await premisLinkCollection.create();
+  //index
   return {
     usersCollection,
     claimsCollection,
@@ -66,9 +68,8 @@ async function initDb() {
     if (collectionInfo.length == 0) {
       let collections = await setUpCollections();
       collectionInfo = await db.listCollections();
-      console.log("Collections set up: ", collections);
+      console.log("New collections set up.");
     }
-    console.log("collectionInfo: ", collectionInfo);
 
     console.log("Connected to database: ", dbInfo);
   } catch (err) {
@@ -151,7 +152,6 @@ initDb();
 
 module.exports = {
   db: db,
-  setup: initDb,
   getUserCollection: getUserCollection,
   getClaimCollection: getClaimCollection,
   getArgumentCollection: getArgumentCollection,

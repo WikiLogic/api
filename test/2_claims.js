@@ -48,8 +48,9 @@ describe("Testing basic Claims", function() {
       .send({ text: srcTestClaim.text, probability: srcTestClaim.probability })
       .set("Accept", "application/json")
       .set("Authorization", JWT)
-      .expect(200)
+      // .expect(200)
       .then(response => {
+        console.log("response.body", response.body);
         assert(
           response.body.data.claim.text == srcTestClaim.text,
           "Returned new claim should have the text we set"

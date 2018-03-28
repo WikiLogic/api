@@ -1,40 +1,42 @@
-var ClaimModel = require('../../models/claim-model');
-var PremiseLinkModel = require('../../models/premise-link-model.js');
-var ArgumentModel = require('../../models/argument-model.js');
-var Arango = require('../../_arango/_db.js');
+var express = require("express");
+var passport = require("passport");
 
-function setup(req, res) {
-    Arango.setup().then((meta) => {
-        res.json(meta);
-    }).catch((err) => {
-        //error was alreayd logged.
-        res.json({
-            error: err
-        });
-    });
-}
+var ClaimModel = require("../../queries/claim-model");
+var PremiseLinkModel = require("../../queries/premise-link-model.js");
+var ArgumentModel = require("../../queries/argument-model.js");
+
+var adminRouter = express.Router();
+
+var authErrorHandler = function(err, req, res, next) {
+  res.json({
+    errors: [{ title: "You are not logged in" }]
+  });
+};
 
 function status(req, res) {
-
-    Promise.all([
-        ClaimModel.status(),
-        PremiseLinkModel.status(),
-        ArgumentModel.status()
-    ]).then((results) => {
-        res.status(200);
-        res.json({
-            data: results
-        });
-    }).catch((err) => {
-        console.log('Arango health check fail', err);
-        res.status(500);
-        res.json({
-            errors: [{title: 'Arango health check failed', err: err}]
-        });
+  Promise.all([
+    ClaimModel.status(),
+    PremiseLinkModel.status(),
+    ArgumentModel.status()
+  ])
+    .then(results => {
+      res.json({
+        data: results
+      });
+    })
+    .catch(err => {
+      console.log("Arango health check fail", err);
+      res.json({
+        errors: [{ title: "Arango health check failed", err: err }]
+      });
     });
 }
 
-module.exports = {
-    setup: setup,
-    status: status
-}
+adminRouter.get("/test", status);
+adminRouter.get("/hello", (req, res) => {
+  res.json({
+    message: "hello!"
+  });
+});
+
+module.exports = adminRouter;

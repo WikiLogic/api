@@ -6,14 +6,26 @@ var supertest = require("supertest");
 var async = require("async");
 
 const API_URL = process.env.API_URL || "http://localhost/api/v1";
+//the last character should not be a "/" (otherwise the test routes get a double slash)
+if (API_URL.substr(API_URL.length - 1) == "/") {
+  throw new Error("process.env.API_URL cannot end with a /");
+}
+
 var api = supertest(API_URL);
 
-describe("/test", function() {
+describe("/admin/hello", function() {
   it("Should return ", function(done) {
     api
-      .get("/test")
+      .get("/admin/hello")
       .set("Accept", "application/json")
-      .expect(200, done);
+      .expect("Content-Type", /json/)
+      .then(response => {
+        assert(
+          response.body.message.length > 0,
+          "There should be some kind of hello message"
+        );
+        done();
+      });
   });
 });
 
@@ -23,8 +35,8 @@ describe("Removing test user", function() {
   it("The log in credentials you set in api-credentials.json should log us in (the account should already exist)", function(done) {
     api
       .post("/user/login")
-      .send({ username: "test", password: "test" })
       .set("Accept", "application/json")
+      .send({ username: "test", password: "test" })
       .then(response => {
         done();
       });
@@ -38,6 +50,9 @@ describe("Removing test user", function() {
       .send({ username: "test", email: "test@test.com", password: "test" })
       .then(response => {
         done();
+      })
+      .catch(err => {
+        console.log("delete err? ", err);
       });
   });
 });
@@ -50,12 +65,9 @@ describe("Authentication & setting up test user for the other tests", function()
     api
       .post("/user/login")
       .send({ username: "", password: "" })
-      .set("Accept", "application/json")
-      .expect("Content-Type", /json/)
-      .expect(200)
-      .then(responce => {
+      .then(response => {
         assert(
-          responce.body.errors.length > 0,
+          response.body.errors.length > 0,
           "There should be more than one error"
         );
         done();
@@ -71,10 +83,9 @@ describe("Authentication & setting up test user for the other tests", function()
       .post("/user/login")
       .send({ username: "test", password: "test" })
       .set("Accept", "application/json")
-      .expect(200)
-      .then(responce => {
+      .then(response => {
         //res should have errors, one of which should say that the username is required
-        assert(responce.body.errors.length > 0, "");
+        assert(response.body.errors.length > 0, "");
         done();
       })
       .catch(err => {
@@ -88,10 +99,9 @@ describe("Authentication & setting up test user for the other tests", function()
       .post("/user/signup")
       .send({ username: "test", email: "", password: "" })
       .set("Accept", "application/json")
-      .expect(200)
-      .then(responce => {
+      .then(response => {
         //res should have errors, one of which should say that the username is required
-        assert(responce.body.errors.length > 0, "");
+        assert(response.body.errors.length > 0, "");
         done();
       })
       .catch(err => {
@@ -105,7 +115,6 @@ describe("Authentication & setting up test user for the other tests", function()
       .post("/user/signup")
       .send({ username: "test", email: "test@test.com", password: "test" })
       .set("Accept", "application/json")
-      .expect(200)
       .then(response => {
         assert(
           response.body.data.user.username == "test",
@@ -133,7 +142,6 @@ describe("Authentication & setting up test user for the other tests", function()
       .get("/user")
       .set("Accept", "application/json")
       .set("Authorization", JWT)
-      .expect(200)
       .then(response => {
         assert(response.body.data.user.username, "test");
         done();
@@ -153,10 +161,9 @@ describe("Authentication & setting up test user for the other tests", function()
       .post("/user/signup")
       .send({ username: "test", email: "test2@test.com", password: "test" })
       .set("Accept", "application/json")
-      .expect(200)
-      .then(responce => {
+      .then(response => {
         //res should have errors, one of which should say that the username is required
-        assert(responce.body.errors.length > 0, "");
+        assert(response.body.errors.length > 0, "");
         done();
       })
       .catch(err => {
@@ -170,10 +177,9 @@ describe("Authentication & setting up test user for the other tests", function()
       .post("/user/signup")
       .send({ username: "test2", email: "test@test.com", password: "test" })
       .set("Accept", "application/json")
-      .expect(200)
-      .then(responce => {
+      .then(response => {
         //res should have errors, one of which should say that the username is required
-        assert(responce.body.errors.length > 0, "");
+        assert(response.body.errors.length > 0, "");
         done();
       })
       .catch(err => {
@@ -189,6 +195,7 @@ describe("Authentication & setting up test user for the other tests", function()
       .del("/user")
       .send({ username: "test", email: "test2@test.com", password: "test" })
       .set("Accept", "application/json")
+      .expect("Content-Type", /json/)
       .expect(401, done);
   });
 
@@ -198,11 +205,9 @@ describe("Authentication & setting up test user for the other tests", function()
       .post("/user/login")
       .send({ username: "test", password: "wrong" })
       .set("Accept", "application/json")
-      .expect("Content-Type", /json/)
-      .expect(200)
-      .then(responce => {
+      .then(response => {
         //res should have errors, one of which should say that the username is required
-        assert(responce.body.errors.length > 0, "");
+        assert(response.body.errors.length > 0, "");
         done();
       })
       .catch(err => {
@@ -216,8 +221,6 @@ describe("Authentication & setting up test user for the other tests", function()
       .post("/user/login")
       .send({ username: "test", password: "test" })
       .set("Accept", "application/json")
-      .expect("Content-Type", /json/)
-      .expect(200)
       .then(response => {
         assert(response.body.data.user.username, "test");
         JWT = `JWT ${response.body.data.token}`;
@@ -246,7 +249,6 @@ describe("Authentication & setting up test user for the other tests", function()
       .post("/user/signup")
       .send({ username: "test", email: "test@test.com", password: "test" })
       .set("Accept", "application/json")
-      .expect(200)
       .then(response => {
         assert(
           response.body.data.user.username == "test",

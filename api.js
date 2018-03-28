@@ -29,6 +29,11 @@ app.use(function(req, res, next) {
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
   );
+  //all responces will default to json
+  res.header("Content-Type", "application/json");
+  //if there's an error, give it in the JSON - spewing an http error in a JSON feed is like water coming out an ethernet port. BLEARGH!
+  res.status(200);
+
   next();
 });
 
@@ -44,61 +49,30 @@ app.set("trust proxy", function(ip) {
 
 //================================= API Routes
 
-var apiRouter = express.Router();
-var routes = require("./src/routes/_index.js");
+var rootRouter = express.Router();
+var adminRouter = require("./src/routes/admin/_index.js");
+var userRouter = require("./src/routes/users/_index.js");
+var claimRouter = require("./src/routes/claims/_index.js");
+var argumentRouter = require("./src/routes/arguments/_index.js");
 
-//--reading - turn this into a JSON object with docs, eg schemas & routes
-apiRouter.get("/", function(req, res) {
-  res.send("WL API");
+//--reading - turn this into a JSON object with docs, eg schemas & routes & versions
+rootRouter.get("/", function(req, res) {
+  res.send(`
+    WL API<br />
+    <a href="/api/v1/admin/test">/api/v1/admin/test</a>
+  `);
 });
 
-//--development
-apiRouter.get("/setup", routes.admin.setup);
-apiRouter.get("/test", routes.admin.status);
+app.use("/api/v1/", rootRouter);
 
-apiRouter.post("/user/login", routes.users.login);
-apiRouter.post("/user/signup", routes.users.signup);
-apiRouter.delete(
-  "/user",
-  passport.authenticate("jwt", { session: false }),
-  routes.users.remove
-);
-apiRouter.get(
-  "/user",
-  passport.authenticate("jwt", { session: false }),
-  routes.users.profile
-);
-
-apiRouter.get("/claims", routes.claims.get);
-apiRouter.get("/claims/search", routes.claims.search);
-apiRouter.get("/claims/:_key", routes.claims.getById);
-apiRouter.post(
-  "/claims",
-  passport.authenticate("jwt", { session: false }),
-  routes.claims.create
-);
-apiRouter.delete(
-  "/claims",
-  passport.authenticate("jwt", { session: false }),
-  routes.claims.remove
-);
-
-apiRouter.post(
-  "/arguments",
-  passport.authenticate("jwt", { session: false }),
-  routes.arguments.create
-);
-apiRouter.delete(
-  "/arguments",
-  passport.authenticate("jwt", { session: false }),
-  routes.arguments.remove
-);
-
-app.use("/api/v1/", apiRouter);
+app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/claims", claimRouter);
+app.use("/api/v1/arguments", claimRouter);
 
 //list the versions and their routes?
 app.get("/", function(req, res) {
-  res.send("API rooter tooter super scooter");
+  res.send('<a href="/api/v1/">/api/v1/</a>');
 });
 
 //================================= Begin

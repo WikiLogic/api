@@ -14,7 +14,7 @@
   },
   "scripts": {
     "start": "nodemon api.js --inspect",
-    "test": "cross-env API_URL=localhost:3030/api/v1/ mocha",
+    "test": "cross-env API_URL=localhost:3030/api/v1 mocha",
     "single": "mocha singles/get-claim-with-argument.js"
   },
   "dependencies": {
