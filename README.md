@@ -38,3 +38,7 @@ const password = process.env.ARANGODB_PASSWORD;
 Some Axioms to start:
 
 "Everything in the universe glows with the light of it's internal heat."
+
+---
+
+tweak to do: https://itnext.io/using-async-await-to-write-cleaner-route-handlers-7fc1d91b220b
