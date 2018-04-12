@@ -46,3 +46,7 @@ https://github.com/kelyvin/express-env-example/blob/master/server/routes/apis/in
 org time!
 
 Can we make / should we make it more functional? Dive into the routes then functional function at the end?
+
+tweak to do: https://itnext.io/using-async-await-to-write-cleaner-route-handlers-7fc1d91b220b
+
+https://sailsjs.com/get-started todo - make a quick mock of wl with that, might solve all the auth things and give us a boost :)
