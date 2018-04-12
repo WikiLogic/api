@@ -117,6 +117,7 @@ describe("Authentication & setting up test user for the other tests", function()
       .send({ username: "test", email: "test@test.com", password: "test" })
       .set("Accept", "application/json")
       .then(response => {
+        console.log("signup response was: ", response.body);
         assert(
           response.body.data.user.username == "test",
           "The new user should have the username we signed up with"
