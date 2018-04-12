@@ -32,12 +32,13 @@ describe("/admin/hello", function() {
 describe("Removing test user", function() {
   let JWT = "";
   //log in and delete the test user
-  it("The log in credentials you set in api-credentials.json should log us in (the account should already exist)", function(done) {
+  it("Logging in with the test user", function(done) {
     api
       .post("/user/login")
       .set("Accept", "application/json")
       .send({ username: "test", password: "test" })
       .then(response => {
+        console.log("Logging in with the test user returned: ", response.body);
         done();
       });
   });
