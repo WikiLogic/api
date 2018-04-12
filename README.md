@@ -30,7 +30,7 @@ const password = process.env.ARANGODB_PASSWORD;
 
 * [ ] list things here we need help with!
 * [ ] split users out into their own db, I'm thinking mongo? Is that nuts?
-* [ ] get travis to run and test against an empty DB
+* [ ] Debug the travis.yml file - it's running and seems to be passing random tests. Something's up!
 * [ ] build this API into it's own docker image on dockerhub
 
 ---
