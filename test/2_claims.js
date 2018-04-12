@@ -48,9 +48,8 @@ describe("Testing basic Claims", function() {
       .send({ text: srcTestClaim.text, probability: srcTestClaim.probability })
       .set("Accept", "application/json")
       .set("Authorization", JWT)
-      // .expect(200)
+      .expect(200)
       .then(response => {
-        console.log("response.body", response.body);
         assert(
           response.body.data.claim.text == srcTestClaim.text,
           "Returned new claim should have the text we set"
@@ -214,7 +213,7 @@ describe("Testing basic Claims", function() {
   });
 
   //search for the claim we just created
-  it("Full text search for the claim we just created should return the claim", function(done) {
+  it("Full text search for the claim we just created should return that claim", function(done) {
     api
       .get(`/claims/search?s=${srcTestClaim.text}`)
       .set("Accept", "application/json")

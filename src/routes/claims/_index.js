@@ -1,11 +1,10 @@
 var express = require("express");
 var passport = require("passport");
 
-var searchRoute = require("./search.js");
 var createRoute = require("./create.js");
 var removeRoute = require("./remove.js");
 var getByIdRoute = require("./getById.js");
-var getRoute = require("./get.js");
+var getter = require("./get.js");
 
 var claimRouter = express.Router();
 
@@ -16,9 +15,41 @@ var authErrorHandler = function(err, req, res, next) {
   });
 };
 
-claimRouter.get("/", getRoute);
+/**
+ * A plain get will return a list of recent claims
+ */
+claimRouter.get("/", async (req, res, next) => {
+  try {
+    var recentClaims = await getter.get();
+    res.json({
+      data: { results: recentClaims }
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
-claimRouter.get("/search", searchRoute);
+/**
+ * A get request to the search route.
+ * TODO: return recent if there's no s in the query? Replace the plain get?
+ */
+claimRouter.get("/search", async (req, res, next) => {
+  if (!req.query.hasOwnProperty("s") || req.query.s == "") {
+    res.json({ errors: [{ title: "search term is required" }] });
+    return;
+  }
+
+  var searchTerm = req.query.s;
+
+  try {
+    var searchResults = await getter.search(searchTerm);
+    res.json({
+      data: { results: searchResults }
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 claimRouter.get("/:_key", getByIdRoute);
 

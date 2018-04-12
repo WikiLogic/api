@@ -55,7 +55,7 @@ module.exports = function signUp(req, res) {
     });
     return;
   }
-  console.log(" - 1 new user sign up", username, email);
+
   //check if username has been taken
   Users.checkIfUnique({
     username: username,

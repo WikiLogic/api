@@ -38,3 +38,11 @@ const password = process.env.ARANGODB_PASSWORD;
 Some Axioms to start:
 
 "Everything in the universe glows with the light of it's internal heat."
+
+---
+
+https://github.com/kelyvin/express-env-example/blob/master/server/routes/apis/index.js
+
+org time!
+
+Can we make / should we make it more functional? Dive into the routes then functional function at the end?

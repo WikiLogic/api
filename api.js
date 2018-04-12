@@ -68,7 +68,7 @@ app.use("/api/v1/", rootRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/claims", claimRouter);
-app.use("/api/v1/arguments", claimRouter);
+app.use("/api/v1/arguments", argumentRouter);
 
 //list the versions and their routes?
 app.get("/", function(req, res) {

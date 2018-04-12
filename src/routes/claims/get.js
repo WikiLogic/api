@@ -17,30 +17,31 @@ function claimFormatter(claim) {
 
 //Plain get claim - return a list of the most recent.
 //TODO: take query params
-module.exports = function search(req, res) {
-  //console.log("TODO: CLAIMS.SEARCH escape post data: ", JSON.stringify(req.query));
+module.exports = {
+  get: function() {
+    return new Promise((resolve, reject) => {
+      ClaimModel.getRecent().then(data => {
+        let resultsArray = [];
 
-  let errors = [];
+        for (var c = 0; c < data.length; c++) {
+          resultsArray.push(claimFormatter(data[c]));
+        }
 
-  // if (!req.query.hasOwnProperty('s') || req.query.s == '') {
-  //     errors.push({title:'search term is required'});
-  // }
-
-  if (errors.length > 0) {
-    res.json({ errors: errors });
-    return;
-  }
-
-  // var searchTerm = req.query.s;
-
-  ClaimModel.getRecent().then(data => {
-    let resultsArray = [];
-    for (var c = 0; c < data.length; c++) {
-      resultsArray.push(claimFormatter(data[c]));
-    }
-
-    res.json({
-      data: { results: resultsArray }
+        resolve(resultsArray);
+      });
     });
-  });
+  },
+  search: function(searchTerm) {
+    return new Promise((resolve, reject) => {
+      ClaimModel.search(searchTerm).then(data => {
+        let resultsArray = [];
+
+        for (var c = 0; c < data.length; c++) {
+          resultsArray.push(claimFormatter(data[c]));
+        }
+
+        resolve(resultsArray);
+      });
+    });
+  }
 };

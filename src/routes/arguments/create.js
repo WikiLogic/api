@@ -67,7 +67,6 @@ module.exports = function create(req, res) {
   //the eventual return value will be the parent claim, so let's get that first
   ClaimModel.getById(parentClaimId)
     .then(parentClaim => {
-      console.log("CREATE ARGUMENT FOR ", parentClaim);
       returnParentClaimObject = parentClaim;
 
       //now to fill it's arguments, we need to get a list of the arguments that point to our parent claim
@@ -132,7 +131,6 @@ module.exports = function create(req, res) {
       //now we have the premise ids in each arguemtn, we need to go and get the actual premise objects
       let promises = [];
       for (let p = 0; p < edgesPointingToArguments.length; p++) {
-        console.log("4.6");
         promises.push(ClaimModel.getById(edgesPointingToArguments[p]._from));
       }
       return Promise.all(promises);

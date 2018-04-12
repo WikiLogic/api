@@ -30,7 +30,12 @@ async function setUpCollections() {
   await usersCollection.create();
   let claimsCollection = db.collection("claims");
   await claimsCollection.create();
-  await claimsCollection.createFulltextIndex("text");
+  //createIndex
+  await claimsCollection.createIndex({
+    type: "fulltext",
+    fields: ["text"],
+    minLength: 3
+  });
   let argumentsCollection = db.collection("arguments");
   await argumentsCollection.create();
   let premisLinkCollection = db.edgeCollection("premisLinks");
